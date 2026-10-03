@@ -1,0 +1,26 @@
+{
+  "$comment": "Pinned Java toolchain installed into the execution snapshot by runner/prepare-snapshot.ts. Bump versions here only, re-run the snapshot preparation, and record the new snapshot in docs/COSTS.md + .env. Checksums verified 2026-10-03: JDK from the Adoptium API, JUnit SHA-1 matched Maven Central's published .sha1 before computing SHA-256.",
+  "baseImage": "vercel/sandbox/ubuntu:latest",
+  "jdk": {
+    "distribution": "Eclipse Temurin",
+    "release": "jdk-21.0.12.1+1",
+    "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz",
+    "sha256": "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94",
+    "license": "GPL-2.0-with-classpath-exception"
+  },
+  "junit": {
+    "artifact": "org.junit.platform:junit-platform-console-standalone",
+    "version": "1.14.4",
+    "jupiterVersion": "5.14.4",
+    "url": "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.14.4/junit-platform-console-standalone-1.14.4.jar",
+    "sha256": "7c6968cbcaf4301c729f202b23b7d736c5d88be625fc7d27ad5d746146a8bc28",
+    "license": "EPL-2.0"
+  },
+  "prepareNetworkAllowlist": [
+    "archive.ubuntu.com",
+    "security.ubuntu.com",
+    "github.com",
+    "*.githubusercontent.com",
+    "repo1.maven.org"
+  ]
+}
