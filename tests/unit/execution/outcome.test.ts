@@ -29,6 +29,13 @@ describe("classifyCompile", () => {
     expect(classifyCompile({ exitCode: 137, output: "" }, MAX_OUTPUT)?.detail).toBe("compile_deadline");
   });
 
+  it("classifyCompile_privilegeDropFailed_returnsInfrastructureError", () => {
+    expect(classifyCompile({ exitCode: 65, output: "" }, MAX_OUTPUT)).toEqual({
+      outcome: "infrastructure-error",
+      detail: "privilege_drop_failed",
+    });
+  });
+
   it("classifyCompile_harnessUsageError_returnsInfrastructureError", () => {
     expect(classifyCompile({ exitCode: 64, output: "" }, MAX_OUTPUT)?.outcome).toBe("infrastructure-error");
   });
@@ -51,6 +58,10 @@ describe("classifyTest", () => {
       outcome: "runtime-error",
       detail: "memory_limit",
     });
+  });
+
+  it("classifyTest_privilegeDropFailed_returnsInfrastructureErrorNotLearnerFailure", () => {
+    expect(classifyTest({ exitCode: 65, output: "" }, undefined, MAX_OUTPUT).detail).toBe("privilege_drop_failed");
   });
 
   it("classifyTest_harnessUsageError_returnsInfrastructureError", () => {

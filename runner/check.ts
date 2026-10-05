@@ -7,6 +7,8 @@ import { Sandbox } from "@vercel/sandbox";
 import { DockerSandboxProvider } from "../lib/execution/docker-sandbox-provider";
 import { SandboxJavaExecutor, type ExecutionResult } from "../lib/execution/java-executor";
 import { loadExecutionLimits, type ExecutionLimits } from "../lib/execution/limits";
+import { contractDefinitionSchema } from "../lib/execution/contract";
+import type { GradingMode } from "../lib/execution/java-executor";
 import type { ExecutionOutcome } from "../lib/execution/outcome";
 import type { SandboxProvider } from "../lib/execution/sandbox-provider";
 import { validateSourceFiles, type SourceFile } from "../lib/execution/source-files";
@@ -28,6 +30,8 @@ interface CheckCase {
   readonly name: string;
   readonly suite: "proof" | "smoke";
   readonly fixtures: readonly string[];
+  /** Contract-mode grading with this definition (runner/fixtures/contracts/<name>.json); JUnit otherwise. */
+  readonly contract?: string;
   readonly kind: CaseKind;
   /** Acceptable outcomes; more than one where containment is the point, not the exact symptom. */
   readonly expectOutcome: ExecutionOutcome | readonly ExecutionOutcome[];
@@ -44,6 +48,10 @@ const CASES: readonly CheckCase[] = [
     verify: (r) => (r.summary?.failures === 2 ? undefined : `expected 2 failures, got ${r.summary?.failures}`) },
   { name: "compile-error", suite: "proof", fixtures: ["shop-compile-error", "shop-tests"], kind: "required", expectOutcome: "compile-error",
     verify: (r) => (r.compileOutput?.includes("';' expected") ? undefined : "javac diagnostic missing from output") },
+  { name: "contract-pass", suite: "proof", fixtures: ["shop-correct"], contract: "shop-total", kind: "required", expectOutcome: "succeeded",
+    verify: (r) => (r.summary?.tests === 5 ? undefined : `expected 5 graded steps, got ${r.summary?.tests}`) },
+  { name: "contract-off-by-one", suite: "proof", fixtures: ["shop-off-by-one"], contract: "shop-total", kind: "required", expectOutcome: "wrong-answer",
+    verify: (r) => (r.summary?.failures === 2 ? undefined : `expected 2 failed steps, got ${r.summary?.failures}`) },
 
   { name: "infinite-loop", suite: "smoke", fixtures: ["smoke/infinite-loop"], kind: "required", expectOutcome: "timeout" },
   { name: "memory-pressure", suite: "smoke", fixtures: ["smoke/memory-pressure"], kind: "required", expectOutcome: "runtime-error", expectDetail: "memory_limit" },
@@ -61,7 +69,15 @@ const CASES: readonly CheckCase[] = [
   { name: "forged-stdout", suite: "smoke", fixtures: ["smoke/forged-stdout"], kind: "required", expectOutcome: "wrong-answer" },
   { name: "system-exit", suite: "smoke", fixtures: ["smoke/system-exit"], kind: "required", expectOutcome: "runtime-error", expectDetail: "no_test_report" },
   { name: "report-forgery", suite: "smoke", fixtures: ["smoke/report-forgery"], kind: "informational", expectOutcome: "wrong-answer",
-    note: "known limitation (spec §65): in-JVM code can rewrite the report; documented in docs/SECURITY.md" },
+    note: "JUnit-mode limitation: in-JVM code can rewrite the report — hidden grading uses contract mode instead (docs/SECURITY.md)" },
+  { name: "contract-forgery", suite: "smoke", fixtures: ["smoke/contract-forgery"], contract: "shop-total", kind: "required",
+    expectOutcome: ["wrong-answer", "runtime-error"],
+    note: "rewrites the contract results file and halts 0; must not pass without the hidden answers" },
+  { name: "reserved-exit", suite: "smoke", fixtures: ["smoke/reserved-exit"], kind: "required", expectOutcome: "runtime-error",
+    note: "System.exit(64) must not be mistaken for the harness's own usage error" },
+  { name: "kill-init", suite: "smoke", fixtures: ["smoke/kill-init"], kind: "informational",
+    expectOutcome: ["succeeded", "runtime-error", "timeout"],
+    note: "records whether learner code can end its own sandbox; see docs/SECURITY.md" },
   { name: "background-process", suite: "smoke", fixtures: ["smoke/background-process"], kind: "required", expectOutcome: "succeeded",
     note: "followed by a check that no execution environments are left running" },
 ];
@@ -77,6 +93,12 @@ function loadFixtureSources(fixtures: readonly string[]): SourceFile[] {
     }
   }
   return files;
+}
+
+function loadGrading(contract: string | undefined): GradingMode | undefined {
+  if (contract === undefined) return undefined;
+  const raw: unknown = JSON.parse(readFileSync(join(RUNNER_DIR, "fixtures", "contracts", `${contract}.json`), "utf8"));
+  return { kind: "contract", contract: contractDefinitionSchema.parse(raw) };
 }
 
 function verdict(check: CheckCase, result: ExecutionResult, limits: ExecutionLimits): string | undefined {
@@ -124,7 +146,7 @@ async function main(): Promise<void> {
     const validation = validateSourceFiles(loadFixtureSources(check.fixtures), limits);
     if (!validation.ok) throw new Error(`fixture ${check.name} is invalid: ${JSON.stringify(validation.issues)}`);
 
-    const result = await executor.execute(validation.files, { requestId: randomUUID() });
+    const result = await executor.execute(validation.files, { requestId: randomUUID(), grading: loadGrading(check.contract) });
     const failure = verdict(check, result, limits);
     if (failure !== undefined && check.kind === "required") requiredFailures += 1;
     const status = failure === undefined ? "PASS" : check.kind === "required" ? "FAIL" : "NOTE";

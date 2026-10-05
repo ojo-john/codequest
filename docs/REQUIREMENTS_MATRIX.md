@@ -19,8 +19,8 @@ mocks · **P4** advanced ML + optional tutor.
 | 10 | Pattern Hunter | P2 | recognition items | Tags hidden in assessment mode | Not started |
 | 11 | Template memory | P2 | blank editor | No snippets; graded on execution | Not started |
 | 12 | Monaco editor | P1 | workspace UI, Zustand | Run/submit/tests/reset-with-warning; AI off in interview mode | Not started |
-| 13 | Secure Java execution | P0→P1 | `lib/execution`, `runner/` | Proof + smoke suites pass on Vercel | **In progress** — Docker: passed ([evidence](evidence/)); Vercel: pending |
-| 14 | Code grader rubric | P1 | `lib/grading` | Tests decide correctness; incomplete ≠ zero | Not started |
+| 13 | Secure Java execution | P0→P1 | `lib/execution`, `runner/` | Proof + smoke suites pass on Vercel | **In progress** — gate passed on Docker + Vercel incl. capability drop and contract grading ([evidence](evidence/)); run/submit UI is P1 |
+| 14 | Code grader rubric | P1 | `lib/grading` | Tests decide correctness; incomplete ≠ zero | **In progress** — correctness layer done: contract grading (hidden expectations server-side) + JUnit; rubric weighting P1 |
 | 15 | Hints (superseded by §70 for XP) | P1 | hints API | Hint level recorded; no XP deduction | Not started |
 | 16 | Socratic AI tutor | P4 | optional | Server-side reveal policy | Not started |
 | 17 | Debug Dungeon | P2 | content | Diagnosis + minimal fix + failing test | Not started |
@@ -49,7 +49,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 44 | Content accuracy | P1 | content CI | Every example compiles on pinned JDK | Not started |
 | 45 | Content versioning | P1 | `content_versions.status` | Scored versions never mutated | Not started |
 | 46 | Answer validation | P1 | `lib/grading` | AI cannot override failing tests | Not started |
-| 47 | NFRs (perf, a11y, privacy) | P1→P3 | — | axe checks; targets defined w/ conditions | Not started |
+| 47 | NFRs (perf, a11y, privacy) | P1→P3 | — | axe checks; targets defined w/ conditions | **In progress** — execution latency measured ~3–4.5 s warm on Vercel (target < 5 s); rest P1+ |
 | 48 | Offline / interruption | P1 | Dexie outbox, revisions | Reload restores code; no silent discard | Not started |
 | 49 | Notifications | P3 | prefs | No guilt copy; quiet hours | Not started |
 | 50 | Search | P3 | — | Personal data owner-scoped | Not started |
@@ -66,8 +66,8 @@ mocks · **P4** advanced ML + optional tutor.
 | 61 | Personalisation / ML | P1 rules → P4 models | `recommendations` | Recommendations cite real history | Not started |
 | 62 | Coding comeback track | P1→P3 | projects, multi-file workspace | Blank method → tested multi-class app | Not started |
 | 63 | Stack | P0 | repo | Pinned versions + lockfile | **Done** — `package.json`, `.npmrc save-exact` |
-| 64 | Free-tier limits & failure behaviour | P0→P1 | usage screen, job caps | Quota exhaustion pauses jobs, keeps code | **In progress** — `provider_quota` mapped; caps pending |
-| 65 | Execution proof gate | P0 | `runner/` | Snapshot + deny-all + 2-file compile + JUnit + smoke | **In progress** — Docker passed; Vercel pending owner auth |
+| 64 | Free-tier limits & failure behaviour | P0→P1 | usage screen, job caps | Quota exhaustion pauses jobs, keeps code | **In progress** — admission control (job caps, CPU-seconds budget, provider-quota pause) done with in-memory ledger; Supabase ledger + usage screen P1 |
+| 65 | Execution proof gate | P0 | `runner/` | Image + deny-all + 2-file compile + JUnit + contract + smoke | **Done** — passed on Vercel 2026-10-03 (`evidence/vercel-all-2026-10-03T23-37-15-474Z.json`); image `runner/image-manifest.json` |
 | 66 | Schema, RLS, transactions | P0→P1 | `supabase/migrations` | Two-user + anon authz tests | Not started |
 | 67 | API contracts, job states | P1 | `app/api/*` | Job state machine persisted before provisioning | Not started |
 | 68 | Setup deliverables | P0→P1 | `docs/` | Fresh setup from guide works | **In progress** |

@@ -11,7 +11,6 @@ const toolchainSchema = z.object({
   baseImage: z.string().min(1),
   jdk: artifact.extend({ distribution: z.string(), release: z.string() }),
   junit: artifact.extend({ artifact: z.string(), version: z.string(), jupiterVersion: z.string() }),
-  prepareNetworkAllowlist: z.array(z.string().min(1)).min(1),
 });
 
 export type Toolchain = Readonly<z.infer<typeof toolchainSchema>>;

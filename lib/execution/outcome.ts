@@ -40,15 +40,16 @@ export interface Classification {
 export const KILLED_EXIT_CODE = 137;
 /** run.sh usage error — a bug on our side, never the learner's. */
 export const HARNESS_USAGE_EXIT_CODE = 64;
+/** run.sh could not verify that capabilities were dropped and refused to run (fail closed). */
+export const HARNESS_PRIVILEGE_DROP_FAILED_EXIT_CODE = 65;
 /** The JVM's exit status under -XX:+ExitOnOutOfMemoryError. */
 export const JVM_OUT_OF_MEMORY_EXIT_CODE = 3;
 export const MAX_FAILED_TEST_NAMES = 50;
 
 export function classifyCompile(result: CommandResult, maxOutputBytes: number): Classification | undefined {
   if (result.exitCode === 0) return undefined;
-  if (result.exitCode === HARNESS_USAGE_EXIT_CODE) {
-    return { outcome: "infrastructure-error", detail: "harness_usage" };
-  }
+  const harnessFailure = classifyHarnessFailure(result);
+  if (harnessFailure !== undefined) return harnessFailure;
   if (result.exitCode === KILLED_EXIT_CODE) {
     return { outcome: "timeout", detail: outputFilled(result, maxOutputBytes) ? "output_limit" : "compile_deadline" };
   }
@@ -60,15 +61,8 @@ export function classifyTest(
   summary: TestSummary | undefined,
   maxOutputBytes: number,
 ): Classification {
-  if (result.exitCode === HARNESS_USAGE_EXIT_CODE) {
-    return { outcome: "infrastructure-error", detail: "harness_usage" };
-  }
-  if (result.exitCode === KILLED_EXIT_CODE) {
-    return { outcome: "timeout", detail: outputFilled(result, maxOutputBytes) ? "output_limit" : "test_deadline" };
-  }
-  if (result.exitCode === JVM_OUT_OF_MEMORY_EXIT_CODE) {
-    return { outcome: "runtime-error", detail: "memory_limit" };
-  }
+  const runFailure = classifyRunFailure(result, maxOutputBytes);
+  if (runFailure !== undefined) return runFailure;
   // A missing report is learner-caused (System.exit/halt inside a test, deleting the reports
   // directory); provider failures surface as exceptions before we get here.
   if (summary === undefined) return { outcome: "runtime-error", detail: "no_test_report" };
@@ -78,6 +72,34 @@ export function classifyTest(
   // The report claims success but the JVM did not exit cleanly: never trust the report alone.
   if (result.exitCode !== 0) return { outcome: "runtime-error", detail: "exit_status_mismatch" };
   return { outcome: "succeeded", detail: "all_tests_passed" };
+}
+
+/**
+ * Exit statuses that decide the outcome of a run (JUnit or contract) before any results are
+ * read: harness failures, the deadline, and the JVM's out-of-memory exit.
+ */
+export function classifyRunFailure(result: CommandResult, maxOutputBytes: number): Classification | undefined {
+  const harnessFailure = classifyHarnessFailure(result);
+  if (harnessFailure !== undefined) return harnessFailure;
+  if (result.exitCode === KILLED_EXIT_CODE) {
+    return { outcome: "timeout", detail: outputFilled(result, maxOutputBytes) ? "output_limit" : "test_deadline" };
+  }
+  if (result.exitCode === JVM_OUT_OF_MEMORY_EXIT_CODE) {
+    return { outcome: "runtime-error", detail: "memory_limit" };
+  }
+  return undefined;
+}
+
+/**
+ * Harness-level failures are ours, never the learner's. run.sh remaps any compiler/JVM exit
+ * status that collides with these codes, so learner code cannot fake an infrastructure error.
+ */
+function classifyHarnessFailure(result: CommandResult): Classification | undefined {
+  if (result.exitCode === HARNESS_USAGE_EXIT_CODE) return { outcome: "infrastructure-error", detail: "harness_usage" };
+  if (result.exitCode === HARNESS_PRIVILEGE_DROP_FAILED_EXIT_CODE) {
+    return { outcome: "infrastructure-error", detail: "privilege_drop_failed" };
+  }
+  return undefined;
 }
 
 function outputFilled(result: CommandResult, maxOutputBytes: number): boolean {
