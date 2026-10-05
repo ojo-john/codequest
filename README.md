@@ -1,7 +1,8 @@
 # CodeQuest
 
 Personal Java interview-prep learning game (spec: `CodeQuest_Complete_Product_Specification.pdf`).
-Next.js 16 + TypeScript on Vercel Hobby, Supabase Free, learner Java executed in Vercel Sandbox.
+Next.js 16 + TypeScript on Vercel Hobby, Supabase Free, learner Java executed in Vercel Sandbox
+from a digest-pinned runner image.
 
 **Status: Phase 0 (feasibility).** No product UI yet. See `docs/REQUIREMENTS_MATRIX.md`.
 
@@ -11,7 +12,7 @@ Next.js 16 + TypeScript on Vercel Hobby, Supabase Free, learner Java executed in
 
 | Path | Purpose |
 |---|---|
-| `lib/execution/` | Source validation, executor, outcome classification, sandbox providers (Vercel, local Docker) |
-| `runner/` | Pinned toolchain, trusted harness, snapshot preparation, proof/smoke fixtures and checker |
+| `lib/execution/` | Source validation, executor, JUnit + contract grading, admission control (job/CPU budget), sandbox providers (Vercel, local Docker) |
+| `runner/` | Pinned toolchain, runner image (Dockerfile, trusted harness, contract runner), publish script, proof/smoke fixtures and checker |
 | `tests/unit/` | Vitest unit tests |
 | `docs/evidence/` | Recorded proof-gate runs |

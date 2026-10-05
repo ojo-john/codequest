@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { boundOutput, SandboxJavaExecutor } from "@/lib/execution/java-executor";
+import { contractDefinitionSchema } from "@/lib/execution/contract";
+import { boundOutput, SandboxJavaExecutor, type GradingMode } from "@/lib/execution/java-executor";
 import { DEFAULT_EXECUTION_LIMITS, type ExecutionLimits } from "@/lib/execution/limits";
 import {
   SandboxInfrastructureError,
@@ -41,6 +42,7 @@ class FakeSession implements SandboxSession {
 
   async runHarness(args: readonly string[], options: { signal: AbortSignal }): Promise<HarnessRunResult> {
     this.harnessCalls.push([...args]);
+    // Contract runs use the same scripted step as JUnit test runs.
     const step = args[0] === "compile" ? this.script.compile : this.script.test;
     if (step === undefined) return { exitCode: 0, output: "" };
     if (step === "hang") return hangUntilAborted(options.signal);
@@ -152,6 +154,12 @@ describe("SandboxJavaExecutor.execute", () => {
     expect([result.outcome, session.stopCalls]).toEqual(["cancelled", 1]);
   });
 
+  it("execute_providerReportsCpu_attachesActiveCpuToResult", async () => {
+    const result = await executor(providerFor(new FakeSession({}))).execute(sources(), RUN);
+
+    expect(result.activeCpuMs).toBe(1234);
+  });
+
   it("execute_cleanupFails_stillReturnsTheLearnerOutcome", async () => {
     const session = new FakeSession({ stopError: new SandboxInfrastructureError("provider_http_500", true, "x") });
 
@@ -194,6 +202,50 @@ describe("SandboxJavaExecutor.execute", () => {
       ["compile", "/home/learner/job", "30", "65536", "256"],
       ["test", "/home/learner/job", "10", "65536", "256"],
     ]);
+  });
+});
+
+describe("SandboxJavaExecutor.execute in contract mode", () => {
+  const CONTRACT: GradingMode = {
+    kind: "contract",
+    contract: contractDefinitionSchema.parse({
+      version: 1,
+      cases: [{ id: "sum", steps: [{ call: "sum", static: "M", args: [[1, 2]], paramTypes: ["java.util.List"], expect: { value: 3 } }] }],
+    }),
+  };
+  const PASSING_RESULTS = '{"case":"sum","step":0,"status":"returned","value":3}\n{"done":true}';
+
+  it("execute_contractMode_uploadsSpecWithoutExpectedValues", async () => {
+    const session = new FakeSession({ report: PASSING_RESULTS });
+
+    await executor(providerFor(session)).execute(sources(), { ...RUN, grading: CONTRACT });
+
+    const spec = session.writtenFiles.find((file) => file.path === "job/contract.json");
+    expect([spec?.content.includes('"expect"'), spec?.content.includes('"sum"')]).toEqual([false, true]);
+  });
+
+  it("execute_contractRunKilled_returnsTimeoutWithoutGrading", async () => {
+    const session = new FakeSession({ test: { exitCode: 137, output: "" }, report: PASSING_RESULTS });
+
+    const result = await executor(providerFor(session)).execute(sources(), { ...RUN, grading: CONTRACT });
+
+    expect([result.outcome, result.detail]).toEqual(["timeout", "test_deadline"]);
+  });
+
+  it("execute_contractResultsMissing_returnsIncompleteResults", async () => {
+    const session = new FakeSession({ report: undefined });
+
+    const result = await executor(providerFor(session)).execute(sources(), { ...RUN, grading: CONTRACT });
+
+    expect(result.detail).toBe("incomplete_results");
+  });
+
+  it("execute_contractPasses_runsContractHarnessAndSucceeds", async () => {
+    const session = new FakeSession({ report: PASSING_RESULTS });
+
+    const result = await executor(providerFor(session)).execute(sources(), { ...RUN, grading: CONTRACT });
+
+    expect([result.outcome, session.harnessCalls.map((call) => call[0])]).toEqual(["succeeded", ["compile", "contract"]]);
   });
 });
 

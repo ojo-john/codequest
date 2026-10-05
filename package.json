@@ -9,16 +9,16 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "runner:prepare": "tsx --env-file=.env.local runner/prepare-snapshot.ts",
     "runner:docker-build": "tsx runner/docker/build.ts",
     "runner:local": "tsx runner/check.ts --provider docker --suite all",
-    "runner:check": "tsx --env-file=.env.local runner/check.ts --provider vercel --suite all"
+    "runner:check": "tsx --env-file=.env.local runner/check.ts --provider vercel --suite all",
+    "runner:publish": "tsx runner/publish-image.ts"
   },
   "dependencies": {
+    "@vercel/sandbox": "3.5.1",
     "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "@vercel/sandbox": "3.5.1",
     "zod": "4.6.5"
   },
   "devDependencies": {
@@ -29,9 +29,10 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
     "typescript": "5.9.3",
-    "vitest": "4.1.11",
-    "tsx": "4.23.15"
+    "vercel": "62.2.0",
+    "vitest": "4.1.11"
   },
   "engines": {
     "node": "24.x"

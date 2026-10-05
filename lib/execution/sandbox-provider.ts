@@ -5,7 +5,7 @@
  * {@link SandboxInfrastructureError} and let AbortSignal aborts propagate unchanged.
  */
 
-/** Filesystem layout baked into the execution snapshot by runner/prepare-snapshot.ts. */
+/** Filesystem layout baked into the runner image by runner/docker/Dockerfile. */
 export const SANDBOX_LAYOUT = Object.freeze({
   learnerUser: "learner",
   learnerHome: "/home/learner",
@@ -16,6 +16,9 @@ export const SANDBOX_LAYOUT = Object.freeze({
   jdkHome: "/opt/codequest/jdk",
   junitJar: "/opt/codequest/lib/junit-platform-console-standalone.jar",
   reportFile: "/home/learner/job/reports/TEST-junit-jupiter.xml",
+  /** Contract mode: public scenario spec in (relative to home), runner results out. */
+  contractFileRelative: "job/contract.json",
+  contractResultsFile: "/home/learner/job/results.jsonl",
 });
 
 export interface LearnerFile {

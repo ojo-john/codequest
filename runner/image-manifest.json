@@ -1,0 +1,16 @@
+{
+  "image": "codequest-runner@sha256:4f52d1832ddc2bab9b98c5a179678554d87d249bce9b0cedfa4929166c0996b9",
+  "tag": "codequest-runner:inputs-5d32e7bcb663ea93",
+  "publishedAt": "2026-10-03T23:34:45.296Z",
+  "baseImage": "ubuntu:26.04@sha256:3595d7fc4286a33fad0fd853a4063e654287a9c3787437d7937c94ca3f7a804e",
+  "jdk": {
+    "release": "jdk-21.0.12.1+1",
+    "sha256": "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94",
+    "license": "GPL-2.0-with-classpath-exception"
+  },
+  "junit": {
+    "version": "1.14.4",
+    "sha256": "7c6968cbcaf4301c729f202b23b7d736c5d88be625fc7d27ad5d746146a8bc28",
+    "license": "EPL-2.0"
+  }
+}

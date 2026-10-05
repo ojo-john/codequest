@@ -15,9 +15,13 @@ import {
 /**
  * Vercel Sandbox implementation of {@link SandboxProvider} (spec §65 primary candidate).
  *
- * Every session is restored from the prepared Java snapshot with outbound network denied,
+ * Every session boots the digest-pinned runner image (runner/docker/Dockerfile, published to
+ * Vercel Container Registry by `npm run runner:publish`) with outbound network denied,
  * persistence off, no environment variables and no application credentials inside the VM.
- * Learner code runs as the unprivileged `learner` user created in the snapshot.
+ * The image's default user is the unprivileged `learner` and it contains no `sudo`, so every
+ * command — including the SDK's file writes — runs without privilege.
+ *
+ * Measured 2026-10-03: image boot ~0.7 s vs ~8 s for a snapshot restore of any size.
  */
 
 const credentialsSchema = z.object({
@@ -28,14 +32,16 @@ const credentialsSchema = z.object({
   VERCEL_PROJECT_ID: z.string().min(1).optional(),
 });
 
-const snapshotSchema = z.object({
-  JAVA_SNAPSHOT_ID: z.string().min(1, "JAVA_SNAPSHOT_ID is required (run `npm run runner:prepare`)"),
+const imageSchema = z.object({
+  JAVA_RUNNER_IMAGE: z
+    .string()
+    .regex(/@sha256:[0-9a-f]{64}$/, "JAVA_RUNNER_IMAGE must be pinned by digest (run `npm run runner:publish`)"),
 });
 
 export type VercelCredentials = Readonly<{ token: string; teamId: string; projectId: string }>;
 
 export type VercelSandboxConfig = Readonly<{
-  snapshotId: string;
+  image: string;
   credentials?: VercelCredentials;
 }>;
 
@@ -52,9 +58,9 @@ export function loadVercelCredentials(env: Env = process.env): VercelCredentials
 }
 
 export function loadVercelSandboxConfig(env: Env = process.env): VercelSandboxConfig {
-  const { JAVA_SNAPSHOT_ID: snapshotId } = snapshotSchema.parse(env);
+  const { JAVA_RUNNER_IMAGE: image } = imageSchema.parse(env);
   const credentials = loadVercelCredentials(env);
-  return credentials === undefined ? { snapshotId } : { snapshotId, credentials };
+  return credentials === undefined ? { image } : { image, credentials };
 }
 
 export class VercelSandboxProvider implements SandboxProvider {
@@ -64,7 +70,7 @@ export class VercelSandboxProvider implements SandboxProvider {
     const sandbox = await translateErrors("create", () =>
       Sandbox.create({
         ...(this.config.credentials ?? {}),
-        source: { type: "snapshot", snapshotId: this.config.snapshotId },
+        image: this.config.image,
         networkPolicy: "deny-all",
         persistent: false,
         timeout: options.lifetimeMs,
@@ -83,19 +89,18 @@ class VercelSandboxSession implements SandboxSession {
   constructor(private readonly sandbox: Sandbox) {}
 
   async writeLearnerFiles(files: readonly LearnerFile[], signal: AbortSignal): Promise<void> {
-    const learner = this.sandbox.asUser(SANDBOX_LAYOUT.learnerUser);
+    // Absolute paths: the image's default user is `learner`, so these files are learner-owned.
     await translateErrors("write_files", () =>
-      learner.writeFiles(
-        files.map((file) => ({ path: file.path, content: file.content })),
+      this.sandbox.writeFiles(
+        files.map((file) => ({ path: `${SANDBOX_LAYOUT.learnerHome}/${file.path}`, content: Buffer.from(file.content, "utf8") })),
         { signal },
       ),
     );
   }
 
   async runHarness(args: readonly string[], options: { timeoutMs: number; signal: AbortSignal }): Promise<HarnessRunResult> {
-    const learner = this.sandbox.asUser(SANDBOX_LAYOUT.learnerUser);
     return translateErrors("run_harness", async () => {
-      const finished = await learner.runCommand({
+      const finished = await this.sandbox.runCommand({
         cmd: SANDBOX_LAYOUT.harnessPath,
         args: [...args],
         cwd: SANDBOX_LAYOUT.jobDir,

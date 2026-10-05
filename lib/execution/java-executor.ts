@@ -1,7 +1,9 @@
 import type { Logger } from "../observability/log";
+import { gradeContract, parseContractResults, publicContractSpec, type ContractDefinition } from "./contract";
 import type { ExecutionLimits } from "./limits";
 import {
   classifyCompile,
+  classifyRunFailure,
   classifyTest,
   type Classification,
   type ExecutionStage,
@@ -14,6 +16,7 @@ import {
   SandboxInfrastructureError,
   type SandboxProvider,
   type SandboxSession,
+  type SandboxUsage,
 } from "./sandbox-provider";
 import type { ValidatedSourceSet } from "./source-files";
 
@@ -26,10 +29,21 @@ export interface ExecutionResult extends Classification {
   readonly infrastructureErrorType?: string;
   readonly retryable?: boolean;
   readonly timingsMs: Readonly<Partial<Record<ExecutionStage | "total", number>>>;
+  /** Provider-measured active CPU for the whole sandbox; undefined when the provider can't tell. */
+  readonly activeCpuMs?: number;
 }
+
+/**
+ * How correctness is decided. `contract` keeps every expected value on the server and is the
+ * mode to use for hidden grading; `junit` runs JUnit tests that are part of the sources (learner-
+ * written tests and visible samples), whose assertions share the JVM with learner code.
+ */
+export type GradingMode = { readonly kind: "junit" } | { readonly kind: "contract"; readonly contract: ContractDefinition };
 
 export interface ExecuteOptions {
   readonly requestId: string;
+  /** Defaults to JUnit. */
+  readonly grading?: GradingMode;
   /** Caller cancellation (client disconnect, explicit cancel). */
   readonly signal?: AbortSignal;
 }
@@ -69,6 +83,23 @@ export class SandboxJavaExecutor implements JavaExecutor {
 
   async execute(sources: ValidatedSourceSet, options: ExecuteOptions): Promise<ExecutionResult> {
     const log = this.logger.child({ requestId: options.requestId, component: "java-executor" });
+    const started: { session?: SandboxSession } = {};
+    let usage: SandboxUsage = {};
+    let result: ExecutionResult;
+    try {
+      result = await this.runJob(sources, options, started, log);
+    } finally {
+      if (started.session !== undefined) usage = await this.cleanup(started.session, log);
+    }
+    return usage.activeCpuMs === undefined ? result : { ...result, activeCpuMs: usage.activeCpuMs };
+  }
+
+  private async runJob(
+    sources: ValidatedSourceSet,
+    options: ExecuteOptions,
+    started: { session?: SandboxSession },
+    log: Logger,
+  ): Promise<ExecutionResult> {
     const limits = this.limits;
     const lifetimeMs = limits.sandboxLifetimeSeconds * 1000;
     const lifetime = AbortSignal.timeout(lifetimeMs);
@@ -85,7 +116,6 @@ export class SandboxJavaExecutor implements JavaExecutor {
       stageStartedAt = this.now();
     };
 
-    let session: SandboxSession | undefined;
     let compileOutput: string | undefined;
     let testOutput: string | undefined;
     log.log("info", "execution.started", { files: sources.length });
@@ -112,11 +142,15 @@ export class SandboxJavaExecutor implements JavaExecutor {
     };
 
     try {
-      session = await this.provider.createSession({ lifetimeMs, vcpus: limits.vcpus, signal });
-      await session.writeLearnerFiles(
-        sources.map((file) => ({ path: `${SANDBOX_LAYOUT.jobDirRelative}/src/${file.path}`, content: file.content })),
-        signal,
-      );
+      const session = await this.provider.createSession({ lifetimeMs, vcpus: limits.vcpus, signal });
+      started.session = session;
+      const grading: GradingMode = options.grading ?? { kind: "junit" };
+      const files = sources.map((file) => ({ path: `${SANDBOX_LAYOUT.jobDirRelative}/src/${file.path}`, content: file.content }));
+      if (grading.kind === "contract") {
+        // Only the public scenario goes in; expected values never leave the server.
+        files.push({ path: SANDBOX_LAYOUT.contractFileRelative, content: JSON.stringify(publicContractSpec(grading.contract)) });
+      }
+      await session.writeLearnerFiles(files, signal);
 
       enterStage("compile");
       const compile = await session.runHarness(
@@ -128,6 +162,20 @@ export class SandboxJavaExecutor implements JavaExecutor {
       if (compileFailure !== undefined) return finish(compileFailure);
 
       enterStage("test");
+      if (grading.kind === "contract") {
+        const run = await session.runHarness(this.harnessArgs("contract", limits.testWallSeconds), {
+          timeoutMs: (limits.testWallSeconds + limits.commandGraceSeconds) * 1000,
+          signal,
+        });
+        testOutput = boundOutput(run.output, limits.maxOutputBytes);
+        const runFailure = classifyRunFailure(run, limits.maxOutputBytes);
+        if (runFailure !== undefined) return finish(runFailure);
+
+        enterStage("report");
+        const resultsText = await session.readFileBounded(SANDBOX_LAYOUT.contractResultsFile, limits.maxReportBytes, signal);
+        const grade = gradeContract(grading.contract, parseContractResults(resultsText ?? ""), run.exitCode);
+        return finish(grade, { summary: grade.summary });
+      }
       const test = await session.runHarness(
         this.harnessArgs("test", limits.testWallSeconds),
         { timeoutMs: (limits.testWallSeconds + limits.commandGraceSeconds) * 1000, signal },
@@ -161,12 +209,10 @@ export class SandboxJavaExecutor implements JavaExecutor {
       }
       // Anything else is a bug in our code; never disguise it as a learner outcome.
       throw error;
-    } finally {
-      if (session !== undefined) await this.cleanup(session, log);
     }
   }
 
-  private harnessArgs(mode: "compile" | "test", wallSeconds: number): string[] {
+  private harnessArgs(mode: "compile" | "test" | "contract", wallSeconds: number): string[] {
     return [
       mode,
       SANDBOX_LAYOUT.jobDir,
@@ -177,14 +223,16 @@ export class SandboxJavaExecutor implements JavaExecutor {
   }
 
   /** Best-effort stop with its own deadline; failures are logged and metricked, never thrown. */
-  private async cleanup(session: SandboxSession, log: Logger): Promise<void> {
+  private async cleanup(session: SandboxSession, log: Logger): Promise<SandboxUsage> {
     try {
       const usage = await session.stop(AbortSignal.timeout(this.limits.cleanupTimeoutSeconds * 1000));
       if (usage.activeCpuMs !== undefined) log.metric("execution.active_cpu_ms", usage.activeCpuMs);
+      return usage;
     } catch (error) {
       const errorType = error instanceof SandboxInfrastructureError ? error.errorType : "unknown";
       log.log("warn", "execution.cleanup_failed", { errorType, message: (error as Error).message });
       log.metric("execution.cleanup_failed", 1, { errorType });
+      return {};
     }
   }
 }
