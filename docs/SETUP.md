@@ -80,7 +80,10 @@ created 2026-10-06. The database password is in the git-ignored `.env.supabase.l
 - Vercel env (production + preview): `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, sensitive `SUPABASE_SECRET_KEY`. Local development
   uses `.env.development.local` (local stack) instead.
-- Owner account: `SUPABASE_URL=… SUPABASE_SECRET_KEY=… npm run auth:create-owner -- --email <owner>`.
+- Secret key: `npx supabase projects api-keys --reveal` — without `--reveal` the CLI prints a
+  masked key of the same length that the API rejects ("Invalid API key").
+- Owner account (created 2026-10-06 for the Supabase account email):
+  `SUPABASE_URL=… SUPABASE_SECRET_KEY=… npm run auth:create-owner -- --email <owner>`.
   The built-in email service only delivers to members of the Supabase organization, so the owner
   email must be the Supabase account's email.
 - At the first deployment: set `site_url` and `additional_redirect_urls` in
