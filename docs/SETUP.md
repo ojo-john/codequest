@@ -55,26 +55,36 @@ Locally, `VERCEL_OIDC_TOKEN` in `.env.local` expires after ~12 h; refresh with
 ## Supabase — local (no account needed)
 
 ```sh
-npm run db:start              # minimal local stack in Docker (Postgres, Auth, REST)
+npm run db:start              # local stack in Docker (Postgres, Auth, REST, mail catcher on :54324)
+npm run db:env                # writes .env.development.local so `npm run dev` uses the local stack
 npm run db:reset              # re-apply supabase/migrations from scratch
 npm run db:lint               # plpgsql_check over all functions
 npm run test:integration      # authorization (two users + anonymous), ledger, project-file conflicts
+npm run test:e2e              # browser tests (sign-in flow) against the dev server + local stack
 npm run db:verify-backup      # backup -> restore round-trip + failed-restore safety, local only
 ```
 
+Local sign-in: `npm run auth:create-owner -- --email you@example.com`, then request a link at
+http://127.0.0.1:3000/login and open it from the mail catcher at http://127.0.0.1:54324.
 Integration tests refuse to run against anything but a loopback database.
 
-## Supabase — cloud project (not created yet)
+## Supabase — cloud project
 
-Free tier allows 2 active projects; FPL already uses one, so `codequest` takes the second.
+Project `codequest` (ref `xhgotwtpgvwrkynzxuqz`, us-east-1) in the **CodeQuest** organization,
+created 2026-10-06. The database password is in the git-ignored `.env.supabase.local`.
 
-1. **Manual:** `npx supabase login` (browser), then create the project (dashboard or
-   `npx supabase projects create`), and `npx supabase link --project-ref <ref>`.
-2. `npx supabase db push` — applies `supabase/migrations`.
-3. Set in the Vercel project env: `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
-   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and server-only `SUPABASE_SECRET_KEY`.
-4. **Manual:** GitHub OAuth app + Supabase Auth provider, with the local and production
-   callback URLs (Phase 1, when sign-in UI exists).
+- Migrations: `npx supabase db push -p "$SUPABASE_DB_PASSWORD"`.
+- Auth settings: `npx supabase config diff`, then `npx supabase config push` — the
+  `[remotes.production]` block in `supabase/config.toml` holds cloud-only overrides. Review the
+  diff first: local defaults can silently change cloud settings.
+- Vercel env (production + preview): `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, sensitive `SUPABASE_SECRET_KEY`. Local development
+  uses `.env.development.local` (local stack) instead.
+- Owner account: `SUPABASE_URL=… SUPABASE_SECRET_KEY=… npm run auth:create-owner -- --email <owner>`.
+  The built-in email service only delivers to members of the Supabase organization, so the owner
+  email must be the Supabase account's email.
+- At the first deployment: set `site_url` and `additional_redirect_urls` in
+  `[remotes.production.auth]` to the production origin and `/auth/callback`, then config push.
 
 ## Backups (spec §64)
 

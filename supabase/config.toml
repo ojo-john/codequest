@@ -161,7 +161,8 @@ site_url = "http://127.0.0.1:3000"
 # The public URL that Auth serves on. Defaults to the API external URL with `/auth/v1` appended.
 # external_url = ""
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# Sign-in links return to /auth/callback on the local dev server.
+additional_redirect_urls = ["http://127.0.0.1:3000/**"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to auth.external_url.
@@ -173,8 +174,11 @@ enable_refresh_token_rotation = true
 # Allows refresh tokens to be reused after expiry, up to the specified interval in seconds.
 # Requires enable_refresh_token_rotation = true.
 refresh_token_reuse_interval = 10
-# Allow/disallow new user signups to your project.
-enable_signup = true
+# CodeQuest is single-owner: no public sign-ups. The owner account is created once with
+# `npm run auth:create-owner` (admin API); sign-in is an emailed magic link (PKCE, returning to
+# /auth/callback). The default email template is used: free-tier projects on the built-in email
+# provider can't customise templates.
+enable_signup = false
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
@@ -218,7 +222,8 @@ web3 = 30
 # secret = ""
 
 [auth.email]
-# Allow/disallow new user signups via email to your project.
+# NOTE: despite its name this toggles the whole email provider (sign-in included). Sign-ups are
+# blocked by `[auth] enable_signup = false` above; this must stay true for magic-link sign-in.
 enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
@@ -228,11 +233,11 @@ enable_confirmations = false
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
-max_frequency = "1s"
+max_frequency = "60s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+otp_expiry = 600
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]
@@ -413,3 +418,27 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# Cloud project (CodeQuest org). Only properties that differ from local are overridden here.
+# site_url is updated to the production URL at the first deployment (docs/SETUP.md).
+[remotes.production]
+project_id = "xhgotwtpgvwrkynzxuqz"
+
+[remotes.production.auth]
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = []
+# Keep the cloud project's existing values where local defaults differ but no change is intended.
+[remotes.production.auth.email]
+enable_confirmations = true
+
+[remotes.production.auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[remotes.production.db.pooler]
+default_pool_size = 15
+max_client_conn = 200
+
+[remotes.production.storage.analytics]
+enabled = true
+max_namespaces = 10

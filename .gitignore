@@ -48,3 +48,7 @@ next-env.d.ts
 
 # owner-run database backups (may contain personal data)
 /backups/
+
+# Playwright artifacts
+/test-results/
+/playwright-report/

@@ -68,7 +68,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 63 | Stack | P0 | repo | Pinned versions + lockfile | **Done** — `package.json`, `.npmrc save-exact` |
 | 64 | Free-tier limits & failure behaviour | P0→P1 | usage screen, job caps | Quota exhaustion pauses jobs, keeps code | **In progress** — admission control (job caps, CPU-seconds budget, provider-quota pause) done with in-memory ledger; Supabase ledger + usage screen P1 |
 | 65 | Execution proof gate | P0 | `runner/` | Image + deny-all + 2-file compile + JUnit + contract + smoke | **Done** — passed on Vercel 2026-10-03 (`evidence/vercel-all-2026-10-03T23-37-15-474Z.json`); image `runner/image-manifest.json` |
-| 66 | Schema, RLS, transactions | P0→P1 | `supabase/migrations` | Two-user + anon authz tests | **In progress** — done locally (74 integration tests incl. mutation check); cloud project not yet created |
+| 66 | Schema, RLS, transactions | P0→P1 | `supabase/migrations` | Two-user + anon authz tests | **Done** — 75 integration tests locally + CI; cloud project migrated and anonymous access smoke-tested 2026-10-06 |
 | 67 | API contracts, job states | P1 | `app/api/*` | Job state machine persisted before provisioning | Not started |
 | 68 | Setup deliverables | P0→P1 | `docs/`, CI | Fresh setup from guide works | **In progress** — docs + `.github/workflows/ci.yml` (no remote repo yet) |
 | 69 | Playable shopping campaign | P1 | 9 quests | Each quest produces executable code | Not started |

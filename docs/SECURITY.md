@@ -41,13 +41,28 @@ Scope: **owner-personal learning** (spec §65). This is not a public contest jud
 4. **Local Docker runner** results are self-reported practice evidence, never a trusted cloud
    grade. Never expose the local runner as a network service.
 
+## Sign-in (single owner)
+
+- **No public sign-ups** (`[auth] enable_signup = false`, local and cloud; verified with live
+  sign-up attempts returning `signup_disabled`). The only account is created by
+  `npm run auth:create-owner`.
+- Sign-in is an emailed magic link (PKCE): the code verifier cookie stays in the requesting
+  browser, so a link only works there. Links expire after 10 minutes, at most one per minute.
+- The sign-in form answers identically for known and unknown addresses (no account discovery).
+- Identity is taken from a verified JWT (`getClaims`) in `lib/auth/dal.ts`; the proxy only
+  refreshes the session and does an optimistic redirect. RLS is the final authority.
+- Post-sign-in destinations go through `safeRedirectPath` (same-site paths only); redirects and
+  email links are built from the configured app origin, never from request headers.
+- Sign-out is a Server Action, so Next.js's origin check blocks cross-site sign-out.
+- `tests/e2e/sign-in.spec.ts` drives the real flow in a browser against the local stack.
+
 ## Database access model (supabase/migrations)
 
 | Data | Learner (authenticated) | Anonymous | Server (secret key) |
 |---|---|---|---|
 | Profile | read own; update only `timezone`, `target_role`, `settings` | — | full |
 | Notes, reflections, recommendation feedback, projects | read/write own (reflections/feedback only on own attempts/recommendations) | — | full |
-| Project files | read own; write only via `save_project_file()` (ownership, revision conflicts, replay-safe, path/size limits) | — | full |
+| Project files | read own; write only via `save_project_file()` (ownership, revision conflicts → HTTP 409, replay-safe, path/size limits) | — | full |
 | Attempts, mastery evidence, skill state, XP, achievements, recommendations, sessions, execution jobs | **read own only** | — | full |
 | Published content, skills, prerequisite graph | read | read | full |
 | Draft content | — | — | full |

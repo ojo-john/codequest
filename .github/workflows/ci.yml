@@ -32,7 +32,7 @@ jobs:
       - run: npm run build
 
   database:
-    name: Supabase migrations, authorization and backup tests
+    name: Supabase migrations, authorization, backup and browser tests
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -46,6 +46,9 @@ jobs:
       - run: npm run db:lint
       - run: npm run test:integration
       - run: npm run db:verify-backup
+      - run: npm run db:env
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
 
   runner:
     name: Runner image and local proof gate
