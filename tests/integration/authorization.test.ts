@@ -264,7 +264,7 @@ describe("project files", () => {
     const stale = await save(alice, seeded.alice.projectId, path, 1, "v2 from phone");
 
     const [file] = await sql()`select source, revision from public.project_files where project_id = ${seeded.alice.projectId} and path = ${path}`;
-    expect([stale.error?.code, file.source, file.revision]).toEqual(["40001", "v2 from laptop", 2]);
+    expect([stale.error?.code, file.source, file.revision]).toEqual(["PT409", "v2 from laptop", 2]);
   });
 
   it("save_project_file: a replayed outbox mutation changes nothing", async () => {

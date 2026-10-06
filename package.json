@@ -14,22 +14,28 @@
     "runner:check": "tsx --env-file=.env.local runner/check.ts --provider vercel --suite all",
     "runner:publish": "tsx runner/publish-image.ts",
     "test:integration": "vitest run --config vitest.integration.config.mts",
-    "db:start": "supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta",
+    "db:start": "supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,supavisor,postgres-meta",
     "db:reset": "supabase db reset",
     "db:lint": "supabase db lint --level warning",
     "db:backup": "tsx scripts/db-backup.ts backup",
     "db:restore": "tsx scripts/db-backup.ts restore",
-    "db:verify-backup": "tsx scripts/db-verify-backup.ts"
+    "db:verify-backup": "tsx scripts/db-verify-backup.ts",
+    "auth:create-owner": "tsx --env-file-if-exists=.env.development.local scripts/auth-create-owner.ts",
+    "test:e2e": "playwright test",
+    "db:env": "tsx scripts/write-local-env.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.2",
     "@vercel/sandbox": "3.5.1",
     "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "server-only": "0.0.1",
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@supabase/supabase-js": "2.117.2",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.19.1",
     "@types/react": "19.2.17",
