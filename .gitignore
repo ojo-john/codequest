@@ -45,3 +45,6 @@ next-env.d.ts
 
 # verified toolchain downloads (runner/fetch-toolchain.ts)
 /runner/.cache/
+
+# owner-run database backups (may contain personal data)
+/backups/

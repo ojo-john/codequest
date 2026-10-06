@@ -52,8 +52,38 @@ Each time the image inputs change (`runner/toolchain.json`, `runner/docker/`, `r
 Locally, `VERCEL_OIDC_TOKEN` in `.env.local` expires after ~12 h; refresh with
 `npx vercel env pull .env.local`.
 
-## Supabase (Phase 0 step 2 — not started)
+## Supabase — local (no account needed)
 
-Free tier allows 2 active projects; FPL already uses one. Create `codequest` as the second.
-Migrations, RLS, the two-user authorization test, and the Supabase `ExecutionUsageLedger`
-(atomic admission in one SQL function) land in the next step.
+```sh
+npm run db:start              # minimal local stack in Docker (Postgres, Auth, REST)
+npm run db:reset              # re-apply supabase/migrations from scratch
+npm run db:lint               # plpgsql_check over all functions
+npm run test:integration      # authorization (two users + anonymous), ledger, project-file conflicts
+npm run db:verify-backup      # backup -> restore round-trip + failed-restore safety, local only
+```
+
+Integration tests refuse to run against anything but a loopback database.
+
+## Supabase — cloud project (not created yet)
+
+Free tier allows 2 active projects; FPL already uses one, so `codequest` takes the second.
+
+1. **Manual:** `npx supabase login` (browser), then create the project (dashboard or
+   `npx supabase projects create`), and `npx supabase link --project-ref <ref>`.
+2. `npx supabase db push` — applies `supabase/migrations`.
+3. Set in the Vercel project env: `SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`,
+   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and server-only `SUPABASE_SECRET_KEY`.
+4. **Manual:** GitHub OAuth app + Supabase Auth provider, with the local and production
+   callback URLs (Phase 1, when sign-in UI exists).
+
+## Backups (spec §64)
+
+Supabase Free has no automatic backups and pauses after 7 idle days. Owner-run:
+
+```sh
+SUPABASE_DB_URL=... npm run db:backup                         # writes backups/codequest-<time>.dump (git-ignored)
+SUPABASE_DB_URL=... npm run db:restore -- --file <dump> --wipe-existing-data
+```
+
+Restore applies data onto a database that already has the migrations, wiping and reloading in
+a single transaction — a failed restore leaves the existing data untouched.

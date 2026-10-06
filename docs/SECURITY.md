@@ -1,4 +1,4 @@
-# Security — Java execution
+# Security
 
 Scope: **owner-personal learning** (spec §65). This is not a public contest judge.
 
@@ -40,6 +40,28 @@ Scope: **owner-personal learning** (spec §65). This is not a public contest jud
    memory (2 GB per vCPU) and the deadlines are the backstop.
 4. **Local Docker runner** results are self-reported practice evidence, never a trusted cloud
    grade. Never expose the local runner as a network service.
+
+## Database access model (supabase/migrations)
+
+| Data | Learner (authenticated) | Anonymous | Server (secret key) |
+|---|---|---|---|
+| Profile | read own; update only `timezone`, `target_role`, `settings` | — | full |
+| Notes, reflections, recommendation feedback, projects | read/write own (reflections/feedback only on own attempts/recommendations) | — | full |
+| Project files | read own; write only via `save_project_file()` (ownership, revision conflicts, replay-safe, path/size limits) | — | full |
+| Attempts, mastery evidence, skill state, XP, achievements, recommendations, sessions, execution jobs | **read own only** | — | full |
+| Published content, skills, prerequisite graph | read | read | full |
+| Draft content | — | — | full |
+| Hidden grading (`private` schema), usage controls | — | — | SQL only (schema not exposed by the API) |
+
+Enforced with RLS on every table **and** explicit grants (Supabase's default grants are
+revoked first). Identity always comes from `auth.uid()`. Published content versions are
+immutable (they can only be deprecated). Strict prerequisites must stay acyclic. XP is a ledger
+unique per `(user, event_key)`, so reprocessing never double-awards. Ledger functions are
+executable by the server role only.
+
+`tests/integration/authorization.test.ts` covers this with two users and anonymous access; a
+mutation check (deliberately leaking one policy and one grant) confirmed those tests fail when a
+protection is removed.
 
 ## Content gate (required before publishing a contract)
 

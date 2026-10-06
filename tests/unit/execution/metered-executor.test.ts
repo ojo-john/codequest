@@ -5,6 +5,7 @@ import { MeteredJavaExecutor, type MeteredExecuteOptions } from "@/lib/execution
 import { validateSourceFiles, type ValidatedSourceSet } from "@/lib/execution/source-files";
 import { InMemoryExecutionUsageLedger } from "@/lib/execution/usage-ledger";
 import { silentLogger } from "@/lib/observability/log";
+import { usageLedgerContract } from "../../shared/usage-ledger-contract";
 
 const LIMITS = { sandboxLifetimeSeconds: 60, vcpus: 1 };
 const BUDGET: ExecutionBudgetConfig = {
@@ -148,46 +149,7 @@ describe("MeteredJavaExecutor.execute", () => {
   });
 });
 
-describe("InMemoryExecutionUsageLedger", () => {
-  it("admit_sameJobIdTwice_throws", async () => {
-    const ledger = new InMemoryExecutionUsageLedger();
-    const request = { jobId: "j", userId: "u", now: clockNow, reserveCpuSeconds: 60 };
-    await ledger.admit(request, () => ({ admitted: true }));
-
-    await expect(ledger.admit(request, () => ({ admitted: true }))).rejects.toThrow(/already admitted/);
-  });
-
-  it("settle_twice_keepsFirstValue", async () => {
-    const ledger = new InMemoryExecutionUsageLedger();
-    await ledger.admit({ jobId: "j", userId: "u", now: clockNow, reserveCpuSeconds: 60 }, () => ({ admitted: true }));
-    await ledger.settle("j", 5);
-    await ledger.settle("j", 500);
-    let seen = -1;
-
-    await ledger.admit({ jobId: "k", userId: "u", now: clockNow, reserveCpuSeconds: 60 }, (usage) => {
-      seen = usage.settledCpuSecondsThisMonth;
-      return { admitted: false, reason: "daily_job_limit" };
-    });
-
-    expect(seen).toBe(5);
-  });
-
-  it("settle_unknownJob_throws", async () => {
-    await expect(new InMemoryExecutionUsageLedger().settle("missing", 1)).rejects.toThrow(/never admitted/);
-  });
-
-  it("pauseUntil_earlierThanExistingPause_keepsLaterPause", async () => {
-    const ledger = new InMemoryExecutionUsageLedger();
-    const later = new Date("2026-10-20T00:00:00Z");
-    await ledger.pauseUntil(later);
-    await ledger.pauseUntil(new Date("2026-10-16T00:00:00Z"));
-    let paused: Date | undefined;
-
-    await ledger.admit({ jobId: "p", userId: "u", now: clockNow, reserveCpuSeconds: 60 }, (usage) => {
-      paused = usage.pausedUntil;
-      return { admitted: false, reason: "provider_quota_paused" };
-    });
-
-    expect(paused).toEqual(later);
-  });
-});
+usageLedgerContract("InMemoryExecutionUsageLedger", async () => ({
+  ledger: new InMemoryExecutionUsageLedger(),
+  userIds: [crypto.randomUUID(), crypto.randomUUID()],
+}));
