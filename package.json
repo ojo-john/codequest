@@ -12,7 +12,14 @@
     "runner:docker-build": "tsx runner/docker/build.ts",
     "runner:local": "tsx runner/check.ts --provider docker --suite all",
     "runner:check": "tsx --env-file=.env.local runner/check.ts --provider vercel --suite all",
-    "runner:publish": "tsx runner/publish-image.ts"
+    "runner:publish": "tsx runner/publish-image.ts",
+    "test:integration": "vitest run --config vitest.integration.config.mts",
+    "db:start": "supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,supavisor,mailpit,postgres-meta",
+    "db:reset": "supabase db reset",
+    "db:lint": "supabase db lint --level warning",
+    "db:backup": "tsx scripts/db-backup.ts backup",
+    "db:restore": "tsx scripts/db-backup.ts restore",
+    "db:verify-backup": "tsx scripts/db-verify-backup.ts"
   },
   "dependencies": {
     "@vercel/sandbox": "3.5.1",
@@ -22,12 +29,15 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "2.117.2",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.19.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.8",
+    "postgres": "3.4.9",
+    "supabase": "2.119.0",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
