@@ -5,6 +5,8 @@ import { setEditorContent, signInAsNewLearner } from "./support/session";
 
 // Runs real Java in the local Docker runner (emulated amd64 on Apple Silicon is slow).
 test.setTimeout(300_000);
+// First visits compile pages on demand in `next dev` (the quest page bundles Monaco): allow for it.
+const FIRST_LOAD = { timeout: 60_000 };
 
 const REFERENCE = readFileSync(
   join(process.cwd(), "content", "private", "cart.q1-checkout-totals", "reference", "src", "main", "java", "shop", "Checkout.java"),
@@ -17,15 +19,15 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   // Nothing is published yet; drafts appear only after an explicit, labelled opt-in.
   await expect(page.getByText("No published content yet")).toBeVisible();
   await page.getByLabel(/Show unreviewed drafts/).check();
-  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
   await expect(page.getByText("Unreviewed draft").first()).toBeVisible();
 
   // A 15-minute session continues the campaign at quest 1.
   await page.getByRole("button", { name: "15 min" }).click();
-  await expect(page.getByRole("heading", { name: "Your 15-minute session" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your 15-minute session" })).toBeVisible(FIRST_LOAD);
   await page.getByRole("link", { name: "Start" }).first().click();
-  await expect(page.getByRole("heading", { name: "Checkout totals", level: 1 })).toBeVisible();
-  await expect(page.getByRole("tab", { name: "Checkout.java" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Checkout totals", level: 1 })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("tab", { name: "Checkout.java" })).toBeVisible(FIRST_LOAD);
 
   // The untouched starter compiles but fails the visible samples.
   await page.getByRole("button", { name: "Run samples" }).click();
@@ -56,5 +58,5 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   await page.goto("/");
   await expect(page.getByTestId("xp-total")).toHaveText("30");
   await page.goto("/progress");
-  await expect(page.getByRole("cell", { name: "Loops" })).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Loops" })).toBeVisible(FIRST_LOAD);
 });
