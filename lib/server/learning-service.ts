@@ -116,10 +116,20 @@ export class LearningService {
     return { sessionId, plan };
   }
 
-  async getQuest(userId: string, contentVersionId: string): Promise<QuestRecord & { hintsUsed: number; hintsAvailable: number; samples: string[] }> {
+  async getQuest(
+    userId: string,
+    contentVersionId: string,
+  ): Promise<QuestRecord & { hintsUsed: number; hintsAvailable: number; usedHints: Array<{ tier: number; label: string; text: string }>; samples: string[] }> {
     const quest = await this.requireQuest(userId, contentVersionId);
     const [grading, hintsUsed] = await Promise.all([this.store.getGrading(contentVersionId), this.store.hintLevel(userId, contentVersionId)]);
-    return { ...quest, hintsUsed, hintsAvailable: grading.hints.length, samples: grading.contract.cases.filter((testCase) => testCase.visible).map((testCase) => testCase.id) };
+    return {
+      ...quest,
+      hintsUsed,
+      hintsAvailable: grading.hints.length,
+      // Hints the learner already revealed stay visible after a reload.
+      usedHints: grading.hints.slice(0, hintsUsed).map((hint, index) => ({ tier: index + 1, label: hint.tier, text: hint.text })),
+      samples: grading.contract.cases.filter((testCase) => testCase.visible).map((testCase) => testCase.id),
+    };
   }
 
   /** Next curated hint tier (spec §15/§70): recorded so success counts as assisted, never as an XP penalty. */
@@ -224,7 +234,8 @@ export class LearningService {
       executionJobId: request.jobId,
       contentVersionId: request.contentVersionId,
       sessionItemId: request.sessionItemId ?? null,
-      response: { files: request.files.map((file) => ({ path: file.path, bytes: Buffer.byteLength(file.content) })) },
+      // Immutable snapshot of exactly what was graded (spec §62, §67); bounded by the source limits.
+      response: { files: request.files.map((file) => ({ path: file.path, content: file.content })) },
       hintLevel,
       activeSeconds: request.activeSeconds,
       state: result.outcome === "infrastructure-error" ? "infrastructure_error" : "graded",
