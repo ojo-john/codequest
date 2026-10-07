@@ -89,6 +89,19 @@ created 2026-10-06. The database password is in the git-ignored `.env.supabase.l
 - At the first deployment: set `site_url` and `additional_redirect_urls` in
   `[remotes.production.auth]` to the production origin and `/auth/callback`, then config push.
 
+## Content (spec §44–45, §71)
+
+Curriculum is data in `content/`: `skills.json`, `public/<id>/` (item.json, instructions,
+starter code) and `private/<id>/` (contract with hidden expectations, curated hints, reference
+solution). See `docs/CONTENT_REVIEW.md` for the review and publication rules.
+
+```sh
+npm run content:check                          # gate: static checks + reference passes / starter doesn't (Docker runner)
+npm run content:check -- --provider vercel     # same, on Vercel Sandbox
+npm run content:sync                           # load into the local database (one transaction)
+SUPABASE_DB_URL=... npm run content:sync -- --target cloud
+```
+
 ## Backups (spec §64)
 
 Supabase Free has no automatic backups and pauses after 7 idle days. Owner-run:

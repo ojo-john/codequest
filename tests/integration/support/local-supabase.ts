@@ -20,7 +20,7 @@ let cached: LocalEnv | undefined;
 
 export function localEnv(): LocalEnv {
   if (cached) return cached;
-  const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", timeout: 30_000 });
+  const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "ignore"] });
   const parsed = JSON.parse(raw.slice(raw.indexOf("{"))) as Record<string, string>;
   for (const key of ["API_URL", "DB_URL"] as const) {
     const host = new URL(parsed[key]).hostname;

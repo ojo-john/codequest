@@ -14,7 +14,7 @@ import { backup, restore } from "./db-backup";
  */
 
 function localDbUrl(): string {
-  const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", timeout: 30_000 });
+  const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "ignore"] });
   const url = (JSON.parse(raw.slice(raw.indexOf("{"))) as { DB_URL: string }).DB_URL;
   const host = new URL(url).hostname;
   if (host !== "127.0.0.1" && host !== "localhost") throw new Error(`refusing to verify against non-local database ${host}`);

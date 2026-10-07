@@ -38,7 +38,7 @@ export async function waitForSignInLink(address: string, timeoutMs = 20_000): Pr
 
 /** Creates a confirmed account with the local stack's admin key (sign-ups are disabled). */
 export async function createAccount(email: string): Promise<void> {
-  const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", timeout: 30_000 });
+  const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "ignore"] });
   const status = JSON.parse(raw.slice(raw.indexOf("{"))) as { API_URL: string; SERVICE_ROLE_KEY: string };
   if (!["127.0.0.1", "localhost"].includes(new URL(status.API_URL).hostname)) throw new Error("refusing non-local Supabase");
   const response = await fetch(`${status.API_URL}/auth/v1/admin/users`, {

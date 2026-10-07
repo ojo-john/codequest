@@ -14,6 +14,7 @@ from a digest-pinned runner image.
 |---|---|
 | `lib/execution/` | Source validation, executor, JUnit + contract grading, admission control (job/CPU budget), sandbox providers (Vercel, local Docker) |
 | `runner/` | Pinned toolchain, runner image (Dockerfile, trusted harness, contract runner), publish script, proof/smoke fixtures and checker |
+| `content/` | Curriculum as versioned data (public items, private grading material) |
 | `supabase/migrations/` | Schema, RLS, ledger and project-file functions |
 | `scripts/` | Owner-run database backup/restore and its verification |
 | `tests/unit/` | Vitest unit tests |

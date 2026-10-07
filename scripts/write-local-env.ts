@@ -7,7 +7,7 @@ import { writeFileSync } from "node:fs";
  *
  *   npm run db:env
  */
-const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", timeout: 30_000 });
+const raw = execFileSync("npx", ["supabase", "status", "-o", "json"], { encoding: "utf8", timeout: 30_000, stdio: ["ignore", "pipe", "ignore"] });
 const status = JSON.parse(raw.slice(raw.indexOf("{"))) as Record<string, string>;
 const host = new URL(status.API_URL).hostname;
 if (host !== "127.0.0.1" && host !== "localhost") throw new Error(`refusing to write local env for non-local API ${host}`);
