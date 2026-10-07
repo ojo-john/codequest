@@ -19,7 +19,8 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "npx next dev --hostname 127.0.0.1 --port 3000",
+    // npm run dev (not next dev) so predev copies Monaco's assets into public/monaco.
+    command: "npm run dev -- --hostname 127.0.0.1 --port 3000",
     url: `${BASE_URL}/login`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
