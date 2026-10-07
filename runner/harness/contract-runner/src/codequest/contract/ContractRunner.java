@@ -2,6 +2,7 @@ package codequest.contract;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
@@ -10,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -30,9 +32,10 @@ import java.util.Map;
  *   {"call": "add", "target": "cart", "args": [...], "paramTypes": [...], "as": "x"}
  *   {"call": "totalCents", "static": "shop.PriceCalculator", "args": [...], "paramTypes": [...]}
  * </pre>
- * Result statuses: created, returned, void, threw, error (missing_member, bad_argument,
- * unserializable), skipped (an earlier step in the case failed). A final {"done": true} line
- * marks a complete run.
+ * Result statuses: created, returned (with a JSON value, or "unserializable": true when the value
+ * can't be represented — fine if it is only bound for later steps), void, threw, error
+ * (missing_member, bad_argument), skipped (an earlier step in the case had an error). A final {"done": true}
+ * line marks a complete run.
  */
 public final class ContractRunner {
     private static final int MAX_MESSAGE_CHARS = 500;
@@ -68,8 +71,9 @@ public final class ContractRunner {
                 record.put("status", "skipped");
             } else {
                 record.putAll(runStep(asObject(steps.get(index), "step"), bindings));
-                Object status = record.get("status");
-                failed = "threw".equals(status) || "error".equals(status);
+                // Keep going after a throw (a contract may expect it mid-case, e.g. "a rejected
+                // add leaves the cart unchanged"); stop only after a structural error.
+                failed = "error".equals(record.get("status"));
             }
             writeLine(out, record);
         }
@@ -114,7 +118,14 @@ public final class ContractRunner {
             }
             Map<String, Object> result = new LinkedHashMap<>();
             result.put("status", "returned");
-            result.put("value", Values.toJson(returned));
+            try {
+                result.put("value", Values.toJson(returned));
+            } catch (Values.UnserializableException e) {
+                // Fine when the value is only bound and used by later steps (e.g. a learner's own
+                // objects); the server fails the step only if the contract expects a value here.
+                result.put("unserializable", Boolean.TRUE);
+                result.put("message", truncate(e.getMessage()));
+            }
             return result;
         } catch (InvocationTargetException e) {
             return threw(e.getCause());
@@ -124,7 +135,7 @@ public final class ContractRunner {
             return error("missing_member", e.toString());
         } catch (InstantiationException e) {
             return error("missing_member", "cannot instantiate (abstract class or interface?): " + e.getMessage());
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | InaccessibleObjectException e) {
             return error("missing_member", "not accessible: " + e.getMessage());
         } catch (Values.BadArgumentException e) {
             return error("bad_argument", e.getMessage());
@@ -168,29 +179,83 @@ public final class ContractRunner {
     private static Constructor<?> findConstructor(Class<?> type, List<String> paramTypes) throws NoSuchMethodException {
         for (Constructor<?> constructor : type.getDeclaredConstructors()) {
             if (matches(constructor.getParameterTypes(), paramTypes)) {
-                constructor.setAccessible(true);
+                if (!isLearnerCode(type) && !(isAccessibleType(type) && Modifier.isPublic(constructor.getModifiers()))) {
+                    break;
+                }
+                if (isLearnerCode(type)) {
+                    constructor.setAccessible(true);
+                }
                 return constructor;
             }
         }
         throw new NoSuchMethodException(type.getName() + "(" + String.join(", ", paramTypes) + ")");
     }
 
-    /** Public methods first (including inherited), then declared ones up the hierarchy (beginners forget {@code public}). */
+    /**
+     * Resolution order:
+     * <ol>
+     *   <li>A public method declared by an accessible public type anywhere in the owner's
+     *       hierarchy (classes and interfaces). This is how objects of JDK-internal classes are
+     *       used — e.g. the list from {@code List.copyOf} is called through {@code java.util.List}
+     *       without reflective access to JDK internals.</li>
+     *   <li>Learner code only (the unnamed module): any declared method up the class chain, made
+     *       accessible, because beginners forget {@code public} or keep classes package-private.</li>
+     * </ol>
+     */
     private static Method findMethod(Class<?> owner, String name, List<String> paramTypes, boolean isStatic) throws NoSuchMethodException {
-        List<Method> candidates = new ArrayList<>(List.of(owner.getMethods()));
-        for (Class<?> c = owner; c != null && c != Object.class; c = c.getSuperclass()) {
-            candidates.addAll(List.of(c.getDeclaredMethods()));
+        for (Class<?> type : supertypes(owner)) {
+            if (!isAccessibleType(type)) {
+                continue;
+            }
+            for (Method method : type.getDeclaredMethods()) {
+                if (Modifier.isPublic(method.getModifiers()) && signatureMatches(method, name, paramTypes, isStatic)) {
+                    return method;
+                }
+            }
         }
-        for (Method method : candidates) {
-            if (method.getName().equals(name)
-                    && Modifier.isStatic(method.getModifiers()) == isStatic
-                    && !method.isSynthetic()
-                    && matches(method.getParameterTypes(), paramTypes)) {
-                method.setAccessible(true);
-                return method;
+        for (Class<?> c = owner; c != null && isLearnerCode(c); c = c.getSuperclass()) {
+            for (Method method : c.getDeclaredMethods()) {
+                if (signatureMatches(method, name, paramTypes, isStatic)) {
+                    method.setAccessible(true);
+                    return method;
+                }
             }
         }
         throw new NoSuchMethodException((isStatic ? "static " : "") + owner.getName() + "." + name + "(" + String.join(", ", paramTypes) + ")");
+    }
+
+    private static boolean signatureMatches(Method method, String name, List<String> paramTypes, boolean isStatic) {
+        return method.getName().equals(name)
+                && Modifier.isStatic(method.getModifiers()) == isStatic
+                && !method.isSynthetic()
+                && !method.isBridge()
+                && matches(method.getParameterTypes(), paramTypes);
+    }
+
+    /** The owner, then every superclass and interface, breadth first, each once. */
+    private static List<Class<?>> supertypes(Class<?> owner) {
+        List<Class<?>> ordered = new ArrayList<>();
+        ArrayDeque<Class<?>> queue = new ArrayDeque<>(List.of(owner));
+        while (!queue.isEmpty()) {
+            Class<?> type = queue.removeFirst();
+            if (ordered.contains(type)) {
+                continue;
+            }
+            ordered.add(type);
+            if (type.getSuperclass() != null) {
+                queue.addLast(type.getSuperclass());
+            }
+            queue.addAll(List.of(type.getInterfaces()));
+        }
+        return ordered;
+    }
+
+    private static boolean isLearnerCode(Class<?> type) {
+        return !type.getModule().isNamed();
+    }
+
+    private static boolean isAccessibleType(Class<?> type) {
+        return Modifier.isPublic(type.getModifiers()) && type.getModule().isExported(type.getPackageName());
     }
 
     private static Map<String, Object> threw(Throwable thrown) {

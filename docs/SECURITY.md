@@ -78,6 +78,18 @@ executable by the server role only.
 mutation check (deliberately leaking one policy and one grant) confirmed those tests fail when a
 protection is removed.
 
+## Contract runner reflection rules
+
+- Methods are resolved through **public, exported types** first (so a learner's `List.copyOf`
+  result is used through `java.util.List`), and only learner classes (the unnamed module) are
+  ever made accessible reflectively. JDK internals are never opened; an inaccessible member is a
+  clean `missing_member` result, not a crash.
+- A returned value that can't be represented as JSON is reported as `returned` +
+  `unserializable`; it fails only where the contract expects a value, so learner objects can be
+  bound and used by later steps.
+- A step that throws doesn't stop its case (contracts can expect a throw and then check the
+  object is unchanged); only a structural error (missing member, bad argument) skips the rest.
+
 ## Content gate (required before publishing a contract)
 
 Every contract must pass against its reference solution under the pinned JDK (the

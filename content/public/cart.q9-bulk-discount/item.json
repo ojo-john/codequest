@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "cart.q9-bulk-discount",
+  "version": 1,
+  "title": "Change request: bulk discount",
+  "summary": "A new pricing rule arrives. Add it without changing the cart, the comparison, or any existing strategy.",
+  "campaign": {
+    "id": "campaign.shopping-cart",
+    "order": 9
+  },
+  "stage": "change_request",
+  "estimatedMinutes": 25,
+  "skills": [
+    {
+      "skill": "java.interfaces",
+      "dimension": "design"
+    },
+    {
+      "skill": "java.polymorphism",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.integer-arithmetic",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

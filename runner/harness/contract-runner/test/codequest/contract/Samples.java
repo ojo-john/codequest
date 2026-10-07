@@ -81,4 +81,8 @@ final class Samples {
     static int overloaded(long value) {
         return -1;
     }
+
+    private static int secret() {
+        return 7;
+    }
 }

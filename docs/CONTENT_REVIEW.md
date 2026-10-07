@@ -37,3 +37,9 @@ A published version is frozen — payload, skill tags and hidden grading. To cha
 3. Run `npm run content:check`.
 4. Set `"review": { "status": "published", "reviewer": "<your name>", "reviewedAt": "YYYY-MM-DD" }`
    and run `npm run content:sync`.
+
+## Awaiting review (2026-10-07)
+
+All nine `campaign.shopping-cart` quests (`cart.q1-…` to `cart.q9-…`) are `draft`, written by
+Claude. Each passed the content gate on Docker and on Vercel Sandbox. They become visible to the
+app only after an owner review moves them to `published`.

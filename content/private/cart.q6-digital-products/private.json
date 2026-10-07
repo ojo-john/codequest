@@ -1,0 +1,553 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "digital-product-needs-no-shipping",
+        "steps": [
+          {
+            "new": "shop.DigitalProduct",
+            "args": [
+              "EBOOK-1",
+              "Java guide",
+              "books",
+              1500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "ebook"
+          },
+          {
+            "call": "requiresShipping",
+            "target": "ebook",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "physical-product-needs-shipping",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "call": "requiresShipping",
+            "target": "tea",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "digital-product-is-a-product",
+        "steps": [
+          {
+            "new": "shop.DigitalProduct",
+            "args": [
+              "EBOOK-1",
+              "Java guide",
+              "books",
+              1500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "ebook"
+          },
+          {
+            "call": "sku",
+            "target": "ebook",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "EBOOK-1"
+            }
+          },
+          {
+            "call": "priceCents",
+            "target": "ebook",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1500
+            }
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "ebook"
+              },
+              2
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "subtotalCents",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 3000
+            }
+          }
+        ]
+      },
+      {
+        "id": "digital-product-is-validated-like-any-product",
+        "steps": [
+          {
+            "new": "shop.DigitalProduct",
+            "args": [
+              "EBOOK-2",
+              "Bad",
+              "books",
+              -5
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "digital-only-cart-ships-free",
+        "steps": [
+          {
+            "new": "shop.DigitalProduct",
+            "args": [
+              "EBOOK-1",
+              "Java guide",
+              "books",
+              1500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "ebook"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "ebook"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "requiresShipping",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "call": "totalCents",
+            "target": "regular",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1500
+            }
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off10"
+          },
+          {
+            "call": "totalCents",
+            "target": "off10",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1350
+            }
+          }
+        ]
+      },
+      {
+        "id": "mixed-cart-pays-shipping",
+        "steps": [
+          {
+            "new": "shop.DigitalProduct",
+            "args": [
+              "EBOOK-1",
+              "Java guide",
+              "books",
+              1500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "ebook"
+          },
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "ebook"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "requiresShipping",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "call": "totalCents",
+            "target": "regular",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 2249
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty-cart-needs-no-shipping",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "requiresShipping",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "shippingCentsFor",
+            "target": "cart",
+            "args": [
+              1000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "physical-cart-unchanged",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "call": "totalCents",
+            "target": "regular",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1249
+            }
+          }
+        ]
+      },
+      {
+        "id": "cheapest-still-works-with-digital",
+        "steps": [
+          {
+            "new": "shop.DigitalProduct",
+            "args": [
+              "EBOOK-1",
+              "Java guide",
+              "books",
+              1500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "ebook"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "ebook"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "new": "shop.MemberPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "member"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              [
+                {
+                  "$ref": "regular"
+                },
+                {
+                  "$ref": "member"
+                }
+              ]
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "as": "best"
+          },
+          {
+            "call": "name",
+            "target": "best",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "RegularPricing"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Start with the two requiresShipping methods \u2014 Product returns true, DigitalProduct overrides it to return false."
+    },
+    {
+      "tier": "pattern",
+      "text": "ShoppingCart.requiresShipping is an 'any match' loop: return true as soon as one product needs shipping, false after the loop."
+    },
+    {
+      "tier": "key_insight",
+      "text": "The strategies never check for DigitalProduct themselves. They ask the cart, and the cart asks each product \u2014 the override does the work through polymorphism."
+    },
+    {
+      "tier": "pseudocode",
+      "text": "requiresShipping: for item in lines: if item.product().requiresShipping() return true; return false. shippingCentsFor(a): return requiresShipping() ? Checkout.shippingCents(a) : 0. In strategies replace Checkout.shippingCents(x) with cart.shippingCentsFor(x)."
+    }
+  ],
+  "referenceDir": "reference"
+}

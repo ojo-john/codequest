@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "cart.q2-cart-classes",
+  "version": 1,
+  "title": "Products, lines and a cart",
+  "summary": "Turn the checkout arithmetic into objects: a Product, a CartItem line and a ShoppingCart that merges repeated products.",
+  "campaign": {
+    "id": "campaign.shopping-cart",
+    "order": 2
+  },
+  "stage": "guided",
+  "estimatedMinutes": 25,
+  "skills": [
+    {
+      "skill": "java.classes",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.methods",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.collections",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

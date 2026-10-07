@@ -86,7 +86,14 @@ describe("validateContent", () => {
   it("validateContent_referenceLineInInstructions_isReportedAsLeak", () => {
     const leaky = quest("cart.q1-x", { instructions: `Hint:\n${REFERENCE_LINE}` });
 
-    expect(messages(content([leaky])).join()).toMatch(/reference solution line appears in public files/);
+    expect(messages(content([leaky])).join()).toMatch(/reference solution line appears in the instructions/);
+  });
+
+  it("validateContent_referenceLineGivenInAnotherStarterFile_isNotALeak", () => {
+    const given = quest("cart.q1-x", { instructions: `Example:\n${REFERENCE_LINE}` });
+    const withGivenCode: LoadedQuest = { ...given, starter: [...given.starter, { path: "shop/Other.java", content: REFERENCE_LINE }] };
+
+    expect(messages(content([withGivenCode]))).toEqual([]);
   });
 
   it("validateContent_expectKeyInPublicFiles_isReported", () => {

@@ -23,7 +23,7 @@
     "auth:create-owner": "tsx --env-file-if-exists=.env.development.local scripts/auth-create-owner.ts",
     "test:e2e": "playwright test",
     "db:env": "tsx scripts/write-local-env.ts",
-    "content:check": "tsx scripts/content-check.ts",
+    "content:check": "tsx --env-file-if-exists=.env.local scripts/content-check.ts",
     "content:sync": "tsx scripts/content-sync.ts"
   },
   "dependencies": {

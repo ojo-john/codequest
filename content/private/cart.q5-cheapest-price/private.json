@@ -1,0 +1,601 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "member-never-pays-shipping",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.MemberPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "member"
+          },
+          {
+            "call": "totalCents",
+            "target": "member",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 750
+            }
+          }
+        ]
+      },
+      {
+        "id": "member-name",
+        "steps": [
+          {
+            "new": "shop.MemberPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "member"
+          },
+          {
+            "call": "name",
+            "target": "member",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "MemberPricing"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cheapest-small-cart-is-member",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "new": "shop.MemberPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "member"
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off10"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              [
+                {
+                  "$ref": "regular"
+                },
+                {
+                  "$ref": "member"
+                },
+                {
+                  "$ref": "off10"
+                }
+              ]
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "as": "best"
+          },
+          {
+            "call": "name",
+            "target": "best",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "MemberPricing"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cheapest-big-cart-is-percent-off",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "COFFEE-1",
+              "Filter coffee",
+              "drinks",
+              500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "coffee"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "coffee"
+              },
+              20
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "new": "shop.MemberPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "member"
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off10"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              [
+                {
+                  "$ref": "regular"
+                },
+                {
+                  "$ref": "member"
+                },
+                {
+                  "$ref": "off10"
+                }
+              ]
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "as": "best"
+          },
+          {
+            "call": "name",
+            "target": "best",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "PercentOffPricing"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cheapest-tie-keeps-first",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "COFFEE-1",
+              "Filter coffee",
+              "drinks",
+              500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "coffee"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "coffee"
+              },
+              12
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "new": "shop.MemberPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "member"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              [
+                {
+                  "$ref": "regular"
+                },
+                {
+                  "$ref": "member"
+                }
+              ]
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "as": "best"
+          },
+          {
+            "call": "name",
+            "target": "best",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "RegularPricing"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cheapest-tie-order-matters",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "COFFEE-1",
+              "Filter coffee",
+              "drinks",
+              500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "coffee"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "coffee"
+              },
+              12
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "new": "shop.MemberPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "member"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              [
+                {
+                  "$ref": "member"
+                },
+                {
+                  "$ref": "regular"
+                }
+              ]
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "as": "best"
+          },
+          {
+            "call": "name",
+            "target": "best",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "MemberPricing"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cheapest-single-strategy",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              [
+                {
+                  "$ref": "regular"
+                }
+              ]
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "as": "best"
+          },
+          {
+            "call": "name",
+            "target": "best",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "RegularPricing"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cheapest-rejects-empty-list",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              []
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cheapest-rejects-missing-list",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              null
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "MemberPricing is one line. Spend your time on cheapest: it's a 'find the minimum' loop."
+    },
+    {
+      "tier": "pattern",
+      "text": "Track the best strategy so far and its total. Only replace it when a later total is strictly lower \u2014 that's what keeps the first one on a tie."
+    },
+    {
+      "tier": "key_insight",
+      "text": "strategy.totalCents(cart) runs whichever class the object really is (decided at runtime). That's polymorphism: cheapest never needs to know the classes."
+    },
+    {
+      "tier": "pseudocode",
+      "text": "if list null or empty -> throw; best = null; bestTotal = Long.MAX_VALUE; for s in list: t = s.totalCents(cart); if t < bestTotal: best = s; bestTotal = t. return best."
+    }
+  ],
+  "referenceDir": "reference"
+}
