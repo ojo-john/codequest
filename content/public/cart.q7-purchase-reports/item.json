@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "cart.q7-purchase-reports",
+  "version": 1,
+  "title": "Purchase reports",
+  "summary": "Streams: group, filter, sort and sum cart lines with stream pipelines \u2014 and decide when a loop would be clearer.",
+  "campaign": {
+    "id": "campaign.shopping-cart",
+    "order": 7
+  },
+  "stage": "guided",
+  "estimatedMinutes": 30,
+  "skills": [
+    {
+      "skill": "java.streams",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.streams",
+      "dimension": "explanation"
+    },
+    {
+      "skill": "java.collections",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

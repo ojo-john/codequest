@@ -1,0 +1,398 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "parses-a-line",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,3"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": {
+                "sku": "TEA-1",
+                "quantity": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "trims-whitespace",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "  TEA-1 ,  3  "
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": {
+                "sku": "TEA-1",
+                "quantity": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "normalises-sku-case",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "tea-1,2"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": {
+                "sku": "TEA-1",
+                "quantity": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "max-quantity",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,99"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": {
+                "sku": "TEA-1",
+                "quantity": 99
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-missing-line",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              null
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-empty-line",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              ""
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-blank-line",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "   "
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-missing-comma",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1 3"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-two-commas",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,3,4"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-empty-sku",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              " ,3"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-sku-with-space",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TE A,3"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-overlong-sku",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "ABCDEFGHIJKLMNOPQRSTU,1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-zero-quantity",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,0"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-quantity-over-max",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,100"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-negative-quantity",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-plus-sign",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,+3"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-words",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,three"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-decimal",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,2.5"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-huge-number",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,99999999999"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejects-missing-quantity",
+        "steps": [
+          {
+            "call": "parse",
+            "static": "shop.OrderLineParser",
+            "args": [
+              "TEA-1,"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Handle the cases in order: null, then splitting on the comma, then the SKU, then the quantity."
+    },
+    {
+      "tier": "pattern",
+      "text": "Validate each part with a precise rule (a regular expression works well) before converting it, so conversion can't fail in a surprising way."
+    },
+    {
+      "tier": "key_insight",
+      "text": "split(\",\") drops trailing empty strings, so \"TEA-1,\" would look like one part. split(\",\", -1) keeps them; then require exactly two parts."
+    },
+    {
+      "tier": "pseudocode",
+      "text": "if line == null -> throw; parts = line.split(\",\", -1); if parts.length != 2 -> throw; sku = parts[0].trim().toUpperCase(); if !sku.matches(\"[A-Z0-9-]{1,20}\") -> throw; q = parts[1].trim(); if !q.matches(\"[0-9]{1,9}\") -> throw; n = parseInt(q); if n < 1 || n > 99 -> throw; return new OrderLine(sku, n)."
+    }
+  ],
+  "referenceDir": "reference"
+}

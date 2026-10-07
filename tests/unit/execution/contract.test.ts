@@ -171,7 +171,7 @@ describe("gradeContract", () => {
     expect(gradeContract(contract(), parseContractResults(resultsFor(999_999)), 0).outcome).toBe("wrong-answer");
   });
 
-  it("gradeContract_unexpectedException_returnsUncaughtExceptionAndSkipsCase", () => {
+  it("gradeContract_unexpectedException_returnsUncaughtException", () => {
     const lines = [
       created("two-items", 0),
       created("two-items", 1),
@@ -185,9 +185,9 @@ describe("gradeContract", () => {
     expect([grade.outcome, grade.detail, grade.summary.failedTests]).toEqual(["runtime-error", "uncaught_exception", ["two-items#2"]]);
   });
 
-  it("gradeContract_setupStepThrows_countsAsErrorAndSkippedStepAsFailure", () => {
+  it("gradeContract_setupStepStructuralError_countsSkippedGradedStepAsFailure", () => {
     const lines = [
-      threw("two-items", 0, "java.lang.IllegalStateException", ["java.lang.IllegalStateException"]),
+      JSON.stringify({ case: "two-items", step: 0, status: "error", error: "bad_argument", message: "m" }),
       JSON.stringify({ case: "two-items", step: 1, status: "skipped" }),
       JSON.stringify({ case: "two-items", step: 2, status: "skipped" }),
       threw("rejects-zero-quantity", 0, IAE[0], IAE),
@@ -196,7 +196,7 @@ describe("gradeContract", () => {
 
     const grade = gradeContract(contract(), parseContractResults(lines), 0);
 
-    expect([grade.outcome, grade.summary.tests, grade.summary.errors, grade.summary.failures]).toEqual(["runtime-error", 3, 1, 1]);
+    expect([grade.outcome, grade.summary.tests, grade.summary.errors, grade.summary.failures]).toEqual(["wrong-answer", 3, 0, 2]);
   });
 
   it("gradeContract_missingMember_returnsWrongAnswerMissingMember", () => {
@@ -221,6 +221,21 @@ describe("gradeContract", () => {
     ].join("\n");
 
     expect(gradeContract(contract(), parseContractResults(lines), 0).outcome).toBe("wrong-answer");
+  });
+
+  it("gradeContract_unserializableValueWhereValueExpected_fails", () => {
+    const lines = resultsFor(1150).replace(
+      returned("two-items", 2, 1150),
+      JSON.stringify({ case: "two-items", step: 2, status: "returned", unserializable: true, message: "m" }),
+    );
+
+    expect(gradeContract(contract(), parseContractResults(lines), 0).outcome).toBe("wrong-answer");
+  });
+
+  it("gradeContract_unserializableValueOnUngradedStep_passes", () => {
+    const lines = resultsFor(1150).replace(created("two-items", 0), JSON.stringify({ case: "two-items", step: 0, status: "returned", unserializable: true }));
+
+    expect(gradeContract(contract(), parseContractResults(lines), 0).outcome).toBe("succeeded");
   });
 
   it("gradeContract_expectedExceptionNotThrown_returnsWrongAnswer", () => {

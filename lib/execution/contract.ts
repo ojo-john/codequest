@@ -110,7 +110,16 @@ export function publicContractSpec(contract: ContractDefinition): unknown {
 const stepRecordSchema = z.discriminatedUnion("status", [
   z.object({ case: z.string(), step: z.number().int(), status: z.literal("created") }),
   z.object({ case: z.string(), step: z.number().int(), status: z.literal("void") }),
-  z.object({ case: z.string(), step: z.number().int(), status: z.literal("returned"), value: z.unknown() }),
+  z.object({
+    case: z.string(),
+    step: z.number().int(),
+    status: z.literal("returned"),
+    // Optional: absent when unserializable. (Zod 4 treats a bare z.unknown() key as required.)
+    value: z.unknown().optional(),
+    /** The value couldn't be represented as JSON; fine unless the contract expects a value. */
+    unserializable: z.literal(true).optional(),
+    message: z.string().optional(),
+  }),
   z.object({
     case: z.string(),
     step: z.number().int(),
@@ -123,7 +132,7 @@ const stepRecordSchema = z.discriminatedUnion("status", [
     case: z.string(),
     step: z.number().int(),
     status: z.literal("error"),
-    error: z.enum(["missing_member", "bad_argument", "unserializable"]),
+    error: z.enum(["missing_member", "bad_argument"]),
     message: z.string(),
   }),
   z.object({ case: z.string(), step: z.number().int(), status: z.literal("skipped") }),
@@ -215,8 +224,8 @@ function judgeStep(step: ContractStep, record: StepRecord | undefined): StepVerd
   if (record === undefined || record.status === "skipped") return "missing";
   if (record.status === "error") {
     // Every published contract must pass against its reference solution (content gate), so a
-    // runtime bad_argument/unserializable is learner-caused — e.g. a method returned null or the
-    // wrong type and a later step used it — and is never reported as an infrastructure error.
+    // runtime bad_argument is learner-caused — e.g. a method returned null or the wrong type and
+    // a later step used it — and is never reported as an infrastructure error.
     return record.error === "missing_member" ? "missing_member" : "fail";
   }
   const expectation: Expectation | undefined = step.expect;
@@ -228,7 +237,7 @@ function judgeStep(step: ContractStep, record: StepRecord | undefined): StepVerd
   }
   if (expectation === undefined) return "pass";
   if ("throws" in expectation) return "fail";
-  if (record.status !== "returned") return "fail";
+  if (record.status !== "returned" || record.unserializable) return "fail";
   return valuesMatch(record.value, expectation.value, expectation.compare) ? "pass" : "fail";
 }
 
@@ -255,11 +264,9 @@ export function gradeContract(contract: ContractDefinition, results: ParsedContr
       if (graded) tests += 1;
       if (verdict === "pass") return;
       if (verdict === "missing") {
-        // A step skipped after an earlier failure in the same case is already accounted for.
-        const earlierFailed = testCase.steps.slice(0, index).some((_, i) => {
-          const record = results.records.get(recordKey(testCase.id, i));
-          return record?.status === "threw" || record?.status === "error";
-        });
+        // The runner skips the rest of a case after a structural error (missing member, bad
+        // argument); those skipped steps are failures already explained by that error.
+        const earlierFailed = testCase.steps.slice(0, index).some((_, i) => results.records.get(recordKey(testCase.id, i))?.status === "error");
         if (earlierFailed) {
           if (graded) failures += 1;
           return;

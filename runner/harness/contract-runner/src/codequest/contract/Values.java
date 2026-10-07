@@ -5,6 +5,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -159,6 +160,9 @@ final class Values {
             }
             return map;
         }
+        if (raw == Object.class) {
+            return natural(json, bindings);
+        }
         throw new BadArgumentException("unsupported parameter type " + target.getTypeName() + " (use $ref to pass objects)");
     }
 
@@ -236,7 +240,40 @@ final class Values {
         if (type instanceof WildcardType w) {
             return rawClass(w.getUpperBounds()[0]);
         }
+        if (type instanceof TypeVariable<?> v) {
+            return rawClass(v.getBounds()[0]);
+        }
         return Object.class;
+    }
+
+    /** For Object-typed parameters (e.g. List.add(E) once erased): the natural Java value. */
+    private static Object natural(Object json, Map<String, Object> bindings) {
+        if (json instanceof BigDecimal d) {
+            try {
+                return d.intValueExact();
+            } catch (ArithmeticException notInt) {
+                try {
+                    return d.longValueExact();
+                } catch (ArithmeticException notLong) {
+                    return d.doubleValue();
+                }
+            }
+        }
+        if (json instanceof List<?> items) {
+            List<Object> list = new ArrayList<>();
+            for (Object item : items) {
+                list.add(toJava(item, Object.class, bindings));
+            }
+            return list;
+        }
+        if (json instanceof Map<?, ?> object) {
+            Map<Object, Object> map = new LinkedHashMap<>();
+            for (Map.Entry<?, ?> entry : object.entrySet()) {
+                map.put(entry.getKey(), toJava(entry.getValue(), Object.class, bindings));
+            }
+            return map;
+        }
+        return json;
     }
 
     private static Class<?> boxed(Class<?> c) {

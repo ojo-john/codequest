@@ -86,20 +86,17 @@ export function validateContent(content: LoadedContent, limits: Pick<ExecutionLi
       issues.push({ item, message: `hints must escalate in order ${HINT_ORDER.join(" > ")} without repeats` });
     }
 
-    // Nothing private may appear in public files.
+    // Nothing private may appear in public files. A reference line is "to be written" when it is
+    // in no starter file (given code legitimately repeats across files); such a line must not
+    // appear verbatim in the instructions.
     const publicText = [...content.publicFiles.entries()].filter(([path]) => path.startsWith(`public/${item}/`)).map(([, text]) => text).join("\n");
     if (/"expect"\s*:/.test(publicText)) issues.push({ item, message: "public files contain an `expect` key" });
-    for (const file of quest.reference) {
-      const starterVersion = quest.starter.find((candidate) => candidate.path === file.path)?.content;
-      const starterLines = new Set((starterVersion ?? "").split("\n").map((line) => line.trim()));
-      for (const line of file.content.split("\n").map((l) => l.trim())) {
-        // Lines the starter already contains (signatures, given code) are not leaks.
-        if (line.length >= MIN_LEAK_LINE_LENGTH && !starterLines.has(line) && publicText.includes(line)) {
-          issues.push({ item, message: `reference solution line appears in public files: "${line.slice(0, 60)}"` });
-          break;
-        }
-      }
-    }
+    const givenLines = new Set(quest.starter.flatMap((file) => file.content.split("\n").map((line) => line.trim())));
+    const instructionLines = new Set(quest.instructions.split("\n").map((line) => line.trim()));
+    const leaked = quest.reference
+      .flatMap((file) => file.content.split("\n").map((line) => line.trim()))
+      .find((line) => line.length >= MIN_LEAK_LINE_LENGTH && !givenLines.has(line) && instructionLines.has(line));
+    if (leaked !== undefined) issues.push({ item, message: `reference solution line appears in the instructions: "${leaked.slice(0, 60)}"` });
     const spec = JSON.stringify(publicContractSpec(privateData.contract));
     if (spec.includes('"expect"')) issues.push({ item, message: "public contract spec still contains expectations" });
   }

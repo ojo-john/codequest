@@ -71,9 +71,18 @@ class ContractRunnerTest {
     }
 
     @Test
-    void runStep_cyclicReturnValue_reportsUnserializable() {
+    void runStep_cyclicReturnValue_isReturnedAsUnserializable() {
         String result = run("{\"call\":\"cyclic\",\"static\":\"" + SAMPLES + "\",\"args\":[],\"paramTypes\":[]}");
-        assertEquals(true, result.contains("\"error\":\"unserializable\""), result);
+        assertEquals(true, result.startsWith("{\"status\":\"returned\",\"unserializable\":true"), result);
+    }
+
+    @Test
+    void runStep_unserializableValueBoundForLaterSteps_isUsable() {
+        Map<String, Object> bindings = new HashMap<>();
+        run("{\"new\":\"" + SAMPLES + "$Cart\",\"args\":[],\"paramTypes\":[],\"as\":\"cart\"}", bindings);
+        run("{\"call\":\"items\",\"target\":\"cart\",\"args\":[],\"paramTypes\":[],\"as\":\"lines\"}", bindings);
+
+        assertEquals("{\"status\":\"returned\",\"value\":0}", run("{\"call\":\"size\",\"target\":\"lines\",\"args\":[],\"paramTypes\":[]}", bindings));
     }
 
     @Test
@@ -139,5 +148,54 @@ class ContractRunnerTest {
 
         assertEquals(List.of(true, "{\"case\":\"c1\",\"step\":1,\"status\":\"skipped\"}"),
                 List.of(lines[0].contains("missing_member"), lines[1]));
+    }
+
+    @Test
+    void runStep_methodOnJdkInternalListClass_isCalledThroughPublicInterface() {
+        Map<String, Object> bindings = new HashMap<>(Map.of("list", List.copyOf(List.of(1, 2, 3))));
+
+        assertEquals("{\"status\":\"returned\",\"value\":3}", run("{\"call\":\"size\",\"target\":\"list\",\"args\":[],\"paramTypes\":[]}", bindings));
+    }
+
+    @Test
+    void runStep_mutatingUnmodifiableList_reportsUnsupportedOperation() {
+        Map<String, Object> bindings = new HashMap<>(Map.of("list", List.copyOf(List.of(1))));
+
+        String result = run("{\"call\":\"add\",\"target\":\"list\",\"args\":[2],\"paramTypes\":[\"java.lang.Object\"]}", bindings);
+
+        assertEquals(true, result.contains("\"exception\":\"java.lang.UnsupportedOperationException\""), result);
+    }
+
+    @Test
+    void runStep_nonPublicJdkMethod_reportsMissingMemberInsteadOfCrashing() {
+        Map<String, Object> bindings = new HashMap<>(Map.of("list", List.copyOf(List.of(1))));
+
+        String result = run("{\"call\":\"indexOf\",\"target\":\"list\",\"args\":[],\"paramTypes\":[]}", bindings);
+
+        assertEquals(true, result.contains("\"error\":\"missing_member\""), result);
+    }
+
+    @Test
+    void runStep_privateMethodInLearnerClass_isStillCallable() {
+        assertEquals("{\"status\":\"returned\",\"value\":7}",
+                run("{\"call\":\"secret\",\"static\":\"" + SAMPLES + "\",\"args\":[],\"paramTypes\":[]}"));
+    }
+
+    @Test
+    void runCase_expectedThrowMidCase_continuesWithLaterSteps() throws IOException {
+        StringWriter text = new StringWriter();
+        String caseJson = "{\"id\":\"c2\",\"steps\":["
+                + "{\"new\":\"" + SAMPLES + "$Cart\",\"args\":[],\"paramTypes\":[],\"as\":\"cart\"},"
+                + "{\"new\":\"" + SAMPLES + "$Item\",\"args\":[\"x\",-1],\"paramTypes\":[\"java.lang.String\",\"long\"],\"as\":\"bad\"},"
+                + "{\"call\":\"add\",\"target\":\"cart\",\"args\":[{\"$ref\":\"bad\"}],\"paramTypes\":[\"" + SAMPLES + "$Item\"]},"
+                + "{\"call\":\"totalCents\",\"target\":\"cart\",\"args\":[],\"paramTypes\":[]}]}";
+        try (BufferedWriter out = new BufferedWriter(text)) {
+            ContractRunner.runCase(step(caseJson), out);
+        }
+
+        String[] lines = text.toString().split("\\R");
+
+        assertEquals(List.of(true, "{\"case\":\"c2\",\"step\":3,\"status\":\"returned\",\"value\":0}"),
+                List.of(lines[2].contains("\"status\":\"threw\""), lines[3]));
     }
 }

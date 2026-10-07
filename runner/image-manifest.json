@@ -1,7 +1,7 @@
 {
-  "image": "codequest-runner@sha256:4f52d1832ddc2bab9b98c5a179678554d87d249bce9b0cedfa4929166c0996b9",
-  "tag": "codequest-runner:inputs-5d32e7bcb663ea93",
-  "publishedAt": "2026-10-03T23:34:45.296Z",
+  "image": "codequest-runner@sha256:c6acab0f6159b0c4f4ded304de20c0384232ab7c122a021c53d5f5a31928d55e",
+  "tag": "codequest-runner:inputs-bed50d3219ee6c5c",
+  "publishedAt": "2026-10-07T01:39:45.094Z",
   "baseImage": "ubuntu:26.04@sha256:3595d7fc4286a33fad0fd853a4063e654287a9c3787437d7937c94ca3f7a804e",
   "jdk": {
     "release": "jdk-21.0.12.1+1",

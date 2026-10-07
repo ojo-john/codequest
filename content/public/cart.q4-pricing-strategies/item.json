@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "cart.q4-pricing-strategies",
+  "version": 1,
+  "title": "Pricing strategies",
+  "summary": "Abstraction: price a cart through a PricingStrategy interface so new pricing rules never change the cart.",
+  "campaign": {
+    "id": "campaign.shopping-cart",
+    "order": 4
+  },
+  "stage": "guided",
+  "estimatedMinutes": 30,
+  "skills": [
+    {
+      "skill": "java.interfaces",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.interfaces",
+      "dimension": "design"
+    },
+    {
+      "skill": "java.integer-arithmetic",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
