@@ -4,6 +4,7 @@
     "cases": [
       {
         "id": "parses-a-line",
+        "visible": true,
         "steps": [
           {
             "call": "parse",
@@ -142,6 +143,7 @@
       },
       {
         "id": "rejects-missing-comma",
+        "visible": true,
         "steps": [
           {
             "call": "parse",
@@ -232,6 +234,7 @@
       },
       {
         "id": "rejects-zero-quantity",
+        "visible": true,
         "steps": [
           {
             "call": "parse",

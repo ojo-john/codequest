@@ -1,5 +1,5 @@
 import type { Logger } from "../observability/log";
-import { gradeContract, parseContractResults, publicContractSpec, type ContractDefinition } from "./contract";
+import { gradeContract, parseContractResults, publicContractSpec, type CaseResult, type ContractDefinition } from "./contract";
 import type { ExecutionLimits } from "./limits";
 import {
   classifyCompile,
@@ -31,6 +31,8 @@ export interface ExecutionResult extends Classification {
   readonly timingsMs: Readonly<Partial<Record<ExecutionStage | "total", number>>>;
   /** Provider-measured active CPU for the whole sandbox; undefined when the provider can't tell. */
   readonly activeCpuMs?: number;
+  /** Contract mode only: per-case results (details only for visible samples). */
+  readonly caseResults?: readonly CaseResult[];
 }
 
 /**
@@ -174,7 +176,7 @@ export class SandboxJavaExecutor implements JavaExecutor {
         enterStage("report");
         const resultsText = await session.readFileBounded(SANDBOX_LAYOUT.contractResultsFile, limits.maxReportBytes, signal);
         const grade = gradeContract(grading.contract, parseContractResults(resultsText ?? ""), run.exitCode);
-        return finish(grade, { summary: grade.summary });
+        return finish(grade, { summary: grade.summary, caseResults: grade.cases });
       }
       const test = await session.runHarness(
         this.harnessArgs("test", limits.testWallSeconds),

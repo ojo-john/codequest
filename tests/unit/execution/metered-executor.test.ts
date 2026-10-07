@@ -142,6 +142,25 @@ describe("MeteredJavaExecutor.execute", () => {
     expect(admitted.admitted).toBe(true);
   });
 
+  it("execute_admitted_callsOnAdmittedBeforeRunning", async () => {
+    const order: string[] = [];
+    const inner: JavaExecutor = { execute: async () => (order.push("execute"), result()) };
+
+    await metered(inner).execute(sources(), { ...job(), onAdmitted: async () => void order.push("admitted") });
+
+    expect(order).toEqual(["admitted", "execute"]);
+  });
+
+  it("execute_rejected_neverCallsOnAdmitted", async () => {
+    const ledger = new InMemoryExecutionUsageLedger();
+    for (let i = 0; i < 3; i++) await metered(new ScriptedExecutor(), ledger).execute(sources(), job());
+    let called = false;
+
+    await metered(new ScriptedExecutor(), ledger).execute(sources(), { ...job(), onAdmitted: async () => void (called = true) });
+
+    expect(called).toBe(false);
+  });
+
   it("execute_admitted_returnsInnerResult", async () => {
     const execution = await metered(new ScriptedExecutor(result({ outcome: "wrong-answer", detail: "test_failures" }))).execute(sources(), job());
 

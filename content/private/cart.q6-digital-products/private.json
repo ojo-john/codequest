@@ -4,6 +4,7 @@
     "cases": [
       {
         "id": "digital-product-needs-no-shipping",
+        "visible": true,
         "steps": [
           {
             "new": "shop.DigitalProduct",
@@ -251,6 +252,7 @@
       },
       {
         "id": "mixed-cart-pays-shipping",
+        "visible": true,
         "steps": [
           {
             "new": "shop.DigitalProduct",

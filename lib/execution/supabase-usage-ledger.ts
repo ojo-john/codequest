@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { AdmissionDecision, UsageSnapshot } from "./budget";
-import type { ExecutionUsageLedger, ReservationRequest } from "./usage-ledger";
+import { DuplicateJobError, type ExecutionUsageLedger, type ReservationRequest } from "./usage-ledger";
 
 /**
  * Supabase implementation of {@link ExecutionUsageLedger} over public.execution_jobs.
@@ -94,6 +94,7 @@ export class SupabaseExecutionUsageLedger implements ExecutionUsageLedger {
         p_reserve_cpu_seconds: request.reserveCpuSeconds,
         p_expected_usage_version: version,
       });
+      if (error?.code === UNIQUE_VIOLATION) throw new DuplicateJobError(request.jobId);
       if (error) throw toLedgerError("reserve_execution_job", error);
       if (data === "reserved") return decision;
 

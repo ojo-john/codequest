@@ -4,6 +4,7 @@
     "cases": [
       {
         "id": "member-never-pays-shipping",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -86,6 +87,7 @@
       },
       {
         "id": "cheapest-small-cart-is-member",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",

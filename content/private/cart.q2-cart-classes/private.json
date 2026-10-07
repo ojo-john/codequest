@@ -52,6 +52,7 @@
       },
       {
         "id": "cart-item-line-total",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -141,6 +142,7 @@
       },
       {
         "id": "two-products",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -243,6 +245,7 @@
       },
       {
         "id": "same-sku-merges",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",

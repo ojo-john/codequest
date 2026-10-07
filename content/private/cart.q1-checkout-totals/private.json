@@ -4,6 +4,7 @@
     "cases": [
       {
         "id": "line-total",
+        "visible": true,
         "steps": [
           {
             "call": "lineTotalCents",
@@ -146,6 +147,7 @@
       },
       {
         "id": "subtotal-two-lines",
+        "visible": true,
         "steps": [
           {
             "call": "subtotalCents",
@@ -295,6 +297,7 @@
       },
       {
         "id": "shipping-below-threshold",
+        "visible": true,
         "steps": [
           {
             "call": "shippingCents",

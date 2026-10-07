@@ -4,6 +4,7 @@
     "cases": [
       {
         "id": "product-rejects-negative-price",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -402,6 +403,7 @@
       },
       {
         "id": "change-quantity",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -634,6 +636,7 @@
       },
       {
         "id": "remove",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",

@@ -15,7 +15,8 @@ afterAll(async () => {
 });
 
 async function resetLedger(): Promise<void> {
-  await sql()`truncate public.execution_jobs`;
+  // cascade: attempts reference their execution job.
+  await sql()`truncate public.execution_jobs cascade`;
   await sql()`update private.execution_controls set paused_until = null, usage_version = 0`;
 }
 

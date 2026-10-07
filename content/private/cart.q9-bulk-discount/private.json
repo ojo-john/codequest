@@ -4,6 +4,7 @@
     "cases": [
       {
         "id": "bulk-discounts-qualifying-lines-only",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -96,6 +97,7 @@
       },
       {
         "id": "bulk-below-minimum-pays-full-price",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
