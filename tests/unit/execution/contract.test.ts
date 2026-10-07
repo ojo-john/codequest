@@ -260,3 +260,34 @@ describe("gradeContract", () => {
     expect([grade.outcome, grade.summary.tests, grade.summary.failures]).toEqual(["succeeded", 2, 0]);
   });
 });
+
+describe("gradeContract case results", () => {
+  const withVisibleFirstCase = (): ContractDefinition => {
+    const base = contract();
+    return { ...base, cases: [{ ...base.cases[0], visible: true }, base.cases[1]] };
+  };
+
+  it("gradeContract_visibleSampleFails_showsExpectedAndActual", () => {
+    const grade = gradeContract(withVisibleFirstCase(), parseContractResults(resultsFor(999)), 0);
+
+    expect(grade.cases[0]).toMatchObject({
+      id: "two-items",
+      visible: true,
+      passed: false,
+      steps: [{ step: 2, passed: false, call: "PriceCalculator.totalCents([tea, cake])", expected: 1150, actual: 999 }],
+    });
+  });
+
+  it("gradeContract_hiddenCase_revealsNoExpectations", () => {
+    const grade = gradeContract(withVisibleFirstCase(), parseContractResults(resultsFor(1150, created("rejects-zero-quantity", 0))), 0);
+
+    expect(grade.cases[1]).toEqual({ id: "rejects-zero-quantity", visible: false, passed: false });
+  });
+
+  it("gradeContract_visibleSampleThrows_explainsWhatHappened", () => {
+    const lines = resultsFor(1150).replace(returned("two-items", 2, 1150), threw("two-items", 2, "java.lang.NullPointerException", ["java.lang.NullPointerException"]));
+
+    expect(gradeContract(withVisibleFirstCase(), parseContractResults(lines), 0).cases[0].steps?.[0].note).toBe("threw java.lang.NullPointerException: m");
+  });
+});
+

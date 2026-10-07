@@ -4,6 +4,7 @@
     "cases": [
       {
         "id": "totals-by-category",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -641,6 +642,7 @@
       },
       {
         "id": "units-in-category",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",

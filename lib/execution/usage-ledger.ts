@@ -13,6 +13,14 @@ export interface ReservationRequest {
   readonly reserveCpuSeconds: number;
 }
 
+/** The job id was admitted before (a retried or replayed request). */
+export class DuplicateJobError extends Error {
+  constructor(readonly jobId: string) {
+    super(`job ${jobId} was already admitted`);
+    this.name = "DuplicateJobError";
+  }
+}
+
 export interface ExecutionUsageLedger {
   admit(request: ReservationRequest, decide: (usage: UsageSnapshot) => AdmissionDecision): Promise<AdmissionDecision>;
   /** Replaces a job's reservation with its measured CPU. Idempotent per job. */
@@ -35,7 +43,7 @@ export class InMemoryExecutionUsageLedger implements ExecutionUsageLedger {
   // No awaits inside: evaluation and recording happen in one synchronous turn, which is atomic
   // within a single Node process.
   async admit(request: ReservationRequest, decide: (usage: UsageSnapshot) => AdmissionDecision): Promise<AdmissionDecision> {
-    if (this.jobs.has(request.jobId)) throw new Error(`job ${request.jobId} was already admitted`);
+    if (this.jobs.has(request.jobId)) throw new DuplicateJobError(request.jobId);
     const decision = decide(this.snapshot(request.userId, request.now));
     if (decision.admitted) {
       this.jobs.set(request.jobId, {

@@ -4,6 +4,7 @@
     "cases": [
       {
         "id": "regular-small-cart-pays-shipping",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -160,6 +161,7 @@
       },
       {
         "id": "percent-off-10",
+        "visible": true,
         "steps": [
           {
             "new": "shop.Product",
@@ -520,6 +522,7 @@
       },
       {
         "id": "percent-off-rejects-0",
+        "visible": true,
         "steps": [
           {
             "new": "shop.PercentOffPricing",

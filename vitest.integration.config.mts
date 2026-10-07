@@ -5,7 +5,10 @@ import { defineConfig } from "vitest/config";
 // database, so files run one at a time.
 export default defineConfig({
   resolve: {
-    alias: { "@": fileURLToPath(new URL("./", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL("./", import.meta.url)),
+      "server-only": fileURLToPath(new URL("./tests/support/server-only.ts", import.meta.url)),
+    },
   },
   test: {
     include: ["tests/integration/**/*.test.ts"],

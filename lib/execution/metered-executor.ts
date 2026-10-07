@@ -17,6 +17,8 @@ export interface MeteredExecuteOptions {
   readonly userId: string;
   readonly grading?: GradingMode;
   readonly signal?: AbortSignal;
+  /** Called after admission, before the sandbox starts (persist the job's state, spec §67). */
+  readonly onAdmitted?: () => Promise<void>;
 }
 
 /** A rejected job never reached the sandbox; the learner's code is untouched and can be resubmitted. */
@@ -68,6 +70,7 @@ export class MeteredJavaExecutor {
 
     let settleCpuSeconds = reserve;
     try {
+      await options.onAdmitted?.();
       const result = await inner.execute(sources, { requestId: options.requestId, grading: options.grading, signal: options.signal });
       if (result.activeCpuMs !== undefined) settleCpuSeconds = result.activeCpuMs / 1000;
       if (result.outcome === "infrastructure-error" && result.infrastructureErrorType === "provider_quota") {

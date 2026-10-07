@@ -45,6 +45,8 @@ const stepSchema = z.union([newStepSchema, staticCallSchema, instanceCallSchema]
 const contractCaseSchema = z
   .object({
     id: z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/),
+    /** Visible samples: graded by Run, with expected values shown to the learner. */
+    visible: z.boolean().default(false),
     steps: z.array(stepSchema).min(1).max(50),
   })
   .strict();
@@ -93,6 +95,12 @@ function collectRefs(value: unknown): string[] {
     return Object.values(record).flatMap(collectRefs);
   }
   return [];
+}
+
+/** Only the visible sample cases (what Run grades). Undefined when a contract has none. */
+export function visibleSamples(contract: ContractDefinition): ContractDefinition | undefined {
+  const cases = contract.cases.filter((testCase) => testCase.visible);
+  return cases.length === 0 ? undefined : { ...contract, cases };
 }
 
 /** The only part of a contract that ever enters the sandbox: every `expect` removed. */
@@ -241,8 +249,64 @@ function judgeStep(step: ContractStep, record: StepRecord | undefined): StepVerd
   return valuesMatch(record.value, expectation.value, expectation.compare) ? "pass" : "fail";
 }
 
+/** What the learner sees about one step of a VISIBLE sample case. */
+export interface SampleStepResult {
+  readonly step: number;
+  readonly passed: boolean;
+  /** Human-readable call, e.g. `Checkout.lineTotalCents(250, 3)`. */
+  readonly call: string;
+  readonly expected?: unknown;
+  readonly actual?: unknown;
+  /** What happened instead, when not a plain value (thrown exception, missing member, …). */
+  readonly note?: string;
+}
+
+/**
+ * Per-case outcome. Hidden cases expose only their id and pass/fail — never their inputs'
+ * expectations; visible samples also carry step details for Run feedback.
+ */
+export interface CaseResult {
+  readonly id: string;
+  readonly visible: boolean;
+  readonly passed: boolean;
+  readonly steps?: readonly SampleStepResult[];
+}
+
 export interface ContractGrade extends Classification {
   readonly summary: TestSummary;
+  readonly cases: readonly CaseResult[];
+}
+
+/** Renders a contract argument like Java source: refs by name, lists as [a, b]. */
+function describeArg(arg: unknown): string {
+  if (Array.isArray(arg)) return `[${arg.map(describeArg).join(", ")}]`;
+  if (arg !== null && typeof arg === "object") {
+    const record = arg as Record<string, unknown>;
+    if (typeof record.$ref === "string") return record.$ref;
+    if (typeof record.$bigint === "string") return `${record.$bigint}L`;
+  }
+  return JSON.stringify(arg);
+}
+
+function describeCall(step: ContractStep): string {
+  const args = step.args.map(describeArg);
+  if ("new" in step) return `new ${step.new.split(".").pop()}(${args.join(", ")})`;
+  const owner = "static" in step ? step.static.split(".").pop() : step.target;
+  return `${owner}.${step.call}(${args.join(", ")})`;
+}
+
+function describeRecord(record: StepRecord | undefined): Pick<SampleStepResult, "actual" | "note"> {
+  if (record === undefined || record.status === "skipped") return { note: "did not run" };
+  if (record.status === "returned") return record.unserializable ? { note: "returned a value that can't be shown" } : { actual: record.value };
+  if (record.status === "threw") return { note: `threw ${record.exception}: ${record.message}` };
+  if (record.status === "error") return { note: record.error === "missing_member" ? `not found: ${record.message}` : record.message };
+  if (record.status === "void") return { note: "returned nothing (void)" };
+  return { note: "created" };
+}
+
+function describeExpected(step: ContractStep): unknown {
+  if (step.expect === undefined) return undefined;
+  return "throws" in step.expect ? `throws ${step.expect.throws}` : step.expect.value;
 }
 
 /**
@@ -256,13 +320,21 @@ export function gradeContract(contract: ContractDefinition, results: ParsedContr
   let missingMembers = 0;
   let missing = 0;
   const failedTests: string[] = [];
+  const cases: CaseResult[] = [];
 
   for (const testCase of contract.cases) {
+    let casePassed = true;
+    const sampleSteps: SampleStepResult[] = [];
     testCase.steps.forEach((step, index) => {
-      const verdict = judgeStep(step, results.records.get(recordKey(testCase.id, index)));
+      const record = results.records.get(recordKey(testCase.id, index));
+      const verdict = judgeStep(step, record);
       const graded = step.expect !== undefined;
+      if (testCase.visible && (graded || verdict !== "pass")) {
+        sampleSteps.push({ step: index, passed: verdict === "pass", call: describeCall(step), expected: describeExpected(step), ...describeRecord(record) });
+      }
       if (graded) tests += 1;
       if (verdict === "pass") return;
+      casePassed = false;
       if (verdict === "missing") {
         // The runner skips the rest of a case after a structural error (missing member, bad
         // argument); those skipped steps are failures already explained by that error.
@@ -280,15 +352,16 @@ export function gradeContract(contract: ContractDefinition, results: ParsedContr
       if (!graded) tests += 1;
       if (failedTests.length < MAX_FAILED_TEST_NAMES) failedTests.push(`${testCase.id}#${index}`);
     });
+    cases.push(testCase.visible ? { id: testCase.id, visible: true, passed: casePassed, steps: sampleSteps } : { id: testCase.id, visible: false, passed: casePassed });
   }
 
   const summary: TestSummary = { tests, failures: failures + missingMembers, errors, skipped: 0, failedTests };
   if (missing > 0 || !results.done) {
-    return { outcome: "runtime-error", detail: results.malformed ? "unreadable_results" : "incomplete_results", summary };
+    return { outcome: "runtime-error", detail: results.malformed ? "unreadable_results" : "incomplete_results", summary, cases };
   }
-  if (errors > 0) return { outcome: "runtime-error", detail: "uncaught_exception", summary };
-  if (missingMembers > 0) return { outcome: "wrong-answer", detail: "missing_member", summary };
-  if (failures > 0) return { outcome: "wrong-answer", detail: "contract_failures", summary };
-  if (exitCode !== 0) return { outcome: "runtime-error", detail: "exit_status_mismatch", summary };
-  return { outcome: "succeeded", detail: "all_contract_steps_passed", summary };
+  if (errors > 0) return { outcome: "runtime-error", detail: "uncaught_exception", summary, cases };
+  if (missingMembers > 0) return { outcome: "wrong-answer", detail: "missing_member", summary, cases };
+  if (failures > 0) return { outcome: "wrong-answer", detail: "contract_failures", summary, cases };
+  if (exitCode !== 0) return { outcome: "runtime-error", detail: "exit_status_mismatch", summary, cases };
+  return { outcome: "succeeded", detail: "all_contract_steps_passed", summary, cases };
 }

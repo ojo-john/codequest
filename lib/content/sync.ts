@@ -1,4 +1,5 @@
 import type postgres from "postgres";
+import type { QuestPayload } from "./payload";
 import type { LoadedContent, LoadedQuest } from "./repository";
 
 /**
@@ -27,7 +28,7 @@ export interface SyncReport {
 
 const IMMUTABLE_STATUSES = new Set(["published", "deprecated"]);
 
-function publicPayload(quest: LoadedQuest): Record<string, unknown> {
+function publicPayload(quest: LoadedQuest): QuestPayload {
   const { manifest } = quest;
   return {
     title: manifest.title,
