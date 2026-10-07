@@ -52,3 +52,6 @@ next-env.d.ts
 # Playwright artifacts
 /test-results/
 /playwright-report/
+
+# Monaco assets copied at dev/build time (scripts/copy-monaco.ts)
+/public/monaco/

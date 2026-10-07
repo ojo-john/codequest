@@ -47,6 +47,8 @@ jobs:
       - run: npm run test:integration
       - run: npm run db:verify-backup
       - run: npm run db:env
+      # Browser tests run real Java through the local Docker runner.
+      - run: npm run runner:docker-build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
 

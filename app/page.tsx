@@ -1,22 +1,86 @@
-import { signOut } from "@/app/auth/actions";
+import Link from "next/link";
+import { AppHeader } from "@/components/app-header";
+import { BudgetPicker } from "@/components/home/budget-picker";
+import { UnreviewedToggle } from "@/components/home/unreviewed-toggle";
+import { Badge, Card, UnreviewedBadge } from "@/components/ui";
 import { requirePageUser } from "@/lib/auth/dal";
+import { learningService } from "@/lib/server/container";
+import { createUserClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
   const user = await requirePageUser("/");
+  const supabase = await createUserClient();
+  const [progress, profile] = await Promise.all([
+    learningService().getProgress(user.userId),
+    supabase.from("profiles").select("settings").eq("user_id", user.userId).single(),
+  ]);
+  const showUnreviewed = (profile.data?.settings as Record<string, unknown> | undefined)?.show_unreviewed_content === true;
+  const done = progress.campaign.filter((quest) => quest.completed).length;
+  const due = progress.skills.filter((skill) => new Date(skill.reviewDueAt) <= new Date()).length;
+
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-12">
-      <header className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">CodeQuest</h1>
-        <form action={signOut}>
-          <button type="submit" className="text-sm text-neutral-600 underline underline-offset-4 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100">
-            Sign out
-          </button>
-        </form>
-      </header>
-      <p className="text-neutral-700 dark:text-neutral-300">
-        Signed in as <span data-testid="signed-in-email" className="font-mono">{user.email}</span>.
-      </p>
-      <p className="text-sm text-neutral-500">The coding campaign arrives in the next Phase 1 steps.</p>
-    </main>
+    <>
+      <AppHeader email={user.email} />
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+            <p className="text-neutral-600 dark:text-neutral-400">Pick how long you have and CodeQuest plans the most useful work for it.</p>
+          </div>
+          <dl className="flex gap-6 text-sm">
+            <div>
+              <dt className="text-neutral-500">XP</dt>
+              <dd className="text-lg font-semibold" data-testid="xp-total">{progress.xp}</dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500">Reviews due</dt>
+              <dd className="text-lg font-semibold">{due}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <Card>
+          <h2 className="mb-3 font-semibold">How much time do you have?</h2>
+          {progress.campaign.length === 0 ? (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              No published content yet. Content becomes available once it has been reviewed — or turn on unreviewed drafts below.
+            </p>
+          ) : (
+            <BudgetPicker />
+          )}
+        </Card>
+
+        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <Card>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-semibold">Shopping-cart campaign</h2>
+              <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                {done} of {progress.campaign.length} done
+              </span>
+            </div>
+            {progress.campaign.length === 0 ? (
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">Nothing to show yet.</p>
+            ) : (
+              <ol className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                {progress.campaign.map((quest) => (
+                  <li key={quest.contentVersionId} className="flex flex-wrap items-center gap-3 py-2.5">
+                    <span className="w-6 text-right text-sm text-neutral-500">{quest.order}.</span>
+                    <Link href={`/quests/${quest.contentVersionId}`} className="font-medium hover:underline">
+                      {quest.title}
+                    </Link>
+                    <UnreviewedBadge status={quest.status} />
+                    {quest.completed && <Badge tone="success">✓ Done</Badge>}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Card>
+          <Card>
+            <h2 className="mb-3 font-semibold">Content</h2>
+            <UnreviewedToggle enabled={showUnreviewed} />
+          </Card>
+        </div>
+      </main>
+    </>
   );
 }

@@ -10,7 +10,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 1 | Product goal | all | — | Release gates (§68, §71) | Not started |
 | 2 | Game structure, 11 worlds, skill DAG | P2 | `skills`, `skill_edges` | Strict-edge cycle check passes; worlds visible with unavailable scope marked | Not started |
 | 3 | Adaptive diagnostic first launch | P2 | diagnostic flow, `attempts` | Placement changes path without skipping fundamentals | Not started |
-| 4 | Daily home screen + time budget | P1 | home page | 5/15/30/45/60+ choices create a session | Not started |
+| 4 | Daily home screen + time budget | P1 | `app/page.tsx` | 5/15/30/45/60+ choices create a session | **Done** — XP, reviews due, budget picker, campaign list with unreviewed labels (e2e) |
 | 5 | Adaptive session engine | P1 | `lib/learning/session-planner.ts`, `create_session()` | Items fit budget; reasons cited; resumable | **In progress** — rules-v1 planner (reviews first, next quest as a resumable slice, reason codes recorded); UI pending |
 | 6 | Java curriculum | P2 | `content/public` manifest | Every listed topic present with review status | Not started |
 | 7 | Big-O world | P2 | question types | Assumptions stated per item | Not started |
@@ -18,7 +18,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 9 | Algorithms & patterns | P2 | content | Per-pattern minimums (§71) | Not started |
 | 10 | Pattern Hunter | P2 | recognition items | Tags hidden in assessment mode | Not started |
 | 11 | Template memory | P2 | blank editor | No snippets; graded on execution | Not started |
-| 12 | Monaco editor | P1 | workspace UI, Zustand | Run/submit/tests/reset-with-warning; AI off in interview mode | Not started |
+| 12 | Monaco editor | P1 | `components/workspace/*` | Run/submit/tests/reset-with-warning; AI off | **In progress** — multi-file Monaco (self-hosted assets), Run/Submit + shortcuts, confirmed reset, font size; Vim mode + custom tests pending |
 | 13 | Secure Java execution | P0→P1 | `lib/execution`, `runner/` | Proof + smoke suites pass on Vercel | **In progress** — gate passed on Docker + Vercel incl. capability drop and contract grading ([evidence](evidence/)); run/submit UI is P1 |
 | 14 | Code grader rubric | P1 | `lib/grading` | Tests decide correctness; incomplete ≠ zero | **In progress** — correctness layer done: contract grading (hidden expectations server-side) + JUnit; rubric weighting P1 |
 | 15 | Hints (superseded by §70 for XP) | P1 | `hint_requests`, `/api/v1/quests/:id/hints` | Hint level recorded; no XP deduction | **Done (server)** — curated tiers served one at a time, recorded server-side, change independence only |
@@ -50,7 +50,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 45 | Content versioning | P0→P1 | `content_versions.status` | Scored versions never mutated | **In progress** — published versions immutable (trigger, tested); truthful review date enforced |
 | 46 | Answer validation | P1 | `lib/grading` | AI cannot override failing tests | Not started |
 | 47 | NFRs (perf, a11y, privacy) | P1→P3 | — | axe checks; targets defined w/ conditions | **In progress** — execution latency measured ~3–4.5 s warm on Vercel (target < 5 s); rest P1+ |
-| 48 | Offline / interruption | P1 | Dexie outbox, revisions | Reload restores code; no silent discard | **In progress** — server side done: `save_project_file()` revision conflicts + replay-safe mutation ids (tested); client outbox P1 |
+| 48 | Offline / interruption | P1 | Dexie drafts, revisions | Reload restores code; no silent discard | **In progress** — IndexedDB drafts, debounced saves with expected revisions, explicit conflict UI, offline retry with backoff, last result restored on reload (e2e: reload restores code) |
 | 49 | Notifications | P3 | prefs | No guilt copy; quiet hours | Not started |
 | 50 | Search | P3 | — | Personal data owner-scoped | Not started |
 | 51 | Notes | P3 | `notes` | User statements not canonical | Not started |
@@ -71,7 +71,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 66 | Schema, RLS, transactions | P0→P1 | `supabase/migrations` | Two-user + anon authz tests | **Done** — 75 integration tests locally + CI; cloud project migrated and anonymous access smoke-tested 2026-10-06 |
 | 67 | API contracts, job states | P1 | `app/api/v1/*` | Job state persisted before provisioning | **In progress** — sessions, quests, hints, executions (run/submit, idempotent job id), progress, preferences; structured errors + request ids |
 | 68 | Setup deliverables | P0→P1 | `docs/`, CI | Fresh setup from guide works | **In progress** — docs + `.github/workflows/ci.yml` (no remote repo yet) |
-| 69 | Playable shopping campaign | P1 | 9 quests | Each quest produces executable code | **In progress** — all 9 quests authored (104 hidden contract cases; references pass, starters fail, on Docker and Vercel); draft status awaiting owner review; UI pending |
+| 69 | Playable shopping campaign | P1 | 9 quests | Each quest produces executable code | **In progress** — playable end to end (e2e: run, hint, submit, XP, reload); all 9 quests draft pending owner review |
 | 70 | Supportive rewards, honest AI | P1 | — | No XP penalty for hints; modes labelled | **In progress** — no hint penalties; unreviewed content opt-in and labelled |
 | 71 | Completion matrix + manifest | P0→P2 | this file, `content/` | Content checks reject broken refs/leaks | **In progress** — content gate + sync with immutability; curriculum manifest grows with each quest |
 | 72 | Review record / risks | all | — | Risks tracked in SECURITY.md / COSTS.md | In progress |
