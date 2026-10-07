@@ -64,3 +64,5 @@ jobs:
       # Builds from checksum-verified artifacts and runs the contract runner's JUnit tests.
       - run: npm run runner:docker-build
       - run: npm run runner:local
+      # Every reference solution passes its contract; every starter compiles but doesn't pass.
+      - run: npm run content:check

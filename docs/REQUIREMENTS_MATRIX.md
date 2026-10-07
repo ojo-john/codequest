@@ -46,7 +46,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 41 | Readiness ≠ XP | P2 | readiness model | Easy grinding can't inflate readiness | Not started |
 | 42 | Knowledge-graph data model | P0→P1 | migrations | Attempts reference immutable versions | **In progress** — schema + immutability triggers tested locally |
 | 43 | Question types | P1→P2 | grading per type | Accessible interaction per type | Not started |
-| 44 | Content accuracy | P1 | content CI | Every example compiles on pinned JDK | Not started |
+| 44 | Content accuracy | P1 | content gate | Every example compiles on pinned JDK | **In progress** — `content:check` runs every reference solution and starter in the real runner (CI); 1 quest so far |
 | 45 | Content versioning | P0→P1 | `content_versions.status` | Scored versions never mutated | **In progress** — published versions immutable (trigger, tested); truthful review date enforced |
 | 46 | Answer validation | P1 | `lib/grading` | AI cannot override failing tests | Not started |
 | 47 | NFRs (perf, a11y, privacy) | P1→P3 | — | axe checks; targets defined w/ conditions | **In progress** — execution latency measured ~3–4.5 s warm on Vercel (target < 5 s); rest P1+ |
@@ -73,5 +73,5 @@ mocks · **P4** advanced ML + optional tutor.
 | 68 | Setup deliverables | P0→P1 | `docs/`, CI | Fresh setup from guide works | **In progress** — docs + `.github/workflows/ci.yml` (no remote repo yet) |
 | 69 | Playable shopping campaign | P1 | 9 quests | Each quest produces executable code | Not started |
 | 70 | Supportive rewards, honest AI | P1 | — | No XP penalty for hints; modes labelled | Not started |
-| 71 | Completion matrix + manifest | P0→P2 | this file, curriculum manifest | Content checks reject broken refs/leaks | **In progress** — matrix created |
+| 71 | Completion matrix + manifest | P0→P2 | this file, `content/` | Content checks reject broken refs/leaks | **In progress** — content gate + sync with immutability; curriculum manifest grows with each quest |
 | 72 | Review record / risks | all | — | Risks tracked in SECURITY.md / COSTS.md | In progress |
