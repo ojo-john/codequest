@@ -420,13 +420,13 @@ enabled = true
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
 
 # Cloud project (CodeQuest org). Only properties that differ from local are overridden here.
-# site_url is updated to the production URL at the first deployment (docs/SETUP.md).
+# site_url and the redirect allow-list match APP_ORIGIN in Vercel's Production environment.
 [remotes.production]
 project_id = "xhgotwtpgvwrkynzxuqz"
 
 [remotes.production.auth]
-site_url = "http://127.0.0.1:3000"
-additional_redirect_urls = []
+site_url = "https://codequest-zeta-self.vercel.app"
+additional_redirect_urls = ["https://codequest-zeta-self.vercel.app/**"]
 # Keep the cloud project's existing values where local defaults differ but no change is intended.
 [remotes.production.auth.email]
 enable_confirmations = true
