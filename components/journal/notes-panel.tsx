@@ -39,7 +39,7 @@ export function NotesPanel({ contentVersionId, initialBody }: { contentVersionId
         <h2 id="notes-title" className="font-semibold">
           Your notes
         </h2>
-        <span className="text-xs text-neutral-500" aria-live="polite">
+        <span className="text-xs text-neutral-500 dark:text-neutral-400" aria-live="polite">
           {status === "saving" ? "Saving…" : status === "saved" ? "Saved" : ""}
         </span>
       </div>

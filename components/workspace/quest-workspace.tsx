@@ -6,7 +6,7 @@ import { NotesPanel } from "@/components/journal/notes-panel";
 import { PastReflection, type PastReflectionView } from "@/components/journal/past-reflection";
 import { ReflectionCard } from "@/components/journal/reflection-card";
 import { Markdown } from "@/components/markdown";
-import { Badge, Button, UnreviewedBadge } from "@/components/ui";
+import { Badge, Button, OutputBlock, UnreviewedBadge } from "@/components/ui";
 import { apiCall, ClientApiError } from "@/lib/client/api";
 import { useActiveSeconds } from "@/lib/client/use-active-seconds";
 import { useWorkspace, type FileStatus } from "@/lib/workspace/store";
@@ -255,7 +255,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
             </div>
             <details className="mt-2">
               <summary className="cursor-pointer">Show the saved version</summary>
-              <pre className="mt-1 max-h-48 overflow-auto rounded bg-white p-2 font-mono text-xs dark:bg-neutral-900">{active.conflict.serverSource}</pre>
+              <OutputBlock label="Saved version" className="mt-1 max-h-48">{active.conflict.serverSource}</OutputBlock>
             </details>
           </div>
         )}
@@ -271,7 +271,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
               onSubmit={() => void execute("submit")}
             />
           ) : (
-            <p className="p-4 text-sm text-neutral-500">Loading your project…</p>
+            <p className="p-4 text-sm text-neutral-500 dark:text-neutral-400">Loading your project…</p>
           )}
         </div>
 
@@ -282,7 +282,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
           <Button variant="primary" onClick={() => void execute("submit")} disabled={running !== undefined} title="Ctrl/⌘ + Shift + Enter">
             {running === "submit" ? "Checking…" : "Submit"}
           </Button>
-          <span className="text-xs text-neutral-500" aria-live="polite">
+          <span className="text-xs text-neutral-500 dark:text-neutral-400" aria-live="polite">
             {active ? `${fileLabel(active.path)}: ${STATUS_TEXT[active.status]}` : ""}
           </span>
           <div className="ml-auto flex items-center gap-1">
@@ -315,7 +315,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
           </div>
         )}
 
-        <div className="max-h-[40vh] overflow-y-auto border-t border-neutral-200 p-3 dark:border-neutral-800" aria-live="polite">
+        <div role="region" aria-label="Results" tabIndex={0} className="max-h-[40vh] overflow-y-auto border-t border-neutral-200 p-3 focus-visible:outline-2 focus-visible:outline-indigo-600 dark:border-neutral-800" aria-live="polite">
           {running && <p className="text-sm text-neutral-600 dark:text-neutral-400">{running === "run" ? "Compiling and running the samples…" : "Compiling and running every check…"}</p>}
           {!running && error && (
             <p role="alert" className="text-sm text-red-700 dark:text-red-400">
@@ -323,7 +323,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
             </p>
           )}
           {!running && result && <ResultsPanel key={resultJobId} result={result} extras={extras} sessionHref={sessionHref} jobId={resultJobId} />}
-          {!running && !result && !error && <p className="text-sm text-neutral-500">Run the samples to check your progress, then Submit when you&apos;re ready.</p>}
+          {!running && !result && !error && <p className="text-sm text-neutral-500 dark:text-neutral-400">Run the samples to check your progress, then Submit when you&apos;re ready.</p>}
         </div>
       </section>
     </main>

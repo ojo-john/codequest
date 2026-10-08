@@ -30,11 +30,11 @@ export default async function HomePage() {
           </div>
           <dl className="flex gap-6 text-sm">
             <div>
-              <dt className="text-neutral-500">XP</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">XP</dt>
               <dd className="text-lg font-semibold" data-testid="xp-total">{progress.xp}</dd>
             </div>
             <div>
-              <dt className="text-neutral-500">Reviews due</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Reviews due</dt>
               <dd className="text-lg font-semibold">{due}</dd>
             </div>
           </dl>
@@ -79,7 +79,7 @@ export default async function HomePage() {
               <ol className="divide-y divide-neutral-200 dark:divide-neutral-800">
                 {progress.campaign.map((quest) => (
                   <li key={quest.contentVersionId} className="flex flex-wrap items-center gap-3 py-2.5">
-                    <span className="w-6 text-right text-sm text-neutral-500">{quest.order}.</span>
+                    <span className="w-6 text-right text-sm text-neutral-500 dark:text-neutral-400">{quest.order}.</span>
                     <Link href={`/quests/${quest.contentVersionId}`} className="font-medium hover:underline">
                       {quest.title}
                     </Link>

@@ -54,7 +54,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
             {session.items.map((item, index) => (
               <li key={item.id}>
                 <Card className="flex flex-wrap items-center gap-3">
-                  <span className="text-sm text-neutral-500">{index + 1}.</span>
+                  <span className="text-sm text-neutral-500 dark:text-neutral-400">{index + 1}.</span>
                   <span className="font-medium">{item.title}</span>
                   <Badge>≈ {item.estimatedMinutes} min</Badge>
                   {item.state === "completed" && <Badge tone="success">✓ Done</Badge>}
