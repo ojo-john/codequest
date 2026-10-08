@@ -18,14 +18,14 @@ mocks · **P4** advanced ML + optional tutor.
 | 9 | Algorithms & patterns | P2 | content | Per-pattern minimums (§71) | Not started |
 | 10 | Pattern Hunter | P2 | recognition items | Tags hidden in assessment mode | Not started |
 | 11 | Template memory | P2 | blank editor | No snippets; graded on execution | Not started |
-| 12 | Monaco editor | P1 | `components/workspace/*` | Run/submit/tests/reset-with-warning; AI off | **In progress** — multi-file Monaco (self-hosted assets), Run/Submit + shortcuts, confirmed reset, font size; Vim mode + custom tests pending |
+| 12 | Monaco editor | P1 | `components/workspace/*` | Run/submit/tests/reset-with-warning; AI off | **In progress** — multi-file Monaco (self-hosted assets), Run/Submit + shortcuts, confirmed reset, font size; custom tests (learner JUnit files, run alongside samples); Vim mode pending |
 | 13 | Secure Java execution | P0→P1 | `lib/execution`, `runner/` | Proof + smoke suites pass on Vercel | **In progress** — gate passed on Docker + Vercel incl. capability drop and contract grading ([evidence](evidence/)); run/submit UI is P1 |
 | 14 | Code grader rubric | P1 | `lib/grading` | Tests decide correctness; incomplete ≠ zero | **In progress** — correctness layer done: contract grading (hidden expectations server-side) + JUnit; rubric weighting P1 |
 | 15 | Hints (superseded by §70 for XP) | P1 | `hint_requests`, `/api/v1/quests/:id/hints` | Hint level recorded; no XP deduction | **Done (server)** — curated tiers served one at a time, recorded server-side, change independence only |
 | 16 | Socratic AI tutor | P4 | optional | Server-side reveal policy | Not started |
 | 17 | Debug Dungeon | P2 | content | Diagnosis + minimal fix + failing test | Not started |
 | 18 | Code reading mode | P2 | question types | Predict-output items graded deterministically | Not started |
-| 19 | Edge-case trainer | P2 | test-authoring UI | Learner tests executed | Not started |
+| 19 | Edge-case trainer | P2 | test-authoring UI | Learner tests executed | **In progress** — learners add JUnit test files (＋ Test file); Run shows their results; Submit grades them against the reference and planted-bug variants (quest 8: 6 mutants, all caught by reference tests in the content gate); testing-dimension evidence + XP from test quality. Checklist/selection mode P2 |
 | 20 | Solution comparison | P2 | content | Claims account for copying/sorting impl | Not started |
 | 21 | Mastery states per dimension | P1 | `mastery_evidence`, `user_skill_state` | Dimensions tracked separately | **In progress** — rules-v1 estimates per skill × dimension, insufficient evidence never "mastered" |
 | 22 | Retrieval practice scheduler | P1 | ladder-v1 | Due-reason shown; version persisted | **In progress** — 1/3/7/14/30/60-day ladder, failures next day, assisted ≤ 3 days; scheduler version stored |

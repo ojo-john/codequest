@@ -104,6 +104,13 @@ Curriculum is data in `content/`: `skills.json`, `public/<id>/` (item.json, inst
 starter code) and `private/<id>/` (contract with hidden expectations, curated hints, reference
 solution). See `docs/CONTENT_REVIEW.md` for the review and publication rules.
 
+A quest that tags a `testing`-dimension skill must grade the learner's own tests: `private.json`
+declares `testQuality` (target file, pass ratio, up to 6 `mutants/*.java` — the reference with one
+planted bug each — and `reference-tests/` under `src/test/java`). The gate runs the reference
+tests and requires them to pass on the reference and catch every mutant; on `--provider vercel`
+the run must also fit the production sandbox lifetime. The local amd64 image runs emulated on
+Apple silicon (~10x slower), so the gate gives that check a 300 s lifetime.
+
 ```sh
 npm run content:check                          # gate: static checks + reference passes / starter doesn't (Docker runner)
 npm run content:check -- --provider vercel     # same, on Vercel Sandbox

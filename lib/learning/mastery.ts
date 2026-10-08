@@ -40,10 +40,22 @@ export function independenceFor(hintLevel: number): Independence {
  * Evidence from a graded submission. Infrastructure failures and cancellations produce NO
  * evidence: they never count against the learner (spec §47, §70).
  */
-export function evidenceFor(outcome: ExecutionOutcome, tags: readonly SkillTag[], independence: Independence): EvidenceRow[] {
+export function evidenceFor(
+  outcome: ExecutionOutcome,
+  tags: readonly SkillTag[],
+  independence: Independence,
+  /**
+   * For quests that grade the learner's own tests: the outcome for "testing"-dimension tags, which
+   * comes from test quality rather than from the code passing. undefined there = no evidence.
+   */
+  testing?: { readonly outcome: EvidenceOutcome | undefined },
+): EvidenceRow[] {
   if (outcome === "infrastructure-error" || outcome === "cancelled") return [];
   const result: EvidenceOutcome = outcome === "succeeded" ? "pass" : "fail";
-  return tags.map((tag) => ({ skillId: tag.skill, dimension: tag.dimension, outcome: result, independence, modelVersion: MASTERY_MODEL_VERSION }));
+  return tags.flatMap((tag) => {
+    const tagOutcome = tag.dimension === "testing" && testing !== undefined ? testing.outcome : result;
+    return tagOutcome === undefined ? [] : [{ skillId: tag.skill, dimension: tag.dimension, outcome: tagOutcome, independence, modelVersion: MASTERY_MODEL_VERSION }];
+  });
 }
 
 export interface SkillState {

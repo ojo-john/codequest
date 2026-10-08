@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { SourceFile } from "@/lib/execution/source-files";
+import type { Mutant } from "@/lib/execution/test-quality";
 import {
   questManifestSchema,
   questPrivateSchema,
@@ -21,6 +22,15 @@ export interface LoadedQuest {
   readonly starter: readonly SourceFile[];
   readonly privateData: QuestPrivate;
   readonly reference: readonly SourceFile[];
+  /** Present when private.json declares testQuality. */
+  readonly testQuality?: LoadedTestQuality;
+}
+
+export interface LoadedTestQuality {
+  readonly target: string;
+  readonly passRatio: number;
+  readonly mutants: readonly Mutant[];
+  readonly referenceTests: readonly SourceFile[];
 }
 
 export interface ContentLoadIssue {
@@ -90,6 +100,18 @@ export function loadContent(contentRoot: string): LoadedContent {
         starter: readTree(join(itemRoot, manifest.starterDir)),
         privateData,
         reference: readTree(join(privateDir, privateData.referenceDir)),
+        ...(privateData.testQuality && {
+          testQuality: {
+            target: privateData.testQuality.target,
+            passRatio: privateData.testQuality.passRatio,
+            mutants: privateData.testQuality.mutants.map((mutant) => ({
+              id: mutant.id,
+              description: mutant.description,
+              content: readFileSync(join(privateDir, mutant.file), "utf8"),
+            })),
+            referenceTests: readTree(join(privateDir, privateData.testQuality.referenceTestsDir)),
+          },
+        }),
       });
     } catch (error) {
       issues.push({ item: dir, message: describe(error) });
