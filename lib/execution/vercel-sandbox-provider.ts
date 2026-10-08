@@ -26,7 +26,9 @@ import {
 
 const credentialsSchema = z.object({
   // Access-token auth is optional; without it the SDK uses VERCEL_OIDC_TOKEN (`vercel env pull`
-  // locally, managed automatically on Vercel).
+  // locally, managed automatically on Vercel). VERCEL_TOKEN alone switches it on: the platform
+  // sets VERCEL_PROJECT_ID (and may set VERCEL_TEAM_ID) in every deployment, so those two say
+  // nothing about which auth was intended.
   VERCEL_TOKEN: z.string().min(1).optional(),
   VERCEL_TEAM_ID: z.string().min(1).optional(),
   VERCEL_PROJECT_ID: z.string().min(1).optional(),
@@ -50,9 +52,9 @@ type Env = Readonly<Record<string, string | undefined>>;
 /** Explicit access-token credentials, or undefined to let the SDK use the OIDC token. */
 export function loadVercelCredentials(env: Env = process.env): VercelCredentials | undefined {
   const { VERCEL_TOKEN: token, VERCEL_TEAM_ID: teamId, VERCEL_PROJECT_ID: projectId } = credentialsSchema.parse(env);
-  if (token === undefined && teamId === undefined && projectId === undefined) return undefined;
-  if (token === undefined || teamId === undefined || projectId === undefined) {
-    throw new Error("VERCEL_TOKEN, VERCEL_TEAM_ID and VERCEL_PROJECT_ID must be set together");
+  if (token === undefined) return undefined;
+  if (teamId === undefined || projectId === undefined) {
+    throw new Error("VERCEL_TOKEN needs VERCEL_TEAM_ID and VERCEL_PROJECT_ID");
   }
   return { token, teamId, projectId };
 }
