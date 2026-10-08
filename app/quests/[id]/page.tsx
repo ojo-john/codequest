@@ -3,7 +3,7 @@ import { AppHeader } from "@/components/app-header";
 import { QuestWorkspace } from "@/components/workspace/quest-workspace";
 import { requirePageUser } from "@/lib/auth/dal";
 import { openCampaignProject } from "@/lib/projects/campaign-project";
-import { learningService } from "@/lib/server/container";
+import { journalService, learningService } from "@/lib/server/container";
 import { ApiError } from "@/lib/server/http";
 
 const UUID = /^[0-9a-f-]{36}$/;
@@ -28,7 +28,10 @@ export default async function QuestPage({ params, searchParams }: PageProps<"/qu
     if (error instanceof ApiError && error.status === 404) notFound();
     throw error;
   }
-  const project = await openCampaignProject(user.userId, quest.campaign.id, CAMPAIGN_TITLES[quest.campaign.id] ?? quest.campaign.id, quest.starter);
+  const [project, journal] = await Promise.all([
+    openCampaignProject(user.userId, quest.campaign.id, CAMPAIGN_TITLES[quest.campaign.id] ?? quest.campaign.id, quest.starter),
+    journalService().questJournal(user.userId, id),
+  ]);
   const query = await searchParams;
   const session = sessionRef(query.session, query.item);
 
@@ -52,6 +55,10 @@ export default async function QuestPage({ params, searchParams }: PageProps<"/qu
         starter={quest.starter}
         project={project}
         session={session}
+        journal={{
+          noteBody: journal.note?.body ?? "",
+          reflection: journal.reflection && { answers: journal.reflection.answers, createdAt: journal.reflection.createdAt, retrievalDue: journal.reflection.retrievalDue },
+        }}
       />
     </>
   );

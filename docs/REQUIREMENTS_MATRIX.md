@@ -53,12 +53,12 @@ mocks · **P4** advanced ML + optional tutor.
 | 48 | Offline / interruption | P1 | Dexie drafts, revisions | Reload restores code; no silent discard | **In progress** — IndexedDB drafts, debounced saves with expected revisions, explicit conflict UI, offline retry with backoff, last result restored on reload (e2e: reload restores code) |
 | 49 | Notifications | P3 | prefs | No guilt copy; quiet hours | Not started |
 | 50 | Search | P3 | — | Personal data owner-scoped | Not started |
-| 51 | Notes | P3 | `notes` | User statements not canonical | Not started |
+| 51 | Notes | P3 | `notes` | User statements not canonical | **In progress** — per-quest notes saved as typed, labelled as your own words and never checked (unit + integration + e2e); flashcards from notes P3 |
 | 52 | Cheat sheets | P3 | content | Hidden in interview mode | Not started |
 | 53 | Mastery exams | P2 | boss flows | Targeted remediation | Not started |
 | 54 | Endgame mix | P3 | session policy | — | Not started |
 | 55 | Interview-ready criteria | P3 | readiness | Minimum-evidence rule | Not started |
-| 56 | Reflection card | P1 | `reflections` | Revisited as retrieval | Not started |
+| 56 | Reflection card | P1 | `reflections` | Revisited as retrieval | **Done** — four versioned prompts after a passing submission, one per attempt (unique index); after 7 days the quest asks you to recall before revealing what you wrote (unit + integration + e2e) |
 | 57 | Transfer tests | P2 | transfer families | Variants grouped; unseen metric honest | Not started |
 | 58 | "Why not?" | P2 | question type | — | Not started |
 | 59 | Blank-page mode | P2 | — | No templates | Not started |
