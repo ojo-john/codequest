@@ -10,8 +10,9 @@ import { createUserClient } from "@/lib/supabase/server";
 export default async function HomePage() {
   const user = await requirePageUser("/");
   const supabase = await createUserClient();
-  const [progress, profile] = await Promise.all([
+  const [progress, active, profile] = await Promise.all([
     learningService().getProgress(user.userId),
+    learningService().activeSession(user.userId),
     supabase.from("profiles").select("settings").eq("user_id", user.userId).single(),
   ]);
   const showUnreviewed = (profile.data?.settings as Record<string, unknown> | undefined)?.show_unreviewed_content === true;
@@ -38,6 +39,20 @@ export default async function HomePage() {
             </div>
           </dl>
         </div>
+
+        {active && (
+          <Card className="flex flex-wrap items-center gap-3 border-indigo-300 dark:border-indigo-800">
+            <div>
+              <h2 className="font-semibold">Pick up where you left off</h2>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                Your {active.budgetMinutes}-minute session has {active.remaining} item{active.remaining === 1 ? "" : "s"} left.
+              </p>
+            </div>
+            <Link href={`/sessions/${active.id}`} className="ml-auto rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+              Resume session
+            </Link>
+          </Card>
+        )}
 
         <Card>
           <h2 className="mb-3 font-semibold">How much time do you have?</h2>

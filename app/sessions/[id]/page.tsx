@@ -26,6 +26,15 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           <h1 className="text-2xl font-semibold tracking-tight">Your {session.budgetMinutes}-minute session</h1>
           <p className="text-neutral-600 dark:text-neutral-400">Planned by CodeQuest&apos;s rules — here&apos;s why.</p>
         </div>
+        {session.state === "completed" && (
+          <div role="status" className="rounded-xl border border-emerald-600/40 bg-emerald-50 p-5 text-emerald-950 dark:bg-emerald-950/40 dark:text-emerald-100">
+            <p className="font-medium">🎉 Session complete. Nice work.</p>
+            <p className="mt-1 text-sm">
+              Everything planned is done. <Link href="/" className="underline">Start another session</Link> or check your{" "}
+              <Link href="/progress" className="underline">progress</Link>.
+            </p>
+          </div>
+        )}
         {session.reasonCodes.length > 0 && (
           <Card>
             <h2 className="mb-2 font-semibold">Why this plan</h2>
@@ -49,11 +58,12 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
                   <span className="font-medium">{item.title}</span>
                   <Badge>≈ {item.estimatedMinutes} min</Badge>
                   {item.state === "completed" && <Badge tone="success">✓ Done</Badge>}
+                  {item.state === "in_progress" && <Badge tone="warning">In progress</Badge>}
                   <Link
-                    href={`/quests/${item.contentVersionId}?item=${item.id}`}
+                    href={`/quests/${item.contentVersionId}?session=${session.id}&item=${item.id}`}
                     className="ml-auto rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
                   >
-                    {item.state === "completed" ? "Open" : "Start"}
+                    {item.state === "completed" ? "Open" : item.state === "in_progress" ? "Continue" : "Start"}
                   </Link>
                 </Card>
               </li>

@@ -137,16 +137,19 @@ describe("hints, sessions and attempts", () => {
 
     const [counts] = await sql()`
       select (select count(*)::int from public.attempts where execution_job_id = ${jobId}) as attempts,
-             (select count(*)::int from public.mastery_evidence where attempt_id = ${first}) as evidence,
+             (select count(*)::int from public.mastery_evidence where attempt_id = ${first.attemptId}) as evidence,
              (select count(*)::int from public.xp_ledger where user_id = ${alice.id} and event_key = 'quest-pass:cart.q1-checkout-totals') as xp`;
-    expect([second, counts]).toEqual([first, { attempts: 1, evidence: 1, xp: 1 }]);
+    expect([second.attemptId, second.awardedXp, counts]).toEqual([first.attemptId, 0, { attempts: 1, evidence: 1, xp: 1 }]);
   });
 
   it("recordGradedAttempt_samePassAgainOnANewJob_doesNotAwardXpTwice", async () => {
-    await store.recordGradedAttempt(attempt(alice, await newJob(alice)));
-    await store.recordGradedAttempt(attempt(alice, await newJob(alice)));
+    const xp = [{ event_key: `quest-pass:test-${crypto.randomUUID()}`, delta: 30 }];
+    const before = await store.xpTotal(alice.id);
 
-    expect(await store.xpTotal(alice.id)).toBe(30);
+    const first = await store.recordGradedAttempt(attempt(alice, await newJob(alice), { xp }));
+    const second = await store.recordGradedAttempt(attempt(alice, await newJob(alice), { xp }));
+
+    expect([first.awardedXp, second.awardedXp, (await store.xpTotal(alice.id)) - before]).toEqual([30, 0, 30]);
   });
 
   it("completedContentIds_afterSuccessfulAttempt_includesTheQuest", async () => {
@@ -171,5 +174,97 @@ describe("hints, sessions and attempts", () => {
     await store.updateJob(jobId, { state: "succeeded", result: { mode: "submit", outcome: "succeeded", detail: "d" } });
 
     expect([await store.getJob(bob.id, jobId), (await store.getJob(alice.id, jobId))?.result?.outcome]).toEqual([undefined, "succeeded"]);
+  });
+});
+
+describe("session completion", () => {
+  let dave: TestUser;
+
+  beforeAll(async () => {
+    dave = await createTestUser("store-dave");
+  });
+
+  afterAll(async () => {
+    if (dave) await deleteTestUser(dave);
+  });
+
+  async function sessionWithItems(count: number): Promise<{ sessionId: string; itemIds: string[] }> {
+    const items = Array.from({ length: count }, () => ({ contentVersionId: questId, estimatedMinutes: 15 }));
+    const sessionId = await store.createSession(dave.id, 30, `key-${crypto.randomUUID()}`, "rules-v1", items);
+    const session = await store.getSession(dave.id, sessionId);
+    return { sessionId, itemIds: session?.items.map((item) => item.id) ?? [] };
+  }
+
+  function submit(sessionItemId: string, outcome: string, user = dave) {
+    return async () => store.recordGradedAttempt(attempt(user, await newJob(user), { sessionItemId, outcome, xp: [] }));
+  }
+
+  it("recordGradedAttempt_failedSubmit_marksItemInProgressNotCompleted", async () => {
+    const { sessionId, itemIds } = await sessionWithItems(1);
+
+    const outcome = await submit(itemIds[0], "wrong-answer")();
+
+    const session = await store.getSession(dave.id, sessionId);
+    expect([session?.items[0].state, session?.state, outcome.sessionCompleted]).toEqual(["in_progress", "active", false]);
+  });
+
+  it("recordGradedAttempt_passOnLastOpenItem_completesTheSession", async () => {
+    const { sessionId, itemIds } = await sessionWithItems(2);
+    await submit(itemIds[0], "succeeded")();
+
+    const outcome = await submit(itemIds[1], "succeeded")();
+
+    const [row] = await sql()`select state, completed_at is not null as stamped from public.sessions where id = ${sessionId}`;
+    expect([outcome.sessionCompleted, row]).toEqual([true, { state: "completed", stamped: true }]);
+  });
+
+  it("recordGradedAttempt_passWithAnotherItemOpen_keepsSessionActive", async () => {
+    const { sessionId, itemIds } = await sessionWithItems(2);
+
+    const outcome = await submit(itemIds[0], "succeeded")();
+
+    expect([outcome.sessionCompleted, (await store.getSession(dave.id, sessionId))?.state]).toEqual([false, "active"]);
+  });
+
+  it("recordGradedAttempt_failAfterPass_keepsItemCompleted", async () => {
+    const { sessionId, itemIds } = await sessionWithItems(2);
+    await submit(itemIds[0], "succeeded")();
+
+    await submit(itemIds[0], "wrong-answer")();
+
+    expect((await store.getSession(dave.id, sessionId))?.items[0].state).toBe("completed");
+  });
+
+  it("recordGradedAttempt_otherUsersSessionItem_isNotTouched", async () => {
+    const { sessionId, itemIds } = await sessionWithItems(1);
+
+    await submit(itemIds[0], "succeeded", bob)();
+
+    expect((await store.getSession(dave.id, sessionId))?.items[0].state).toBe("pending");
+  });
+
+  it("activeSession_openSessionInWindow_isReturnedWithRemainingCount", async () => {
+    const { sessionId, itemIds } = await sessionWithItems(2);
+    await submit(itemIds[0], "succeeded")();
+
+    const active = await store.activeSession(dave.id, new Date(Date.now() - 60_000));
+
+    expect(active).toEqual({ id: sessionId, budgetMinutes: 30, remaining: 1 });
+  });
+
+  it("activeSession_sessionStartedBeforeWindow_isUndefined", async () => {
+    await sessionWithItems(1);
+
+    expect(await store.activeSession(dave.id, new Date(Date.now() + 60_000))).toBeUndefined();
+  });
+
+  it("activeSession_otherUser_isUndefined", async () => {
+    await sessionWithItems(1);
+    const erin = await createTestUser("store-erin");
+    try {
+      expect(await store.activeSession(erin.id, new Date(0))).toBeUndefined();
+    } finally {
+      await deleteTestUser(erin);
+    }
   });
 });

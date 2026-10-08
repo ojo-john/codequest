@@ -43,6 +43,12 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   await page.getByRole("button", { name: "Submit" }).click();
   await expect(page.getByTestId("results")).toContainText("All checks passed", { timeout: 180_000 });
   await expect(page.getByTestId("results")).toContainText("+30 XP");
+  // The 15-minute session held just this quest, so passing it completes the session.
+  await expect(page.getByTestId("results")).toContainText("Session complete");
+
+  // Submitting the same pass again earns nothing new, and says so.
+  await page.getByRole("button", { name: "Submit" }).click();
+  await expect(page.getByTestId("results")).toContainText("No new XP", { timeout: 180_000 });
 
   // The code was saved to the project: a reload brings it back from the server.
   await page.reload();
@@ -54,8 +60,12 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   expect(restored).toBe(REFERENCE);
   await expect(page.getByTestId("results")).toContainText("All checks passed");
 
-  // Home shows the XP and the quest as done; progress shows the evidence.
+  await page.getByRole("link", { name: "← Back to session" }).click();
+  await expect(page.getByText("Session complete. Nice work.")).toBeVisible(FIRST_LOAD);
+
+  // Home shows the XP and the quest as done (no session left to resume); progress shows the evidence.
   await page.goto("/");
+  await expect(page.getByText("Pick up where you left off")).toHaveCount(0);
   await expect(page.getByTestId("xp-total")).toHaveText("30");
   await page.goto("/progress");
   await expect(page.getByRole("cell", { name: "Loops" })).toBeVisible(FIRST_LOAD);
