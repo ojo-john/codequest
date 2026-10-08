@@ -11,6 +11,8 @@ import type { Independence } from "./mastery";
 export const XP = Object.freeze({
   codingChallenge: 30,
   noHintBonus: 20,
+  /** Own tests that catch the planted bugs (spec §19); earned once per quest like the others. */
+  testQuality: 20,
 });
 
 export interface XpAward {
@@ -18,11 +20,12 @@ export interface XpAward {
   readonly delta: number;
 }
 
-export function xpAwardsFor(contentId: string, outcome: ExecutionOutcome, independence: Independence): XpAward[] {
+export function xpAwardsFor(contentId: string, outcome: ExecutionOutcome, independence: Independence, testsCaughtTheBugs = false): XpAward[] {
   if (outcome !== "succeeded") return [];
   const awards: XpAward[] = [{ eventKey: `quest-pass:${contentId}`, delta: XP.codingChallenge }];
   if (independence === "independent" || independence === "accessibility_supported") {
     awards.push({ eventKey: `quest-independent:${contentId}`, delta: XP.noHintBonus });
   }
+  if (testsCaughtTheBugs) awards.push({ eventKey: `quest-tests:${contentId}`, delta: XP.testQuality });
   return awards;
 }

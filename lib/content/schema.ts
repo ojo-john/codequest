@@ -85,6 +85,10 @@ export const questManifestSchema = z
 
 export type QuestManifest = z.infer<typeof questManifestSchema>;
 
+/** Each mutant costs a compile and a test run inside the submission's sandbox lifetime. */
+export const MAX_MUTANTS = 6;
+const CONTENT_ID_SEGMENT = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).max(60);
+
 export const hintTierSchema = z.enum(["direction", "pattern", "key_insight", "pseudocode", "solution"]);
 
 export const questPrivateSchema = z
@@ -93,6 +97,21 @@ export const questPrivateSchema = z
     /** Progressive, curated hints (spec §15, §16): served one tier at a time by the server. */
     hints: z.array(z.object({ tier: hintTierSchema, text: z.string().min(5) }).strict()).min(1),
     referenceDir: z.literal("reference"),
+    /** Grading the learner's own tests against the reference and buggy variants (spec §19). */
+    testQuality: z
+      .object({
+        /** Project path of the file the variants replace. */
+        target: z.string().regex(/^src\/main\/java\/.+\.java$/),
+        passRatio: z.number().gt(0).lte(1),
+        /** JUnit tests that pass on the reference and catch every mutant (checked by the gate). */
+        referenceTestsDir: z.literal("reference-tests"),
+        mutants: z
+          .array(z.object({ id: CONTENT_ID_SEGMENT, description: z.string().min(5).max(120), file: z.string().regex(/^mutants\/[a-z0-9-]+\.java$/) }).strict())
+          .min(1)
+          .max(MAX_MUTANTS),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
