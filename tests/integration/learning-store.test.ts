@@ -336,3 +336,30 @@ describe("follow-up answers", () => {
     expect(error?.code).toBe("42501");
   });
 });
+
+describe("recent submissions", () => {
+  it("recentSubmissions_returnsNewestFirstWithCaseResultsForThisLearnerOnly", async () => {
+    const erin = await createTestUser("store-erin-recent");
+    try {
+      for (const outcome of ["wrong-answer", "succeeded"]) {
+        const jobId = await newJob(erin);
+        await store.updateJob(jobId, { state: "succeeded", result: { mode: "submit", outcome, detail: "d", cases: [{ id: "a", visible: false, passed: outcome === "succeeded" }] } });
+        await store.recordGradedAttempt(attempt(erin, jobId, { outcome, xp: [], evidence: [], skillStates: [] }));
+      }
+      await store.recordGradedAttempt(attempt(bob, await newJob(bob), { xp: [], evidence: [], skillStates: [] }));
+
+      const recent = await store.recentSubmissions(erin.id, new Date(Date.now() - 60_000), 10);
+
+      expect(recent.map((entry) => [entry.outcome, entry.cases])).toEqual([
+        ["succeeded", [{ id: "a", passed: true }]],
+        ["wrong-answer", [{ id: "a", passed: false }]],
+      ]);
+    } finally {
+      await deleteTestUser(erin);
+    }
+  });
+
+  it("skillNames_mapsIdsToNames", async () => {
+    expect((await store.skillNames()).get("java.loops")).toBe("Loops");
+  });
+});

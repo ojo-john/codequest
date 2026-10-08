@@ -27,6 +27,7 @@ export interface DueSkill {
 export type PlanReason =
   | { readonly code: "continue_campaign"; readonly detail: string }
   | { readonly code: "review_due"; readonly detail: string }
+  | { readonly code: "weak_skill"; readonly detail: string }
   | { readonly code: "continues_later"; readonly detail: string };
 
 export interface PlannedItem {
@@ -46,7 +47,14 @@ export interface SessionPlan {
 /** A revisit of a finished quest takes about half its first-time estimate. */
 const REVIEW_FRACTION = 0.5;
 
-export function planSession(budget: BudgetMinutes, quests: readonly QuestCandidate[], dueSkills: readonly DueSkill[], now: Date): SessionPlan {
+export function planSession(
+  budget: BudgetMinutes,
+  quests: readonly QuestCandidate[],
+  dueSkills: readonly DueSkill[],
+  now: Date,
+  /** Skills with repeated recent failures (lib/learning/insights), in priority order. */
+  weakSkills: readonly string[] = [],
+): SessionPlan {
   if (quests.length === 0) return { items: [], policyVersion: SESSION_POLICY_VERSION, emptyReason: "no_content" };
   const ordered = [...quests].sort((a, b) => a.campaignOrder - b.campaignOrder);
   const items: PlannedItem[] = [];
@@ -70,7 +78,23 @@ export function planSession(budget: BudgetMinutes, quests: readonly QuestCandida
     });
   }
 
-  // 2. The next unfinished quest in the campaign. It's included even if it won't fit: the budget
+  // 2. Weak skills (spec §5's second priority): revisit a passed quest that uses the skill.
+  for (const skillId of weakSkills) {
+    const quest = ordered.find((candidate) => candidate.completed && candidate.skills.includes(skillId) && !reviewed.has(candidate.contentVersionId));
+    if (quest === undefined) continue;
+    const minutes = Math.max(5, Math.round(quest.estimatedMinutes * REVIEW_FRACTION));
+    if (minutes > remaining) continue;
+    reviewed.add(quest.contentVersionId);
+    remaining -= minutes;
+    items.push({
+      contentVersionId: quest.contentVersionId,
+      title: quest.title,
+      estimatedMinutes: minutes,
+      reasons: [{ code: "weak_skill", detail: `recent submissions using ${skillId} haven't passed yet` }],
+    });
+  }
+
+  // 3. The next unfinished quest in the campaign. It's included even if it won't fit: the budget
   //    picks the next useful slice, and the quest resumes from its saved project later (spec §69).
   const next = ordered.find((quest) => !quest.completed);
   if (next !== undefined) {

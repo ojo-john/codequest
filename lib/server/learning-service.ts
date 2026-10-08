@@ -9,6 +9,7 @@ import { validateSourceFiles, type SourceFile, type ValidatedSourceSet } from "@
 import { testingOutcome, type TestQualitySpec } from "@/lib/execution/test-quality";
 import { DuplicateJobError } from "@/lib/execution/usage-ledger";
 import { computeRubric, dimensionForCriterion, RUBRIC_VERSION, type RubricResult } from "@/lib/grading/rubric";
+import { deriveInsights, INSIGHT_MAX_SUBMISSIONS, INSIGHT_WINDOW_DAYS, strugglingSkills, type Insight, type QuestRef, type SubmissionSummary } from "@/lib/learning/insights";
 import {
   evidenceFor,
   independenceFor,
@@ -115,7 +116,12 @@ export class LearningService {
 
   async createSession(userId: string, request: z.infer<typeof createSessionSchema>): Promise<{ sessionId: string; plan: SessionPlan }> {
     const now = this.clock();
-    const [quests, completed, states] = await Promise.all([this.store.listVisibleQuests(userId), this.store.completedContentIds(userId), this.store.skillStates(userId)]);
+    const [quests, completed, states, insights] = await Promise.all([
+      this.store.listVisibleQuests(userId),
+      this.store.completedContentIds(userId),
+      this.store.skillStates(userId),
+      this.insights(userId),
+    ]);
     const plan = planSession(
       request.budgetMinutes,
       quests.map((quest) => ({
@@ -129,6 +135,7 @@ export class LearningService {
       })),
       states.map((state) => ({ skillId: state.skillId, dueAt: state.reviewDueAt, reason: "spaced_review" })),
       now,
+      strugglingSkills(insights),
     );
     const sessionId = await this.store.createSession(
       userId,
@@ -289,6 +296,51 @@ export class LearningService {
       return (await this.store.followUpContext(userId, jobId))?.answered ?? new Map();
     }
     return new Map(answers.map((answer) => [answer.followup_id, { choice: answer.choice, correct: answer.correct }]));
+  }
+
+  /**
+   * Patterns in the learner's recent work (spec §61), with sample sizes and a suggested next
+   * step. Submissions for quests that aren't visible any more are left out.
+   */
+  async insights(userId: string): Promise<Insight[]> {
+    const now = this.clock();
+    const since = new Date(now.getTime() - INSIGHT_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+    const [quests, completed, submissions, skillNames] = await Promise.all([
+      this.store.listVisibleQuests(userId),
+      this.store.completedContentIds(userId),
+      this.store.recentSubmissions(userId, since, INSIGHT_MAX_SUBMISSIONS),
+      this.store.skillNames(),
+    ]);
+    const byVersion = new Map(quests.map((quest) => [quest.contentVersionId, quest]));
+    const relevant = submissions.filter((submission) => byVersion.has(submission.contentVersionId));
+    const gradings = new Map(
+      await Promise.all([...new Set(relevant.map((submission) => submission.contentVersionId))].map(async (id) => [id, await this.store.getGrading(id)] as const)),
+    );
+    const summaries: SubmissionSummary[] = relevant.map((submission) => {
+      const quest = byVersion.get(submission.contentVersionId) as QuestRecord;
+      return {
+        attemptId: submission.attemptId,
+        contentVersionId: submission.contentVersionId,
+        contentId: quest.contentId,
+        createdAt: submission.createdAt,
+        outcome: submission.outcome,
+        hintLevel: submission.hintLevel,
+        passedCaseIds: submission.cases.filter((testCase) => testCase.passed).map((testCase) => testCase.id),
+        failedCaseIds: submission.cases.filter((testCase) => !testCase.passed).map((testCase) => testCase.id),
+        edgeCaseIds: gradings.get(submission.contentVersionId)?.rubric?.edgeCases ?? [],
+        skills: [...new Set(quest.skills.map((tag) => tag.skill))],
+      };
+    });
+    const refs: QuestRef[] = quests.map((quest) => ({
+      contentVersionId: quest.contentVersionId,
+      contentId: quest.contentId,
+      title: quest.title,
+      order: quest.campaign.order,
+      completed: completed.has(quest.contentId),
+      skills: [...new Set(quest.skills.map((tag) => tag.skill))],
+      gradesTests: quest.skills.some((tag) => tag.dimension === "testing"),
+    }));
+    return deriveInsights(summaries, refs, skillNames, now);
   }
 
   /** The session to offer "resume" for on the home screen, if any. */
