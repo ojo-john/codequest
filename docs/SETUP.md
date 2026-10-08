@@ -86,8 +86,14 @@ created 2026-10-06. The database password is in the git-ignored `.env.supabase.l
   `SUPABASE_URL=… SUPABASE_SECRET_KEY=… npm run auth:create-owner -- --email <owner>`.
   The built-in email service only delivers to members of the Supabase organization, so the owner
   email must be the Supabase account's email.
-- At the first deployment: set `site_url` and `additional_redirect_urls` in
-  `[remotes.production.auth]` to the production origin and `/auth/callback`, then config push.
+- Production (first deployed 2026-10-08): https://codequest-zeta-self.vercel.app. `main` deploys
+  automatically (GitHub repo connected to the Vercel project). Vercel Production also sets
+  `APP_ORIGIN` to that origin, which must match `site_url` and `additional_redirect_urls` in
+  `[remotes.production.auth]` (pushed with `npx supabase config push`). Changing the domain means
+  updating all three.
+- Cloud content: `SUPABASE_DB_URL=<session pooler URL> npm run content:sync -- --target cloud`.
+  The direct `db.<ref>.supabase.co` host is IPv6-only; use the session pooler
+  (`postgres.<ref>@aws-0-us-east-1.pooler.supabase.com:5432`) with the URL-encoded password.
 
 ## Content (spec §44–45, §71)
 
