@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Markdown } from "@/components/markdown";
 import { Badge, Button, UnreviewedBadge } from "@/components/ui";
@@ -28,7 +29,8 @@ interface Props {
   readonly quest: QuestView;
   readonly starter: ReadonlyArray<{ path: string; content: string }>;
   readonly project: { projectId: string; files: ReadonlyArray<{ path: string; revision: number; source: string }> };
-  readonly sessionItemId?: string;
+  /** Set when the quest was opened from a planned session. */
+  readonly session?: { readonly id: string; readonly itemId: string };
 }
 
 const STATUS_TEXT: Record<FileStatus, string> = {
@@ -65,7 +67,9 @@ function ProjectSync() {
   return null;
 }
 
-export function QuestWorkspace({ quest, starter, project, sessionItemId }: Props) {
+export function QuestWorkspace({ quest, starter, project, session }: Props) {
+  const sessionItemId = session?.itemId;
+  const sessionHref = session ? `/sessions/${session.id}` : undefined;
   // Ready once the shared store holds this project (init happens in an effect below).
   const ready = useWorkspace((state) => state.projectId === project.projectId);
   const files = useWorkspace((state) => state.files);
@@ -119,7 +123,7 @@ export function QuestWorkspace({ quest, starter, project, sessionItemId }: Props
           },
         });
         setResult(response.result);
-        if (mode === "submit") setExtras({ awardedXp: response.awardedXp, skills: response.skills });
+        if (mode === "submit") setExtras({ awardedXp: response.awardedXp, sessionCompleted: response.sessionCompleted, skills: response.skills });
       } catch (caught) {
         setError(caught instanceof ClientApiError ? caught.message : "Couldn't run your code.");
       } finally {
@@ -158,6 +162,11 @@ export function QuestWorkspace({ quest, starter, project, sessionItemId }: Props
           <UnreviewedBadge status={quest.status} />
           <Badge>{STAGE_TEXT[quest.stage] ?? quest.stage}</Badge>
           <Badge>≈ {quest.estimatedMinutes} min</Badge>
+          {sessionHref && (
+            <Link href={sessionHref} className="ml-auto text-sm text-indigo-700 hover:underline dark:text-indigo-300">
+              ← Back to session
+            </Link>
+          )}
         </div>
         <p className="lg:hidden text-sm text-neutral-600 dark:text-neutral-400">Coding is easiest on a larger screen; everything you type is saved as you go.</p>
         <Markdown>{withoutRepeatedTitle(quest.instructions, quest.title)}</Markdown>
@@ -289,7 +298,7 @@ export function QuestWorkspace({ quest, starter, project, sessionItemId }: Props
               {error}
             </p>
           )}
-          {!running && result && <ResultsPanel result={result} extras={extras} />}
+          {!running && result && <ResultsPanel result={result} extras={extras} sessionHref={sessionHref} />}
           {!running && !result && !error && <p className="text-sm text-neutral-500">Run the samples to check your progress, then Submit when you&apos;re ready.</p>}
         </div>
       </section>
