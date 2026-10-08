@@ -686,5 +686,48 @@
       "text": "discount = multiplyExact(subtotal, percent) / 100; discounted = subtotal - discount; return discounted + shippingCents(discounted). Cart: if pricing == null -> throw; return pricing.totalCents(this)."
     }
   ],
-  "referenceDir": "reference"
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "regular-free-shipping-at-threshold",
+      "regular-empty-cart",
+      "percent-off-rounds-discount-down",
+      "percent-off-can-lose-free-shipping",
+      "percent-off-90",
+      "percent-off-1",
+      "percent-off-rejects-0",
+      "percent-off-rejects-91",
+      "cart-total-rejects-missing-strategy"
+    ],
+    "followUps": [
+      {
+        "id": "why-depend-on-interface",
+        "criterion": "explanation",
+        "skill": "java.interfaces",
+        "prompt": "What does ShoppingCart gain by depending on the PricingStrategy interface instead of on PercentOffPricing?",
+        "options": [
+          "New promotions can be added without changing ShoppingCart.",
+          "Calls through an interface are faster.",
+          "The cart can change a strategy's percentage.",
+          "Nothing; it's only style."
+        ],
+        "answer": 0,
+        "why": "The cart only knows the contract 'give me a total'. Any class that fulfils it can be passed in, so marketing's next idea is a new class, not an edit to the cart."
+      },
+      {
+        "id": "why-integer-discount",
+        "criterion": "explanation",
+        "skill": "java.integer-arithmetic",
+        "prompt": "Why compute the discount as subtotal × percent / 100 with long arithmetic instead of subtotal * (percent / 100.0)?",
+        "options": [
+          "Doubles can't be multiplied by longs.",
+          "Integer division rounds down to a whole cent exactly as the rule says, while doubles can't represent most cent values exactly.",
+          "Integer division rounds to the nearest cent.",
+          "subtotal * (percent / 100) in int arithmetic is more precise."
+        ],
+        "answer": 1,
+        "why": "Integer division truncates, which is exactly 'rounded down to a whole cent'. Doubles introduce tiny binary errors (0.1 has no exact binary form). Note percent / 100 in int arithmetic would be 0, which is why the multiplication comes first."
+      }
+    ]
+  }
 }

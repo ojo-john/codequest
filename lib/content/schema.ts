@@ -85,6 +85,11 @@ export const questManifestSchema = z
 
 export type QuestManifest = z.infer<typeof questManifestSchema>;
 
+export const MAX_FOLLOW_UPS = 5;
+export const MAX_FOLLOW_UP_OPTIONS = 5;
+/** Rubric criteria a follow-up question can assess. */
+export const followUpCriterionSchema = z.enum(["explanation", "time_complexity", "space_complexity", "algorithm_choice"]);
+
 /** Each mutant costs a compile and a test run inside the submission's sandbox lifetime. */
 export const MAX_MUTANTS = 6;
 const CONTENT_ID_SEGMENT = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).max(60);
@@ -97,6 +102,31 @@ export const questPrivateSchema = z
     /** Progressive, curated hints (spec §15, §16): served one tier at a time by the server. */
     hints: z.array(z.object({ tier: hintTierSchema, text: z.string().min(5) }).strict()).min(1),
     referenceDir: z.literal("reference"),
+    /** Rubric inputs beyond correctness (spec §14): edge-case checks and follow-up questions. */
+    rubric: z
+      .object({
+        /** Hidden contract case ids that exercise edge cases (scored as the edge-cases criterion). */
+        edgeCases: z.array(z.string().min(1)).max(200).default([]),
+        /** Objective questions asked after a pass, graded against `answer` (spec §43, §46). */
+        followUps: z
+          .array(
+            z
+              .object({
+                id: CONTENT_ID_SEGMENT,
+                criterion: followUpCriterionSchema,
+                skill: contentIdSchema,
+                prompt: z.string().min(10).max(400),
+                options: z.array(z.string().min(1).max(300)).min(2).max(MAX_FOLLOW_UP_OPTIONS),
+                answer: z.number().int().min(0),
+                why: z.string().min(10).max(600),
+              })
+              .strict(),
+          )
+          .max(MAX_FOLLOW_UPS)
+          .default([]),
+      })
+      .strict()
+      .optional(),
     /** Grading the learner's own tests against the reference and buggy variants (spec §19). */
     testQuality: z
       .object({

@@ -31,6 +31,7 @@ export const ARCHIVE_ROW_LIMITS = {
   notes: 10_000,
   reflections: 20_000,
   recommendationFeedback: 20_000,
+  followUpAnswers: 100_000,
 } as const;
 
 const uuid = z.uuid();
@@ -157,6 +158,15 @@ const feedbackSchema = z.object({
   created_at: timestamp,
 }).strict();
 
+const followUpAnswerSchema = z.object({
+  id: uuid,
+  attempt_id: uuid,
+  followup_id: shortText(60),
+  choice: z.number().int().min(0).max(9),
+  correct: z.boolean(),
+  created_at: timestamp,
+}).strict();
+
 const L = ARCHIVE_ROW_LIMITS;
 
 export const archiveDataSchema = z.object({
@@ -180,6 +190,9 @@ export const archiveDataSchema = z.object({
   notes: z.array(noteSchema).max(L.notes),
   reflections: z.array(reflectionSchema).max(L.reflections),
   recommendation_feedback: z.array(feedbackSchema).max(L.recommendationFeedback),
+  // Added with rubric-v1. Optional with no default: filling it in would change the canonical
+  // JSON of older archives and invalidate their signatures.
+  followup_answers: z.array(followUpAnswerSchema).max(L.followUpAnswers).optional(),
 }).strict();
 
 export type ArchiveData = z.infer<typeof archiveDataSchema>;

@@ -34,8 +34,10 @@ A published version is frozen — payload, skill tags and hidden grading. To cha
 1. Read `content/public/<id>/instructions.md` and the starter, solve it once yourself.
 2. Read `content/private/<id>/private.json`: are the hidden cases fair given the instructions?
    Does every expected value match the instructions?
-3. Run `npm run content:check`.
-4. Set `"review": { "status": "published", "reviewer": "<your name>", "reviewedAt": "YYYY-MM-DD" }`
+3. Read the `rubric` block in `private.json`: are the `edgeCases` really edge cases, does each
+   follow-up question have exactly one defensible answer, and is its `why` correct?
+4. Run `npm run content:check`.
+5. Set `"review": { "status": "published", "reviewer": "<your name>", "reviewedAt": "YYYY-MM-DD" }`
    and run `npm run content:sync`.
 
 ## Awaiting review (2026-10-07)

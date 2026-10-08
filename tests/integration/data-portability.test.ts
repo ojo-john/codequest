@@ -34,7 +34,7 @@ async function seedLearner(user: TestUser): Promise<{ projectId: string }> {
   await learning.recordRecommendation(user.id, sessionId, ["new_material"], "planner-v1");
   const view = await learning.getSession(user.id, sessionId);
   await learning.recordHint(user.id, questId, 3);
-  await learning.recordGradedAttempt({
+  const graded = await learning.recordGradedAttempt({
     userId: user.id,
     executionJobId: await newJob(user),
     contentVersionId: questId,
@@ -48,6 +48,13 @@ async function seedLearner(user: TestUser): Promise<{ projectId: string }> {
     evidence: [{ skill_id: "java.loops", dimension: "implementation", outcome: "pass", independence: "hinted", model_version: "rules-v1" }],
     skillStates: [{ skill_id: "java.loops", dimension: "implementation", estimate: 0.25, evidence_count: 1, review_due_at: "2026-10-10T00:00:00Z", scheduler_version: "ladder-v1", model_version: "rules-v1" }],
     xp: [{ event_key: "quest-pass:cart.q1-checkout-totals", delta: 30 }],
+  });
+  await learning.recordFollowUpAnswers({
+    userId: user.id,
+    attemptId: graded.attemptId,
+    answers: [{ followup_id: "why-multiply-exact", choice: 1, correct: true }],
+    evidence: [{ skill_id: "java.integer-arithmetic", dimension: "explanation", outcome: "pass", independence: "hinted", model_version: "rules-v1" }],
+    skillStates: [],
   });
   const project = await user.client.from("projects").insert({ user_id: user.id, campaign_id: CAMPAIGN, title: "Shopping cart" }).select("id").single();
   if (project.error) throw project.error;
@@ -72,7 +79,8 @@ async function counts(user: TestUser) {
       (select count(*)::int from public.hint_requests where user_id = ${user.id}) as hints,
       (select count(*)::int from public.projects where user_id = ${user.id}) as projects,
       (select count(*)::int from public.project_files where user_id = ${user.id}) as files,
-      (select count(*)::int from public.notes where user_id = ${user.id}) as notes`;
+      (select count(*)::int from public.notes where user_id = ${user.id}) as notes,
+      (select count(*)::int from public.followup_answers where user_id = ${user.id}) as followup_answers`;
   return row;
 }
 
@@ -113,7 +121,7 @@ describe("export and import", () => {
     await archives.importArchive(alice.id, archive);
 
     expect([before, await counts(alice)]).toEqual([
-      { sessions: 1, session_items: 1, attempts: 1, evidence: 1, skill_states: 1, recommendations: 1, xp: 30, hints: 1, projects: 1, files: 1, notes: 1 },
+      { sessions: 1, session_items: 1, attempts: 1, evidence: 2, skill_states: 1, recommendations: 1, xp: 30, hints: 1, projects: 1, files: 1, notes: 1, followup_answers: 1 },
       before,
     ]);
   });
@@ -217,8 +225,9 @@ describe("export and import", () => {
 
     await archives.importArchive(alice.id, archive);
 
+    // Bob's own two rows (code + follow-up answer), nothing of Alice's.
     const [row] = await sql()`select count(*)::int as n from public.mastery_evidence where attempt_id = ${bobAttempt.id}`;
-    expect(row.n).toBe(1);
+    expect(row.n).toBe(2);
   });
 
   it("importUserData_childRowsForSomeoneElsesParents_areSkippedEvenWhenTrusted", async () => {

@@ -43,6 +43,20 @@ describe("archiveSchema", () => {
     expect(archiveDataSchema.safeParse({ ...data, projects }).success).toBe(false);
   });
 
+  it("archiveSchema_archiveWithoutFollowUpAnswers_staysWithoutThem", () => {
+    // Older archives have no followup_answers; adding a default would change their canonical JSON
+    // and break their signatures.
+    const parsed = archiveDataSchema.parse(archiveData());
+
+    expect("followup_answers" in parsed).toBe(false);
+  });
+
+  it("archiveSchema_followUpChoiceOutOfRange_isRejected", () => {
+    const data = archiveData({ followup_answers: [{ id: crypto.randomUUID(), attempt_id: crypto.randomUUID(), followup_id: "why", choice: 10, correct: true, created_at: "2026-10-01T10:00:00Z" }] });
+
+    expect(archiveDataSchema.safeParse(data).success).toBe(false);
+  });
+
   it("archiveSchema_emptyTables_areValid", () => {
     const empty = archiveData({
       profile: null, sessions: [], session_items: [], attempts: [], mastery_evidence: [], skill_states: [], recommendations: [],

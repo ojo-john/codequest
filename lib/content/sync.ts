@@ -45,6 +45,7 @@ function publicPayload(quest: LoadedQuest): QuestPayload {
 
 function hiddenGrading(quest: LoadedQuest): Record<string, unknown> {
   const grading: Record<string, unknown> = { contract: quest.privateData.contract, hints: quest.privateData.hints };
+  if (quest.privateData.rubric !== undefined) grading.rubric = quest.privateData.rubric;
   const quality = quest.testQuality;
   if (quality !== undefined) {
     // The baseline travels with the mutants so grading needs one read; validation guarantees the target exists.
