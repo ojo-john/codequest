@@ -6,12 +6,20 @@ import { openCampaignProject } from "@/lib/projects/campaign-project";
 import { learningService } from "@/lib/server/container";
 import { ApiError } from "@/lib/server/http";
 
+const UUID = /^[0-9a-f-]{36}$/;
+
+/** The planned session this quest was opened from; the database ignores items that aren't the learner's. */
+function sessionRef(session: unknown, item: unknown): { id: string; itemId: string } | undefined {
+  if (typeof session !== "string" || typeof item !== "string" || !UUID.test(session) || !UUID.test(item)) return undefined;
+  return { id: session, itemId: item };
+}
+
 const CAMPAIGN_TITLES: Record<string, string> = { "campaign.shopping-cart": "Shopping cart" };
 
 export default async function QuestPage({ params, searchParams }: PageProps<"/quests/[id]">) {
   const { id } = await params;
   const user = await requirePageUser(`/quests/${id}`);
-  if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
+  if (!UUID.test(id)) notFound();
 
   let quest;
   try {
@@ -21,7 +29,8 @@ export default async function QuestPage({ params, searchParams }: PageProps<"/qu
     throw error;
   }
   const project = await openCampaignProject(user.userId, quest.campaign.id, CAMPAIGN_TITLES[quest.campaign.id] ?? quest.campaign.id, quest.starter);
-  const item = (await searchParams).item;
+  const query = await searchParams;
+  const session = sessionRef(query.session, query.item);
 
   return (
     <>
@@ -42,7 +51,7 @@ export default async function QuestPage({ params, searchParams }: PageProps<"/qu
         }}
         starter={quest.starter}
         project={project}
-        sessionItemId={typeof item === "string" && /^[0-9a-f-]{36}$/.test(item) ? item : undefined}
+        session={session}
       />
     </>
   );

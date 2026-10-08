@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Badge } from "@/components/ui";
 
 export interface CaseView {
@@ -20,7 +21,9 @@ export interface ExecutionView {
 }
 
 export interface SubmissionExtras {
+  /** XP newly added by this submission (0 when this quest's XP was already earned). */
   readonly awardedXp: number;
+  readonly sessionCompleted: boolean;
   readonly skills: ReadonlyArray<{ skillId: string; dimension: string; state: string; reviewInDays: number }>;
 }
 
@@ -47,7 +50,13 @@ function show(value: unknown): string {
   return typeof value === "string" ? JSON.stringify(value) : JSON.stringify(value, null, 0);
 }
 
-export function ResultsPanel({ result, extras }: { result: ExecutionView; extras?: SubmissionExtras }) {
+export function xpMessage(outcome: string, awardedXp: number): string | undefined {
+  if (awardedXp > 0) return `+${awardedXp} XP`;
+  if (outcome === "succeeded") return "No new XP: you've already earned this quest's XP.";
+  return undefined;
+}
+
+export function ResultsPanel({ result, extras, sessionHref }: { result: ExecutionView; extras?: SubmissionExtras; sessionHref?: string }) {
   const headline = HEADLINES[result.outcome] ?? { tone: "info" as const, icon: "?", text: result.outcome };
   const visible = result.cases?.filter((testCase) => testCase.visible) ?? [];
   const hidden = result.cases?.filter((testCase) => !testCase.visible) ?? [];
@@ -107,7 +116,17 @@ export function ResultsPanel({ result, extras }: { result: ExecutionView; extras
 
       {extras && result.mode === "submit" && (
         <div className="rounded-md border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900 dark:bg-indigo-950/40">
-          {extras.awardedXp > 0 && <p className="font-medium">+{extras.awardedXp} XP (if not already earned for this quest)</p>}
+          {xpMessage(result.outcome, extras.awardedXp) && <p className="font-medium">{xpMessage(result.outcome, extras.awardedXp)}</p>}
+          {extras.sessionCompleted && (
+            <p className="mt-1 font-medium" role="status">
+              🎉 Session complete.{" "}
+              {sessionHref && (
+                <Link href={sessionHref} className="underline">
+                  See your session
+                </Link>
+              )}
+            </p>
+          )}
           {extras.skills.length > 0 && (
             <ul className="mt-1 space-y-0.5">
               {extras.skills.map((skill) => (

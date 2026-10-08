@@ -82,6 +82,22 @@ export interface GradedAttemptInput {
   readonly xp: ReadonlyArray<{ event_key: string; delta: number }>;
 }
 
+/** What recording a graded attempt actually changed. */
+export interface GradedAttemptOutcome {
+  readonly attemptId: string;
+  /** XP newly written to the ledger by this call; 0 when every award was already earned. */
+  readonly awardedXp: number;
+  /** True when this attempt completed the last open item of its session. */
+  readonly sessionCompleted: boolean;
+}
+
+export interface ActiveSession {
+  readonly id: string;
+  readonly budgetMinutes: number;
+  /** Items neither completed nor skipped. */
+  readonly remaining: number;
+}
+
 export interface LearningStore {
   listVisibleQuests(userId: string): Promise<QuestRecord[]>;
   getVisibleQuest(userId: string, contentVersionId: string): Promise<QuestRecord | undefined>;
@@ -96,7 +112,8 @@ export interface LearningStore {
   getSession(userId: string, sessionId: string): Promise<SessionView | undefined>;
   updateJob(jobId: string, patch: { state: JobState; outcomeDetail?: string; limitedLogs?: string; gradingMode?: "contract" | "junit"; result?: ClientExecutionResult }): Promise<void>;
   getJob(userId: string, jobId: string): Promise<JobView | undefined>;
-  recordGradedAttempt(input: GradedAttemptInput): Promise<string>;
+  recordGradedAttempt(input: GradedAttemptInput): Promise<GradedAttemptOutcome>;
+  activeSession(userId: string, startedAfter: Date): Promise<ActiveSession | undefined>;
 }
 
 /** Store failure (database unreachable, unexpected response). Surfaces as a 503, never as a learner outcome. */
@@ -110,6 +127,8 @@ export class StoreError extends Error {
 const UNREVIEWED_VISIBLE: readonly ContentStatus[] = ["published", "draft", "ai_reviewed", "human_reviewed"];
 const PUBLISHED_ONLY: readonly ContentStatus[] = ["published"];
 const MAX_LOG_BYTES = 64 * 1024;
+
+const gradedAttemptSchema = z.object({ attempt_id: z.string(), awarded_xp: z.number().int().nonnegative(), session_completed: z.boolean() });
 
 const versionRowSchema = z.object({
   id: z.string(),
@@ -261,8 +280,8 @@ export class SupabaseLearningStore implements LearningStore {
     return { id: row.id as string, state: row.state as JobState, createdAt: row.created_at as string, result: (row.result as ClientExecutionResult | null) ?? null };
   }
 
-  async recordGradedAttempt(input: GradedAttemptInput): Promise<string> {
-    return String(
+  async recordGradedAttempt(input: GradedAttemptInput): Promise<GradedAttemptOutcome> {
+    const row = gradedAttemptSchema.parse(
       check(
         "record_graded_attempt",
         await this.db.rpc("record_graded_attempt", {
@@ -282,5 +301,26 @@ export class SupabaseLearningStore implements LearningStore {
         }),
       ),
     );
+    return { attemptId: row.attempt_id, awardedXp: row.awarded_xp, sessionCompleted: row.session_completed };
   }
+
+  /** The most recent active session started after `startedAfter` that still has open items. */
+  async activeSession(userId: string, startedAfter: Date): Promise<ActiveSession | undefined> {
+    const row = check(
+      "active_session",
+      await this.db
+        .from("sessions")
+        .select("id, budget_minutes, session_items(state)")
+        .eq("user_id", userId)
+        .eq("state", "active")
+        .gte("started_at", startedAfter.toISOString())
+        .order("started_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ) as { id: string; budget_minutes: number; session_items: Array<{ state: string }> } | null;
+    if (row === null) return undefined;
+    const remaining = row.session_items.filter((item) => item.state !== "completed" && item.state !== "skipped").length;
+    return remaining === 0 ? undefined : { id: row.id, budgetMinutes: row.budget_minutes, remaining };
+  }
+
 }

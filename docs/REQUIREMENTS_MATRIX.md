@@ -11,7 +11,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 2 | Game structure, 11 worlds, skill DAG | P2 | `skills`, `skill_edges` | Strict-edge cycle check passes; worlds visible with unavailable scope marked | Not started |
 | 3 | Adaptive diagnostic first launch | P2 | diagnostic flow, `attempts` | Placement changes path without skipping fundamentals | Not started |
 | 4 | Daily home screen + time budget | P1 | `app/page.tsx` | 5/15/30/45/60+ choices create a session | **Done** — XP, reviews due, budget picker, campaign list with unreviewed labels (e2e) |
-| 5 | Adaptive session engine | P1 | `lib/learning/session-planner.ts`, `create_session()` | Items fit budget; reasons cited; resumable | **In progress** — rules-v1 planner (reviews first, next quest as a resumable slice, reason codes recorded); UI pending |
+| 5 | Adaptive session engine | P1 | `lib/learning/session-planner.ts`, `create_session()` | Items fit budget; reasons cited; resumable | **In progress** — rules-v1 planner (reviews first, next quest as a resumable slice, reason codes recorded); session page with reasons, back-to-session links, completion on the last passing item, resume card on home (e2e) |
 | 6 | Java curriculum | P2 | `content/public` manifest | Every listed topic present with review status | Not started |
 | 7 | Big-O world | P2 | question types | Assumptions stated per item | Not started |
 | 8 | Data structures | P2 | content | Per-structure checklist complete | Not started |
@@ -38,7 +38,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 33 | Interview communication | P3 | workflow prompts | — | Not started |
 | 34 | Mock interviews | P3 | mock mode | Mode labelled honestly (§70) | Not started |
 | 35 | Behavioral | P3 | STAR flows | No fabricated facts | Not started |
-| 36 | XP | P1 | `xp_ledger` (unique `event_key`) | Repeated submission cannot duplicate XP | **Done (server)** — keyed awards, tested twice-submitted and replayed jobs |
+| 36 | XP | P1 | `xp_ledger` (unique `event_key`) | Repeated submission cannot duplicate XP | **Done** — keyed awards, tested twice-submitted and replayed jobs; the result shows exactly the XP newly earned (integration + e2e) |
 | 37 | Streaks | P3 | timezone-aware | Freeze/vacation rules defined | Not started |
 | 38 | Achievements | P3 | `achievement_awards` | Tied to independent evidence | Not started |
 | 39 | Skill tree | P2 | React Flow + list view | Keyboard/screen-reader usable | Not started |
