@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui";
+import { LearnerTestResults, TestQualityResults, type LearnerTestsView, type TestQualityView } from "./learner-test-results";
 
 export interface CaseView {
   readonly id: string;
@@ -18,6 +19,8 @@ export interface ExecutionView {
   readonly compileOutput?: string;
   readonly testOutput?: string;
   readonly totalMs?: number;
+  readonly learnerTests?: LearnerTestsView;
+  readonly testQuality?: TestQualityView;
 }
 
 export interface SubmissionExtras {
@@ -113,6 +116,9 @@ export function ResultsPanel({ result, extras, sessionHref }: { result: Executio
           </ul>
         </div>
       )}
+
+      {result.learnerTests && <LearnerTestResults view={result.learnerTests} />}
+      {result.testQuality && <TestQualityResults view={result.testQuality} />}
 
       {extras && result.mode === "submit" && (
         <div className="rounded-md border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-900 dark:bg-indigo-950/40">

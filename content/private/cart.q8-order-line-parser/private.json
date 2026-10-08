@@ -397,5 +397,42 @@
       "text": "if line == null -> throw; parts = line.split(\",\", -1); if parts.length != 2 -> throw; sku = parts[0].trim().toUpperCase(); if !sku.matches(\"[A-Z0-9-]{1,20}\") -> throw; q = parts[1].trim(); if !q.matches(\"[0-9]{1,9}\") -> throw; n = parseInt(q); if n < 1 || n > 99 -> throw; return new OrderLine(sku, n)."
     }
   ],
-  "referenceDir": "reference"
+  "referenceDir": "reference",
+  "testQuality": {
+    "target": "src/main/java/shop/OrderLineParser.java",
+    "passRatio": 0.8,
+    "referenceTestsDir": "reference-tests",
+    "mutants": [
+      {
+        "id": "accepts-zero-quantity",
+        "description": "accepts a quantity of 0",
+        "file": "mutants/accepts-zero-quantity.java"
+      },
+      {
+        "id": "rejects-max-quantity",
+        "description": "rejects the maximum quantity, 99",
+        "file": "mutants/rejects-max-quantity.java"
+      },
+      {
+        "id": "keeps-sku-case",
+        "description": "doesn't upper-case the SKU",
+        "file": "mutants/keeps-sku-case.java"
+      },
+      {
+        "id": "accepts-21-character-sku",
+        "description": "accepts a 21-character SKU",
+        "file": "mutants/accepts-21-character-sku.java"
+      },
+      {
+        "id": "accepts-plus-sign",
+        "description": "accepts a '+' sign in the quantity",
+        "file": "mutants/accepts-plus-sign.java"
+      },
+      {
+        "id": "keeps-quantity-spaces",
+        "description": "doesn't ignore spaces around the quantity",
+        "file": "mutants/keeps-quantity-spaces.java"
+      }
+    ]
+  }
 }

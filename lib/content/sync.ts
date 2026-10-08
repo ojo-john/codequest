@@ -44,7 +44,14 @@ function publicPayload(quest: LoadedQuest): QuestPayload {
 }
 
 function hiddenGrading(quest: LoadedQuest): Record<string, unknown> {
-  return { contract: quest.privateData.contract, hints: quest.privateData.hints };
+  const grading: Record<string, unknown> = { contract: quest.privateData.contract, hints: quest.privateData.hints };
+  const quality = quest.testQuality;
+  if (quality !== undefined) {
+    // The baseline travels with the mutants so grading needs one read; validation guarantees the target exists.
+    const baseline = quest.reference.find((file) => file.path === quality.target)?.content ?? "";
+    grading.testQuality = { target: quality.target, baseline, passRatio: quality.passRatio, mutants: quality.mutants };
+  }
+  return grading;
 }
 
 function referenceSolution(quest: LoadedQuest): Record<string, unknown> {

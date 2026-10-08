@@ -34,6 +34,8 @@ interface WorkspaceState {
   keepLocal(path: string): void;
   /** Conflict resolution: take the saved version, dropping the local edits to this file. */
   acceptSaved(path: string): void;
+  /** Adds a new, not-yet-saved file (revision 0) and opens it; no-op if the path exists. */
+  addFile(path: string, source: string): void;
 }
 
 function patch(files: Record<string, WorkspaceFile>, path: string, change: Partial<WorkspaceFile>): Record<string, WorkspaceFile> {
@@ -83,6 +85,13 @@ export const useWorkspace = create<WorkspaceState>((set) => ({
       const file = state.files[path];
       if (!file?.conflict) return state;
       return { files: patch(state.files, path, { savedRevision: file.conflict.serverRevision, savedSource: file.conflict.serverSource, status: "dirty", conflict: undefined }) };
+    });
+  },
+  addFile(path, source) {
+    set((state) => {
+      if (state.files[path]) return state;
+      const file: WorkspaceFile = { path, source, savedSource: "", savedRevision: 0, status: "dirty" };
+      return { files: { ...state.files, [path]: file }, order: [...state.order, path], activePath: path };
     });
   },
   acceptSaved(path) {
