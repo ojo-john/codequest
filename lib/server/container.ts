@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { loadArchiveSigningKey } from "@/lib/archive/archive-signing";
 import { createServiceRoleClient, loadSupabaseServerConfig } from "@/lib/db/supabase-server";
 import { loadExecutionBudgetConfig } from "@/lib/execution/budget";
 import { DockerSandboxProvider } from "@/lib/execution/docker-sandbox-provider";
@@ -10,6 +11,8 @@ import type { SandboxProvider } from "@/lib/execution/sandbox-provider";
 import { SupabaseExecutionUsageLedger } from "@/lib/execution/supabase-usage-ledger";
 import { loadVercelSandboxConfig, VercelSandboxProvider } from "@/lib/execution/vercel-sandbox-provider";
 import { createLogger } from "@/lib/observability/log";
+import { ArchiveService } from "./archive-service";
+import { SupabaseArchiveStore } from "./archive-store";
 import { LearningService } from "./learning-service";
 import { SupabaseLearningStore } from "./learning-store";
 
@@ -43,4 +46,18 @@ export function learningService(): LearningService {
   });
   service = new LearningService({ store: new SupabaseLearningStore(db), executor, limits });
   return service;
+}
+
+let archive: ArchiveService | undefined;
+
+export function archiveService(): ArchiveService {
+  if (archive) return archive;
+  const env = process.env;
+  archive = new ArchiveService({
+    store: new SupabaseArchiveStore(createServiceRoleClient(loadSupabaseServerConfig(env))),
+    signingKey: loadArchiveSigningKey(env),
+    limits: loadExecutionLimits(env),
+    logger: createLogger({ component: "archive" }),
+  });
+  return archive;
 }

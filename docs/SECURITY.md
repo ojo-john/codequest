@@ -78,6 +78,33 @@ executable by the server role only.
 mutation check (deliberately leaking one policy and one grant) confirmed those tests fail when a
 protection is removed.
 
+## Export, import and deletion (lib/archive, lib/server/archive-service.ts)
+
+- **Archives are signed, not secret.** `GET /api/v1/archive` returns everything the learner owns
+  as readable JSON with an HMAC-SHA256 signature (key `ARCHIVE_SIGNING_KEY`, server-only, never in
+  the browser) over a canonical serialisation, so re-formatting the file doesn't break it.
+- **Trust on import.** Learner-authored data (projects, files, checkpoints, notes, preferences) is
+  always restored. Grading-derived data (attempts, evidence, skill state, XP, sessions, hints,
+  recommendations) is restored **only** when the signature verifies: an edited, unsigned or
+  foreign-key archive restores code but no progress, so a learner can't award themselves XP or
+  mastery by editing a file (spec §66). The UI says which happened.
+- **No cross-account writes.** The importing user's id comes from the session; ids inside the
+  archive never select an owner. Importing into another account remaps every row id to a UUIDv5
+  scoped to that account. In SQL every child row (files, session items, evidence, reflections,
+  feedback) is inserted only if its parent belongs to the importer, and every insert is
+  `on conflict do nothing`, so a crafted archive naming another user's ids is skipped (tested).
+- **Bounded input.** Uploads are capped at 4 MB compressed / 64 MB decompressed (decompression
+  bombs rejected), every row is Zod-validated with per-table row caps, and project files pass the
+  same path/size rules as saved code.
+- **Deletion** (`DELETE /api/v1/data`) requires the typed phrase, runs in one transaction, keeps
+  the account and profile, erases execution output but keeps job rows for quota accounting, and
+  the page also clears this browser's IndexedDB drafts.
+- `export_user_data`, `import_user_data` and `delete_user_data` are executable by the server
+  role only (a signed-in learner calling them gets 42501; tested).
+- **Key handling.** The production key exists only in Vercel (sensitive env var). Losing or
+  rotating it means older archives restore projects and notes but no progress. Local dev uses a
+  separate generated key (`npm run db:env`).
+
 ## Contract runner reflection rules
 
 - Methods are resolved through **public, exported types** first (so a learner's `List.copyOf`
