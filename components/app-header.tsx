@@ -14,6 +14,9 @@ export function AppHeader({ email, wide = false }: { email: string | undefined; 
         <Link href="/progress" className="text-sm text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
           Progress
         </Link>
+        <Link href="/data" className="text-sm text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
+          Your data
+        </Link>
         <span className="ml-auto hidden text-sm text-neutral-500 sm:inline" data-testid="signed-in-email">
           {email}
         </span>

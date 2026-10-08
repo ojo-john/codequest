@@ -91,6 +91,9 @@ created 2026-10-06. The database password is in the git-ignored `.env.supabase.l
   `APP_ORIGIN` to that origin, which must match `site_url` and `additional_redirect_urls` in
   `[remotes.production.auth]` (pushed with `npx supabase config push`). Changing the domain means
   updating all three.
+- `ARCHIVE_SIGNING_KEY` (Production + Preview, sensitive): signs progress archives. Generated
+  2026-10-08 with `openssl rand -base64 32` piped straight into `vercel env add`; it is not
+  stored anywhere else. Replacing it only means older archives restore projects, not progress.
 - Cloud content: `SUPABASE_DB_URL=<session pooler URL> npm run content:sync -- --target cloud`.
   The direct `db.<ref>.supabase.co` host is IPv6-only; use the session pooler
   (`postgres.<ref>@aws-0-us-east-1.pooler.supabase.com:5432`) with the URL-encoded password.

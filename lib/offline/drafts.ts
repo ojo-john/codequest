@@ -62,3 +62,13 @@ export async function clearDraft(projectId: string, path: string): Promise<void>
     // Nothing to clear if storage is unavailable.
   }
 }
+
+/** Erases every local draft (after the learner deletes their data). False when storage is unavailable. */
+export async function clearAllDrafts(): Promise<boolean> {
+  try {
+    await db().drafts.clear();
+    return true;
+  } catch {
+    return false;
+  }
+}

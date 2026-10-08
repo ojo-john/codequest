@@ -41,8 +41,11 @@ function errorResponse(error: ApiError, requestId: string): NextResponse {
   );
 }
 
-/** Authenticated JSON endpoint. `operation` names the call in logs and metrics. */
-export async function handleApi(operation: string, handler: (context: ApiContext) => Promise<unknown>): Promise<NextResponse> {
+/**
+ * Authenticated endpoint. `operation` names the call in logs and metrics. The handler's return
+ * value is sent as JSON, unless it is a Response (a download), which is sent as-is.
+ */
+export async function handleApi(operation: string, handler: (context: ApiContext) => Promise<unknown>): Promise<Response> {
   const requestId = randomUUID();
   const started = performance.now();
   const log = baseLogger.child({ requestId, operation });
@@ -52,6 +55,13 @@ export async function handleApi(operation: string, handler: (context: ApiContext
     if (user === undefined) throw new ApiError(401, "unauthenticated", "Sign in to continue.");
     log.log("info", "api.request", { userId: user.userId });
     const body = await handler({ requestId, log: log.child({ userId: user.userId }), user });
+    if (body instanceof Response) {
+      // Downloads and other non-JSON bodies: the handler sets its own content headers.
+      body.headers.set("x-request-id", requestId);
+      body.headers.set("cache-control", "no-store");
+      status = body.status;
+      return body;
+    }
     return NextResponse.json(body, { headers: { "x-request-id": requestId, "cache-control": "no-store" } });
   } catch (error) {
     if (error instanceof ApiError) {
