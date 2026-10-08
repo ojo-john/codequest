@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { BudgetPicker } from "@/components/home/budget-picker";
+import { InsightsCard } from "@/components/home/insights-card";
 import { UnreviewedToggle } from "@/components/home/unreviewed-toggle";
 import { Badge, Card, UnreviewedBadge } from "@/components/ui";
 import { requirePageUser } from "@/lib/auth/dal";
@@ -10,9 +11,10 @@ import { createUserClient } from "@/lib/supabase/server";
 export default async function HomePage() {
   const user = await requirePageUser("/");
   const supabase = await createUserClient();
-  const [progress, active, profile] = await Promise.all([
+  const [progress, active, insights, profile] = await Promise.all([
     learningService().getProgress(user.userId),
     learningService().activeSession(user.userId),
+    learningService().insights(user.userId),
     supabase.from("profiles").select("settings").eq("user_id", user.userId).single(),
   ]);
   const showUnreviewed = (profile.data?.settings as Record<string, unknown> | undefined)?.show_unreviewed_content === true;
@@ -53,6 +55,8 @@ export default async function HomePage() {
             </Link>
           </Card>
         )}
+
+        <InsightsCard insights={insights} />
 
         <Card>
           <h2 className="mb-3 font-semibold">How much time do you have?</h2>
