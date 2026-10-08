@@ -44,3 +44,15 @@ export function UnreviewedBadge({ status }: { status: string }) {
   if (status === "published") return null;
   return <Badge tone="warning">⚠ Unreviewed draft</Badge>;
 }
+
+/**
+ * Scrollable program output. Focusable and labelled so keyboard users can scroll it (WCAG
+ * 2.1.1; axe scrollable-region-focusable).
+ */
+export function OutputBlock({ label, children, className = "" }: { label: string; children: ReactNode; className?: string }) {
+  return (
+    <pre tabIndex={0} aria-label={label} className={`overflow-auto rounded-md bg-neutral-100 p-3 font-mono text-xs focus-visible:outline-2 focus-visible:outline-indigo-600 dark:bg-neutral-800 ${className}`}>
+      {children}
+    </pre>
+  );
+}

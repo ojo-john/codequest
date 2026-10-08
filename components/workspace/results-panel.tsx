@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Badge } from "@/components/ui";
+import { Badge, OutputBlock } from "@/components/ui";
 import { useState } from "react";
 import type { RubricResult } from "@/lib/grading/rubric";
 import { FollowUpCard, type FollowUpView } from "./follow-up-card";
@@ -85,14 +85,14 @@ export function ResultsPanel({ result, extras, sessionHref, jobId }: { result: E
         <Badge tone={headline.tone}>
           <span aria-hidden="true">{headline.icon}</span> {headline.text}
         </Badge>
-        <span className="text-neutral-500">{result.mode === "run" ? "Run: visible samples only" : "Submit: all checks"}</span>
-        {result.totalMs !== undefined && <span className="text-neutral-500">· {(result.totalMs / 1000).toFixed(1)} s</span>}
+        <span className="text-neutral-500 dark:text-neutral-400">{result.mode === "run" ? "Run: visible samples only" : "Submit: all checks"}</span>
+        {result.totalMs !== undefined && <span className="text-neutral-500 dark:text-neutral-400">· {(result.totalMs / 1000).toFixed(1)} s</span>}
       </div>
       {DETAILS[result.detail] && <p>{DETAILS[result.detail]}</p>}
       {result.outcome === "infrastructure-error" && <p>Nothing was recorded against you. Try again in a moment.</p>}
 
       {result.outcome === "compile-error" && result.compileOutput && (
-        <pre className="max-h-64 overflow-auto rounded-md bg-neutral-100 p-3 font-mono text-xs dark:bg-neutral-800">{result.compileOutput}</pre>
+        <OutputBlock label="Compiler output" className="max-h-64">{result.compileOutput}</OutputBlock>
       )}
 
       {visible.map((testCase) => (
@@ -164,7 +164,7 @@ export function ResultsPanel({ result, extras, sessionHref, jobId }: { result: E
       {result.testOutput && (
         <details>
           <summary className="cursor-pointer text-neutral-600 dark:text-neutral-400">Console output</summary>
-          <pre className="mt-2 max-h-64 overflow-auto rounded-md bg-neutral-100 p-3 font-mono text-xs dark:bg-neutral-800">{result.testOutput}</pre>
+          <OutputBlock label="Console output" className="mt-2 max-h-64">{result.testOutput}</OutputBlock>
         </details>
       )}
     </div>
