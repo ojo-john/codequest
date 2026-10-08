@@ -50,6 +50,13 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   await page.getByRole("button", { name: "Submit" }).click();
   await expect(page.getByTestId("results")).toContainText("No new XP", { timeout: 180_000 });
 
+  // A passing submission offers the reflection card; notes save as you type.
+  await page.getByLabel("What in the requirements told you what to do?").fill("The word exact: use multiplyExact.");
+  await page.getByRole("button", { name: "Save reflection" }).click();
+  await expect(page.getByText("Reflection saved.")).toBeVisible();
+  await page.getByLabel("Notes on this quest").fill("Money is always long cents.");
+  await expect(page.getByText("Saved", { exact: true })).toBeVisible({ timeout: 10_000 });
+
   // The code was saved to the project: a reload brings it back from the server.
   await page.reload();
   await page.waitForFunction(() => Boolean((window as unknown as { monaco?: unknown }).monaco));
@@ -58,6 +65,8 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
     return monaco.editor.getModels().find((model) => model.uri.path.endsWith("/Checkout.java"))?.getValue();
   });
   expect(restored).toBe(REFERENCE);
+  await expect(page.getByLabel("Notes on this quest")).toHaveValue("Money is always long cents.");
+  await expect(page.getByRole("heading", { name: "Your reflection" })).toBeVisible();
   await expect(page.getByTestId("results")).toContainText("All checks passed");
 
   await page.getByRole("link", { name: "← Back to session" }).click();
