@@ -40,14 +40,14 @@ export function RubricPanel({ rubric }: { rubric: RubricResult }) {
           {rubric.criteria.map((entry) => (
             <tr key={entry.criterion} className="border-t border-neutral-100 dark:border-neutral-800">
               <td className="py-1 pr-2 font-medium">{LABELS[entry.criterion]}</td>
-              <td className="py-1 pr-2 text-neutral-500">{entry.weight}%</td>
+              <td className="py-1 pr-2 text-neutral-500 dark:text-neutral-400">{entry.weight}%</td>
               <td className="py-1">
                 {entry.assessed ? (
                   <span>
                     {Math.round(entry.score * 100)}% · {entry.passed} of {entry.total} {UNITS[entry.criterion] ?? (entry.total === 1 ? "question" : "questions")}
                   </span>
                 ) : (
-                  <span className="text-neutral-500">Not assessed: {REASONS[entry.reason]}</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">Not assessed: {REASONS[entry.reason]}</span>
                 )}
               </td>
             </tr>

@@ -51,14 +51,14 @@ export default async function DataPage() {
           {error ? (
             <p role="alert" className="text-sm text-red-700 dark:text-red-300">Couldn&apos;t load your projects. Try reloading.</p>
           ) : projects.length === 0 ? (
-            <p className="text-sm text-neutral-500">No projects yet — they&apos;re created when you open your first quest.</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">No projects yet — they&apos;re created when you open your first quest.</p>
           ) : (
             <ul className="divide-y divide-neutral-200 dark:divide-neutral-800">
               {projects.map((project) => (
                 <li key={project.id} className="flex items-center justify-between gap-4 py-2">
                   <span>
                     <span className="font-medium">{project.title}</span>
-                    <span className="ml-2 text-sm text-neutral-500">updated {dateFormat.format(new Date(project.updated_at))}</span>
+                    <span className="ml-2 text-sm text-neutral-500 dark:text-neutral-400">updated {dateFormat.format(new Date(project.updated_at))}</span>
                   </span>
                   <a href={`/api/v1/projects/${project.id}/zip`} download className="text-sm text-indigo-700 underline underline-offset-4 dark:text-indigo-300">
                     Download ZIP
