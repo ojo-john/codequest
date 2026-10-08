@@ -1,0 +1,106 @@
+{
+  "skills": [
+    {
+      "id": "java.methods",
+      "category": "java",
+      "name": "Methods",
+      "definition": "Declare methods with parameters and return values, and decompose a requirement into small methods with clear contracts.",
+      "difficulty": 1
+    },
+    {
+      "id": "java.conditions",
+      "category": "java",
+      "name": "Conditions",
+      "definition": "Use if/else and boolean expressions to choose behaviour, including boundary values such as 'at least' versus 'more than'.",
+      "difficulty": 1
+    },
+    {
+      "id": "java.loops",
+      "category": "java",
+      "name": "Loops",
+      "definition": "Traverse arrays and collections with for, while and enhanced-for loops with correct start and end boundaries.",
+      "difficulty": 1,
+      "prerequisites": [{ "skill": "java.conditions", "kind": "recommended" }]
+    },
+    {
+      "id": "java.input-validation",
+      "category": "java",
+      "name": "Input validation and exceptions",
+      "definition": "Reject invalid arguments at a method's boundary by throwing the right unchecked exception with a useful message.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "java.conditions", "kind": "strict" }]
+    },
+    {
+      "id": "java.integer-arithmetic",
+      "category": "java",
+      "name": "Integer arithmetic and overflow",
+      "definition": "Represent money in integer minor units and detect overflow with exact arithmetic instead of silently wrapping.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "java.methods", "kind": "recommended" }]
+    },
+    {
+      "id": "java.classes",
+      "category": "java",
+      "name": "Classes and objects",
+      "definition": "Define classes with constructors, fields and instance methods, and create and use objects.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "java.methods", "kind": "strict" }]
+    },
+    {
+      "id": "java.encapsulation",
+      "category": "java",
+      "name": "Encapsulation",
+      "definition": "Keep state private and expose behaviour that protects the object's invariants, rather than raw getters and setters.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.classes", "kind": "strict" }]
+    },
+    {
+      "id": "java.interfaces",
+      "category": "java",
+      "name": "Interfaces and abstraction",
+      "definition": "Define interfaces that describe a contract and write callers that depend on the interface, not a concrete class.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.classes", "kind": "strict" }]
+    },
+    {
+      "id": "java.polymorphism",
+      "category": "java",
+      "name": "Polymorphism",
+      "definition": "Call methods through a common type so different runtime implementations supply different behaviour.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.interfaces", "kind": "strict" }]
+    },
+    {
+      "id": "java.inheritance",
+      "category": "java",
+      "name": "Inheritance",
+      "definition": "Extend a suitable base type, override behaviour, and respect substitutability; know when composition is the better choice.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.classes", "kind": "strict" }, { "skill": "java.polymorphism", "kind": "recommended" }]
+    },
+    {
+      "id": "java.collections",
+      "category": "java",
+      "name": "Collections",
+      "definition": "Choose and use List, Set and Map implementations and know the cost of their common operations.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "java.loops", "kind": "recommended" }]
+    },
+    {
+      "id": "java.streams",
+      "category": "java",
+      "name": "Streams",
+      "definition": "Write map/filter/reduce/collect pipelines, convert loops to streams and back, and explain when a loop is clearer.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.collections", "kind": "strict" }]
+    },
+    {
+      "id": "java.unit-testing",
+      "category": "java",
+      "name": "Unit testing",
+      "definition": "Write focused JUnit tests that cover boundaries and failure cases, not only the happy path.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "java.methods", "kind": "recommended" }]
+    }
+  ]
+}

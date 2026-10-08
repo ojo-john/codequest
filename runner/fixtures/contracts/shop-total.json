@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "empty-cart",
+      "steps": [
+        { "call": "totalCents", "static": "shop.PriceCalculator", "args": [[]], "paramTypes": ["java.util.List"], "expect": { "value": 0 } }
+      ]
+    },
+    {
+      "id": "single-item",
+      "steps": [
+        { "new": "shop.LineItem", "args": ["tea", 250, 3], "paramTypes": ["java.lang.String", "long", "int"], "as": "tea" },
+        { "call": "totalCents", "static": "shop.PriceCalculator", "args": [[{ "$ref": "tea" }]], "paramTypes": ["java.util.List"], "expect": { "value": 750 } }
+      ]
+    },
+    {
+      "id": "two-items",
+      "steps": [
+        { "new": "shop.LineItem", "args": ["tea", 250, 3], "paramTypes": ["java.lang.String", "long", "int"], "as": "tea" },
+        { "new": "shop.LineItem", "args": ["cake", 400, 1], "paramTypes": ["java.lang.String", "long", "int"], "as": "cake" },
+        { "call": "subtotalCents", "target": "cake", "args": [], "paramTypes": [], "expect": { "value": 400 } },
+        { "call": "totalCents", "static": "shop.PriceCalculator", "args": [[{ "$ref": "tea" }, { "$ref": "cake" }]], "paramTypes": ["java.util.List"], "expect": { "value": 1150 } }
+      ]
+    },
+    {
+      "id": "rejects-zero-quantity",
+      "steps": [
+        { "new": "shop.LineItem", "args": ["tea", 250, 0], "paramTypes": ["java.lang.String", "long", "int"], "expect": { "throws": "java.lang.IllegalArgumentException" } }
+      ]
+    }
+  ]
+}

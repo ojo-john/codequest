@@ -1,0 +1,755 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "product-rejects-negative-price",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "X-1",
+              "X",
+              "misc",
+              -1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "product-rejects-blank-sku",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "   ",
+              "X",
+              "misc",
+              100
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "product-rejects-missing-name",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "X-1",
+              null,
+              "misc",
+              100
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "product-rejects-empty-category",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "X-1",
+              "X",
+              "",
+              100
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "product-allows-free-item",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "FREE-1",
+              "Sticker",
+              "misc",
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "free"
+          },
+          {
+            "call": "priceCents",
+            "target": "free",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "cart-item-rejects-zero-quantity",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.CartItem",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              0
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cart-item-rejects-missing-product",
+        "steps": [
+          {
+            "new": "shop.CartItem",
+            "args": [
+              null,
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "rejected-add-leaves-cart-unchanged",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              2
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              0
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              -3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "quantityOf",
+            "target": "cart",
+            "args": [
+              "TEA-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "add-rejects-missing-product",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              null,
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "isEmpty",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "items-cannot-change-the-cart",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "items",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "as": "lines"
+          },
+          {
+            "call": "add",
+            "target": "lines",
+            "args": [
+              {
+                "$ref": "tea"
+              }
+            ],
+            "paramTypes": [
+              "java.lang.Object"
+            ],
+            "expect": {
+              "throws": "java.lang.UnsupportedOperationException"
+            }
+          },
+          {
+            "call": "clear",
+            "target": "lines",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "throws": "java.lang.UnsupportedOperationException"
+            }
+          },
+          {
+            "call": "itemCount",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "change-quantity",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              2
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "changeQuantity",
+            "target": "cart",
+            "args": [
+              "TEA-1",
+              5
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "quantityOf",
+            "target": "cart",
+            "args": [
+              "TEA-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 5
+            }
+          },
+          {
+            "call": "subtotalCents",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1250
+            }
+          }
+        ]
+      },
+      {
+        "id": "change-quantity-to-zero-removes",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              2
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "changeQuantity",
+            "target": "cart",
+            "args": [
+              "TEA-1",
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "isEmpty",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "change-quantity-rejects-negative",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              2
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "changeQuantity",
+            "target": "cart",
+            "args": [
+              "TEA-1",
+              -1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "quantityOf",
+            "target": "cart",
+            "args": [
+              "TEA-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "change-quantity-unknown-sku",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "changeQuantity",
+            "target": "cart",
+            "args": [
+              "NOPE-1",
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "remove",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "remove",
+            "target": "cart",
+            "args": [
+              "TEA-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "remove",
+            "target": "cart",
+            "args": [
+              "TEA-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "isEmpty",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "new-cart-is-empty",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "isEmpty",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Put each check at the boundary where bad data would enter: the constructor of Product and CartItem, and the start of each ShoppingCart method."
+    },
+    {
+      "tier": "pattern",
+      "text": "Validate first, change state last. If every check runs before you touch the map, a rejected call can't leave the cart half-changed."
+    },
+    {
+      "tier": "key_insight",
+      "text": "items() can return a copy that can't be modified. The JDK already has one: List.copyOf(...) gives an unmodifiable snapshot."
+    },
+    {
+      "tier": "pseudocode",
+      "text": "Product: if text is null or isBlank() -> throw; if price < 0 -> throw. changeQuantity: existing = map.get(sku); if null -> throw; if qty < 0 -> throw; if qty == 0 -> map.remove(sku) else map.put(sku, new CartItem(existing.product(), qty))."
+    }
+  ],
+  "referenceDir": "reference"
+}

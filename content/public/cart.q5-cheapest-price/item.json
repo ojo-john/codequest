@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "cart.q5-cheapest-price",
+  "version": 1,
+  "title": "Cheapest price",
+  "summary": "Polymorphism: compare any number of pricing strategies through one interface \u2014 without knowing which classes they are.",
+  "campaign": {
+    "id": "campaign.shopping-cart",
+    "order": 5
+  },
+  "stage": "independent",
+  "estimatedMinutes": 30,
+  "skills": [
+    {
+      "skill": "java.polymorphism",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.polymorphism",
+      "dimension": "explanation"
+    },
+    {
+      "skill": "java.interfaces",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

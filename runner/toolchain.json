@@ -1,0 +1,19 @@
+{
+  "$comment": "Pinned Java toolchain baked into the runner image (runner/docker/Dockerfile), used by both the local Docker runner and Vercel Sandbox (published to Vercel Container Registry by `npm run runner:publish`). Artifacts are downloaded and SHA-256-verified on the host (runner/fetch-toolchain.ts), never inside a sandbox. Bump versions here only, then re-run `npm run runner:publish` and update JAVA_RUNNER_IMAGE. Checksums verified 2026-10-03: JDK from the Adoptium API, JUnit SHA-1 matched Maven Central's published .sha1 before computing SHA-256; base image digest from Docker Hub.",
+  "baseImage": "ubuntu:26.04@sha256:3595d7fc4286a33fad0fd853a4063e654287a9c3787437d7937c94ca3f7a804e",
+  "jdk": {
+    "distribution": "Eclipse Temurin",
+    "release": "jdk-21.0.12.1+1",
+    "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz",
+    "sha256": "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94",
+    "license": "GPL-2.0-with-classpath-exception"
+  },
+  "junit": {
+    "artifact": "org.junit.platform:junit-platform-console-standalone",
+    "version": "1.14.4",
+    "jupiterVersion": "5.14.4",
+    "url": "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.14.4/junit-platform-console-standalone-1.14.4.jar",
+    "sha256": "7c6968cbcaf4301c729f202b23b7d736c5d88be625fc7d27ad5d746146a8bc28",
+    "license": "EPL-2.0"
+  }
+}

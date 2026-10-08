@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "cart.q6-digital-products",
+  "version": 1,
+  "title": "Digital products",
+  "summary": "Inheritance, justified: a DigitalProduct is a Product that never needs shipping \u2014 and why that fits inheritance better than a flag.",
+  "campaign": {
+    "id": "campaign.shopping-cart",
+    "order": 6
+  },
+  "stage": "guided",
+  "estimatedMinutes": 30,
+  "skills": [
+    {
+      "skill": "java.inheritance",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.inheritance",
+      "dimension": "design"
+    },
+    {
+      "skill": "java.polymorphism",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "line-total",
+        "visible": true,
+        "steps": [
+          {
+            "call": "lineTotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              250,
+              3
+            ],
+            "paramTypes": [
+              "long",
+              "int"
+            ],
+            "expect": {
+              "value": 750
+            }
+          }
+        ]
+      },
+      {
+        "id": "line-single-unit",
+        "steps": [
+          {
+            "call": "lineTotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              1999,
+              1
+            ],
+            "paramTypes": [
+              "long",
+              "int"
+            ],
+            "expect": {
+              "value": 1999
+            }
+          }
+        ]
+      },
+      {
+        "id": "line-free-item",
+        "steps": [
+          {
+            "call": "lineTotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              0,
+              4
+            ],
+            "paramTypes": [
+              "long",
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "line-rejects-negative-price",
+        "steps": [
+          {
+            "call": "lineTotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              -1,
+              1
+            ],
+            "paramTypes": [
+              "long",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "line-rejects-zero-quantity",
+        "steps": [
+          {
+            "call": "lineTotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              250,
+              0
+            ],
+            "paramTypes": [
+              "long",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "line-rejects-negative-quantity",
+        "steps": [
+          {
+            "call": "lineTotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              250,
+              -2
+            ],
+            "paramTypes": [
+              "long",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "line-overflow-is-detected",
+        "steps": [
+          {
+            "call": "lineTotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              {
+                "$bigint": "4611686018427387904"
+              },
+              2
+            ],
+            "paramTypes": [
+              "long",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.ArithmeticException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "subtotal-two-lines",
+        "visible": true,
+        "steps": [
+          {
+            "call": "subtotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              [
+                250,
+                400
+              ],
+              [
+                3,
+                1
+              ]
+            ],
+            "paramTypes": [
+              "long[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": 1150
+            }
+          }
+        ]
+      },
+      {
+        "id": "subtotal-includes-last-line",
+        "steps": [
+          {
+            "call": "subtotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              [
+                100,
+                200,
+                300
+              ],
+              [
+                1,
+                1,
+                1
+              ]
+            ],
+            "paramTypes": [
+              "long[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": 600
+            }
+          }
+        ]
+      },
+      {
+        "id": "subtotal-single-line",
+        "steps": [
+          {
+            "call": "subtotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              [
+                999
+              ],
+              [
+                2
+              ]
+            ],
+            "paramTypes": [
+              "long[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": 1998
+            }
+          }
+        ]
+      },
+      {
+        "id": "subtotal-empty-cart",
+        "steps": [
+          {
+            "call": "subtotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              [],
+              []
+            ],
+            "paramTypes": [
+              "long[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "subtotal-mismatched-arrays",
+        "steps": [
+          {
+            "call": "subtotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              [
+                100,
+                200
+              ],
+              [
+                1
+              ]
+            ],
+            "paramTypes": [
+              "long[]",
+              "int[]"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "subtotal-validates-each-line",
+        "steps": [
+          {
+            "call": "subtotalCents",
+            "static": "shop.Checkout",
+            "args": [
+              [
+                100,
+                200
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            "paramTypes": [
+              "long[]",
+              "int[]"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "shipping-below-threshold",
+        "visible": true,
+        "steps": [
+          {
+            "call": "shippingCents",
+            "static": "shop.Checkout",
+            "args": [
+              4999
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 499
+            }
+          }
+        ]
+      },
+      {
+        "id": "shipping-at-threshold",
+        "steps": [
+          {
+            "call": "shippingCents",
+            "static": "shop.Checkout",
+            "args": [
+              5000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "shipping-above-threshold",
+        "steps": [
+          {
+            "call": "shippingCents",
+            "static": "shop.Checkout",
+            "args": [
+              12000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "shipping-empty-cart",
+        "steps": [
+          {
+            "call": "shippingCents",
+            "static": "shop.Checkout",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "shipping-one-cent",
+        "steps": [
+          {
+            "call": "shippingCents",
+            "static": "shop.Checkout",
+            "args": [
+              1
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 499
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Start with lineTotalCents: check each argument against the rules before you compute anything, and throw as soon as one is wrong."
+    },
+    {
+      "tier": "pattern",
+      "text": "subtotalCents is an accumulator loop: start a running total at 0 and add one line per iteration. Reuse lineTotalCents so every line gets the same validation."
+    },
+    {
+      "tier": "key_insight",
+      "text": "Most bugs here are boundaries: a loop condition of i < length - 1 skips the last line, and > instead of >= makes a subtotal of exactly 5000 pay shipping."
+    },
+    {
+      "tier": "pseudocode",
+      "text": "lineTotal: if price < 0 or quantity < 1 -> throw; return multiplyExact(price, quantity). subtotal: if lengths differ -> throw; total = 0; for i in 0..length-1: total = addExact(total, lineTotal(prices[i], quantities[i])). shipping: if subtotal == 0 or subtotal >= threshold -> 0 else standard fee."
+    }
+  ],
+  "referenceDir": "reference"
+}
