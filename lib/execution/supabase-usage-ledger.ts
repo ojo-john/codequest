@@ -82,6 +82,7 @@ export class SupabaseExecutionUsageLedger implements ExecutionUsageLedger {
   }
 
   async admit(request: ReservationRequest, decide: (usage: UsageSnapshot) => AdmissionDecision): Promise<AdmissionDecision> {
+    await this.reclaim(request.staleBefore);
     for (let attempt = 1; attempt <= this.options.maxReserveAttempts; attempt += 1) {
       const { usage, version } = await this.snapshot(request.userId, request.now);
       const decision = decide(usage);
@@ -114,6 +115,16 @@ export class SupabaseExecutionUsageLedger implements ExecutionUsageLedger {
     if (error) throw toLedgerError("pause_executions", error);
   }
 
+  async usage(userId: string, now: Date, staleBefore: Date): Promise<UsageSnapshot> {
+    await this.reclaim(staleBefore);
+    return (await this.snapshot(userId, now)).usage;
+  }
+
+  private async reclaim(staleBefore: Date): Promise<void> {
+    const { error } = await this.client.rpc("reclaim_stale_executions", { p_stale_before: staleBefore.toISOString() });
+    if (error) throw toLedgerError("reclaim_stale_executions", error);
+  }
+
   private async snapshot(userId: string, now: Date): Promise<{ usage: UsageSnapshot; version: number }> {
     const { data, error } = await this.client.rpc("execution_usage_snapshot", { p_user_id: userId, p_now: now.toISOString() });
     if (error) throw toLedgerError("execution_usage_snapshot", error);
@@ -134,5 +145,16 @@ export class SupabaseExecutionUsageLedger implements ExecutionUsageLedger {
         pausedUntil: row.paused_until === null ? undefined : new Date(row.paused_until),
       },
     };
+  }
+}
+
+/** Database size for the usage screen (service-role-only SQL function). */
+export class SupabaseDatabaseSize {
+  constructor(private readonly client: SupabaseClient) {}
+
+  async sizeBytes(): Promise<number> {
+    const { data, error } = await this.client.rpc("database_size_bytes");
+    if (error) throw toLedgerError("database_size_bytes", error);
+    return z.coerce.number().nonnegative().parse(data);
   }
 }

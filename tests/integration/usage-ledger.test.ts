@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { SupabaseExecutionUsageLedger } from "@/lib/execution/supabase-usage-ledger";
+import { SupabaseDatabaseSize, SupabaseExecutionUsageLedger } from "@/lib/execution/supabase-usage-ledger";
 import { usageLedgerContract } from "../shared/usage-ledger-contract";
 import { closeSql, createTestUser, deleteTestUser, serviceClient, sql, type TestUser } from "./support/local-supabase";
 
@@ -37,7 +37,7 @@ describe("SupabaseExecutionUsageLedger failure paths", () => {
     const ledger = new SupabaseExecutionUsageLedger(unreachable);
 
     const attempt = ledger.admit(
-      { jobId: crypto.randomUUID(), userId: users[0].id, now: new Date(), reserveCpuSeconds: 60 },
+      { jobId: crypto.randomUUID(), userId: users[0].id, now: new Date(), reserveCpuSeconds: 60, staleBefore: new Date(0) },
       () => ({ admitted: true }),
     );
 
@@ -61,7 +61,7 @@ describe("SupabaseExecutionUsageLedger failure paths", () => {
     const ledger = new SupabaseExecutionUsageLedger(contended, { maxReserveAttempts: 3, sleep: async () => {} });
 
     const attempt = ledger.admit(
-      { jobId: crypto.randomUUID(), userId: users[0].id, now: new Date(), reserveCpuSeconds: 60 },
+      { jobId: crypto.randomUUID(), userId: users[0].id, now: new Date(), reserveCpuSeconds: 60, staleBefore: new Date(0) },
       () => ({ admitted: true }),
     );
 
@@ -74,7 +74,7 @@ describe("SupabaseExecutionUsageLedger failure paths", () => {
       const ledger = new SupabaseExecutionUsageLedger(serviceClient());
 
       const attempt = ledger.admit(
-        { jobId: crypto.randomUUID(), userId: users[0].id, now: new Date(), reserveCpuSeconds: 60 },
+        { jobId: crypto.randomUUID(), userId: users[0].id, now: new Date(), reserveCpuSeconds: 60, staleBefore: new Date(0) },
         () => ({ admitted: true }),
       );
 
@@ -92,6 +92,46 @@ describe("SupabaseExecutionUsageLedger failure paths", () => {
       p_reserve_cpu_seconds: 60,
       p_expected_usage_version: 0,
     });
+
+    expect(error?.code).toBe("42501");
+  });
+});
+
+describe("stale reservations and database size", () => {
+  it("reclaim_abandonedRunningJob_isMarkedAbandonedAndChargedItsReservation", async () => {
+    await resetLedger();
+    const jobId = crypto.randomUUID();
+    const ledger = new SupabaseExecutionUsageLedger(serviceClient());
+    await ledger.admit({ jobId, userId: users[0].id, now: new Date("2026-10-15T11:00:00Z"), reserveCpuSeconds: 60, staleBefore: new Date(0) }, () => ({ admitted: true }));
+    await sql()`update public.execution_jobs set state = 'running' where id = ${jobId}`;
+
+    await ledger.usage(users[0].id, new Date("2026-10-15T12:00:00Z"), new Date("2026-10-15T11:55:00Z"));
+
+    const [row] = await sql()`select state, outcome_detail, settled_cpu_seconds::float as settled from public.execution_jobs where id = ${jobId}`;
+    expect(row).toEqual({ state: "infrastructure_error", outcome_detail: "abandoned", settled: 60 });
+  });
+
+  it("reclaim_jobThatAlreadyFinishedButNeverSettled_keepsItsOutcome", async () => {
+    await resetLedger();
+    const jobId = crypto.randomUUID();
+    const ledger = new SupabaseExecutionUsageLedger(serviceClient());
+    await ledger.admit({ jobId, userId: users[0].id, now: new Date("2026-10-15T11:00:00Z"), reserveCpuSeconds: 60, staleBefore: new Date(0) }, () => ({ admitted: true }));
+    await sql()`update public.execution_jobs set state = 'succeeded', outcome_detail = 'all_contract_steps_passed' where id = ${jobId}`;
+
+    await ledger.usage(users[0].id, new Date("2026-10-15T12:00:00Z"), new Date("2026-10-15T11:55:00Z"));
+
+    const [row] = await sql()`select state, outcome_detail from public.execution_jobs where id = ${jobId}`;
+    expect(row).toEqual({ state: "succeeded", outcome_detail: "all_contract_steps_passed" });
+  });
+
+  it("databaseSizeBytes_serverKey_isPositive", async () => {
+    expect(await new SupabaseDatabaseSize(serviceClient()).sizeBytes()).toBeGreaterThan(0);
+  });
+
+  it.each(["reclaim_stale_executions", "database_size_bytes"])("%s_asSignedInLearner_isDenied", async (fn) => {
+    const args = fn === "reclaim_stale_executions" ? { p_stale_before: new Date().toISOString() } : {};
+
+    const { error } = await users[0].client.rpc(fn, args);
 
     expect(error?.code).toBe("42501");
   });

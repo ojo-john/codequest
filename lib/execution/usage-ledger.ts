@@ -11,6 +11,8 @@ export interface ReservationRequest {
   readonly userId: string;
   readonly now: Date;
   readonly reserveCpuSeconds: number;
+  /** Unsettled jobs created before this are abandoned and settled at their reservation first. */
+  readonly staleBefore: Date;
 }
 
 /** The job id was admitted before (a retried or replayed request). */
@@ -27,6 +29,8 @@ export interface ExecutionUsageLedger {
   settle(jobId: string, cpuSeconds: number): Promise<void>;
   /** Pauses all admissions until the given time (provider reported its quota exhausted). */
   pauseUntil(until: Date): Promise<void>;
+  /** Read-only view for the usage screen, after reclaiming abandoned jobs like admission does. */
+  usage(userId: string, now: Date, staleBefore: Date): Promise<UsageSnapshot>;
 }
 
 interface JobRecord {
@@ -44,6 +48,7 @@ export class InMemoryExecutionUsageLedger implements ExecutionUsageLedger {
   // within a single Node process.
   async admit(request: ReservationRequest, decide: (usage: UsageSnapshot) => AdmissionDecision): Promise<AdmissionDecision> {
     if (this.jobs.has(request.jobId)) throw new DuplicateJobError(request.jobId);
+    this.reclaim(request.staleBefore);
     const decision = decide(this.snapshot(request.userId, request.now));
     if (decision.admitted) {
       this.jobs.set(request.jobId, {
@@ -63,6 +68,17 @@ export class InMemoryExecutionUsageLedger implements ExecutionUsageLedger {
 
   async pauseUntil(until: Date): Promise<void> {
     if (this.paused === undefined || until > this.paused) this.paused = until;
+  }
+
+  async usage(userId: string, now: Date, staleBefore: Date): Promise<UsageSnapshot> {
+    this.reclaim(staleBefore);
+    return this.snapshot(userId, now);
+  }
+
+  private reclaim(staleBefore: Date): void {
+    for (const job of this.jobs.values()) {
+      if (job.settledCpuSeconds === undefined && job.admittedAt < staleBefore) job.settledCpuSeconds = job.reservedCpuSeconds;
+    }
   }
 
   private snapshot(userId: string, now: Date): UsageSnapshot {
