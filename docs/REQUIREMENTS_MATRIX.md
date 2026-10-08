@@ -62,15 +62,15 @@ mocks · **P4** advanced ML + optional tutor.
 | 57 | Transfer tests | P2 | transfer families | Variants grouped; unseen metric honest | Not started |
 | 58 | "Why not?" | P2 | question type | — | Not started |
 | 59 | Blank-page mode | P2 | — | No templates | Not started |
-| 60 | Learning loop | all | — | — | Not started |
+| 60 | Learning loop | all | — | — | **In progress** — attempt → mastery (rules-v1) → review ladder → session planner, recorded in one transaction per graded submit |
 | 61 | Personalisation / ML | P1 rules → P4 models | `recommendations` | Recommendations cite real history | Not started |
-| 62 | Coding comeback track | P1→P3 | projects, multi-file workspace | Blank method → tested multi-class app | Not started |
+| 62 | Coding comeback track | P1→P3 | projects, multi-file workspace | Blank method → tested multi-class app | **In progress** — multi-file shopping-cart project workspace with revisioned saves; later campaigns P2+ |
 | 63 | Stack | P0 | repo | Pinned versions + lockfile | **Done** — `package.json`, `.npmrc save-exact` |
 | 64 | Free-tier limits & failure behaviour | P0→P1 | usage screen, job caps | Quota exhaustion pauses jobs, keeps code | **In progress** — admission control (job caps, CPU-seconds budget, provider-quota pause) done with in-memory ledger; Supabase ledger + usage screen P1 |
 | 65 | Execution proof gate | P0 | `runner/` | Image + deny-all + 2-file compile + JUnit + contract + smoke | **Done** — passed on Vercel 2026-10-03 (`evidence/vercel-all-2026-10-03T23-37-15-474Z.json`); image `runner/image-manifest.json` |
 | 66 | Schema, RLS, transactions | P0→P1 | `supabase/migrations` | Two-user + anon authz tests | **Done** — 75 integration tests locally + CI; cloud project migrated and anonymous access smoke-tested 2026-10-06 |
 | 67 | API contracts, job states | P1 | `app/api/v1/*` | Job state persisted before provisioning | **In progress** — sessions, quests, hints, executions (run/submit, idempotent job id), progress, preferences; structured errors + request ids |
-| 68 | Setup deliverables | P0→P1 | `docs/`, CI | Fresh setup from guide works | **In progress** — docs + `.github/workflows/ci.yml` (no remote repo yet) |
+| 68 | Setup deliverables | P0→P1 | `docs/`, CI | Fresh setup from guide works | **In progress** — docs + CI on private GitHub repo (all jobs green); production deployed 2026-10-08 at https://codequest-zeta-self.vercel.app with `main` auto-deploying |
 | 69 | Playable shopping campaign | P1 | 9 quests | Each quest produces executable code | **In progress** — playable end to end (e2e: run, hint, submit, XP, reload); all 9 quests draft pending owner review |
 | 70 | Supportive rewards, honest AI | P1 | — | No XP penalty for hints; modes labelled | **In progress** — no hint penalties; unreviewed content opt-in and labelled |
 | 71 | Completion matrix + manifest | P0→P2 | this file, `content/` | Content checks reject broken refs/leaks | **In progress** — content gate + sync with immutability; curriculum manifest grows with each quest |
