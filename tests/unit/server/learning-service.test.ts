@@ -6,7 +6,7 @@ import { DuplicateJobError } from "@/lib/execution/usage-ledger";
 import type { SkillState } from "@/lib/learning/mastery";
 import { silentLogger } from "@/lib/observability/log";
 import { ApiError } from "@/lib/server/http";
-import type { GradedAttemptInput, JobState, LearningStore, QuestGrading, QuestRecord } from "@/lib/server/learning-store";
+import type { ActiveSession, GradedAttemptInput, JobState, LearningStore, QuestGrading, QuestRecord } from "@/lib/server/learning-store";
 import { LearningService, type ExecuteRequest, type MeteredExecutor } from "@/lib/server/learning-service";
 
 const USER = "11111111-1111-4111-8111-111111111111";
@@ -61,7 +61,18 @@ class FakeStore implements LearningStore {
   async getSession() { return undefined; }
   async updateJob(jobId: string, patch: { state: JobState }) { this.jobUpdates.push({ jobId, state: patch.state }); }
   async getJob() { return undefined; }
-  async recordGradedAttempt(input: GradedAttemptInput) { this.attempts.push(input); return "attempt-1"; }
+  /** Event keys already in the ledger; like the database, an earned key is never awarded again. */
+  earnedXp = new Set<string>();
+  sessionCompletes = false;
+  active: ActiveSession | undefined;
+  activeSince: Date | undefined;
+  async recordGradedAttempt(input: GradedAttemptInput) {
+    this.attempts.push(input);
+    const fresh = input.xp.filter((award) => !this.earnedXp.has(award.event_key));
+    for (const award of fresh) this.earnedXp.add(award.event_key);
+    return { attemptId: "attempt-1", awardedXp: fresh.reduce((sum, award) => sum + award.delta, 0), sessionCompleted: this.sessionCompletes };
+  }
+  async activeSession(_user: string, startedAfter: Date) { this.activeSince = startedAfter; return this.active; }
 }
 
 function result(outcome: ExecutionResult["outcome"] = "succeeded"): ExecutionResult {
@@ -194,6 +205,58 @@ describe("LearningService.execute", () => {
     await service(store).execute(USER, request(), "r", silentLogger);
 
     expect(store.attempts[0].xp.map((award) => award.event_key)).toEqual(["quest-pass:cart.q1-checkout-totals", "quest-independent:cart.q1-checkout-totals"]);
+  });
+});
+
+describe("LearningService.execute reporting", () => {
+  it("execute_passAlreadyRewarded_reportsZeroXp", async () => {
+    const store = new FakeStore();
+    store.earnedXp = new Set(["quest-pass:cart.q1-checkout-totals", "quest-independent:cart.q1-checkout-totals"]);
+
+    const response = await service(store).execute(USER, request(), "r", silentLogger);
+
+    expect(response.awardedXp).toBe(0);
+  });
+
+  it("execute_independentPassAfterHintedPass_reportsOnlyTheNewBonus", async () => {
+    const store = new FakeStore();
+    store.earnedXp = new Set(["quest-pass:cart.q1-checkout-totals"]);
+
+    const response = await service(store).execute(USER, request(), "r", silentLogger);
+
+    expect(response.awardedXp).toBe(20);
+  });
+
+  it("execute_lastSessionItemPassed_reportsSessionCompleted", async () => {
+    const store = new FakeStore();
+    store.sessionCompletes = true;
+
+    const response = await service(store).execute(USER, request({ sessionItemId: crypto.randomUUID() }), "r", silentLogger);
+
+    expect(response.sessionCompleted).toBe(true);
+  });
+
+  it("execute_run_neverCompletesASession", async () => {
+    const store = new FakeStore();
+    store.sessionCompletes = true;
+
+    const response = await service(store).execute(USER, request({ mode: "run", sessionItemId: crypto.randomUUID() }), "r", silentLogger);
+
+    expect([response.sessionCompleted, store.attempts.length]).toEqual([false, 0]);
+  });
+});
+
+describe("LearningService.activeSession", () => {
+  it("activeSession_asksForSessionsFromTheLast24Hours", async () => {
+    const store = new FakeStore();
+
+    await service(store).activeSession(USER);
+
+    expect(store.activeSince).toEqual(new Date("2026-10-06T12:00:00Z"));
+  });
+
+  it("activeSession_noOpenSession_isUndefined", async () => {
+    expect(await service().activeSession(USER)).toBeUndefined();
   });
 });
 

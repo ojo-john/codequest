@@ -74,6 +74,9 @@ const REJECTION_STATUS: Record<RejectionReason, { status: number; message: strin
   provider_quota_paused: { status: 503, message: "Code execution is paused because the free hosting quota ran out. Your code is saved." },
 };
 
+/** A session can be resumed from home for this long after it started. */
+const RESUME_WINDOW_MS = 24 * 60 * 60 * 1000;
+
 export class LearningService {
   private readonly store: LearningStore;
   private readonly executor: MeteredExecutor;
@@ -141,7 +144,7 @@ export class LearningService {
     return { tier, label: hint.tier, text: hint.text, remaining: grading.hints.length - tier };
   }
 
-  async execute(userId: string, request: ExecuteRequest, requestId: string, log: Logger, signal?: AbortSignal): Promise<{ jobId: string; result: ClientExecutionResult; awardedXp: number; skills: Array<{ skillId: string; dimension: string; state: string; reviewInDays: number }> }> {
+  async execute(userId: string, request: ExecuteRequest, requestId: string, log: Logger, signal?: AbortSignal): Promise<{ jobId: string; result: ClientExecutionResult; awardedXp: number; sessionCompleted: boolean; skills: Array<{ skillId: string; dimension: string; state: string; reviewInDays: number }> }> {
     const quest = await this.requireQuest(userId, request.contentVersionId);
     const validated = validateSourceFiles(request.files as SourceFile[], this.limits);
     if (!validated.ok) throw new ApiError(400, "invalid_sources", "Some files can't be run.", validated.issues);
@@ -178,8 +181,13 @@ export class LearningService {
     });
     log.log("info", "learning.executed", { mode: request.mode, outcome: execution.result.outcome, contentId: quest.contentId });
 
-    if (request.mode === "run" || execution.result.outcome === "cancelled") return { jobId: request.jobId, result, awardedXp: 0, skills: [] };
+    if (request.mode === "run" || execution.result.outcome === "cancelled") return { jobId: request.jobId, result, awardedXp: 0, sessionCompleted: false, skills: [] };
     return { jobId: request.jobId, result, ...(await this.recordSubmission(userId, request, quest, execution.result)) };
+  }
+
+  /** The session to offer "resume" for on the home screen, if any. */
+  async activeSession(userId: string) {
+    return this.store.activeSession(userId, new Date(this.clock().getTime() - RESUME_WINDOW_MS));
   }
 
   async getSession(userId: string, sessionId: string) {
@@ -229,7 +237,7 @@ export class LearningService {
     });
     const xp = xpAwardsFor(quest.contentId, result.outcome, independence);
 
-    await this.store.recordGradedAttempt({
+    const recorded = await this.store.recordGradedAttempt({
       userId,
       executionJobId: request.jobId,
       contentVersionId: request.contentVersionId,
@@ -255,8 +263,8 @@ export class LearningService {
     });
 
     return {
-      // Upper bound: an award already in the ledger is skipped by the database.
-      awardedXp: xp.reduce((sum, award) => sum + award.delta, 0),
+      awardedXp: recorded.awardedXp,
+      sessionCompleted: recorded.sessionCompleted,
       skills: updates.map((update) => ({ skillId: update.skillId, dimension: update.dimension, state: masteryState(update, now), reviewInDays: update.intervalDays })),
     };
   }
