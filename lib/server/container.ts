@@ -12,6 +12,8 @@ import { SupabaseExecutionUsageLedger } from "@/lib/execution/supabase-usage-led
 import { loadVercelSandboxConfig, VercelSandboxProvider } from "@/lib/execution/vercel-sandbox-provider";
 import { createLogger } from "@/lib/observability/log";
 import { ArchiveService } from "./archive-service";
+import { JournalService } from "./journal-service";
+import { SupabaseJournalStore } from "./journal-store";
 import { SupabaseArchiveStore } from "./archive-store";
 import { LearningService } from "./learning-service";
 import { SupabaseLearningStore } from "./learning-store";
@@ -60,4 +62,13 @@ export function archiveService(): ArchiveService {
     logger: createLogger({ component: "archive" }),
   });
   return archive;
+}
+
+let journal: JournalService | undefined;
+
+export function journalService(): JournalService {
+  if (journal) return journal;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
+  journal = new JournalService({ store: new SupabaseJournalStore(db), quests: new SupabaseLearningStore(db) });
+  return journal;
 }

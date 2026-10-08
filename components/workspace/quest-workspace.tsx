@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { NotesPanel } from "@/components/journal/notes-panel";
+import { PastReflection, type PastReflectionView } from "@/components/journal/past-reflection";
+import { ReflectionCard } from "@/components/journal/reflection-card";
 import { Markdown } from "@/components/markdown";
 import { Badge, Button, UnreviewedBadge } from "@/components/ui";
 import { apiCall, ClientApiError } from "@/lib/client/api";
@@ -31,6 +34,7 @@ interface Props {
   readonly project: { projectId: string; files: ReadonlyArray<{ path: string; revision: number; source: string }> };
   /** Set when the quest was opened from a planned session. */
   readonly session?: { readonly id: string; readonly itemId: string };
+  readonly journal: { readonly noteBody: string; readonly reflection?: PastReflectionView };
 }
 
 const STATUS_TEXT: Record<FileStatus, string> = {
@@ -67,7 +71,7 @@ function ProjectSync() {
   return null;
 }
 
-export function QuestWorkspace({ quest, starter, project, session }: Props) {
+export function QuestWorkspace({ quest, starter, project, session, journal }: Props) {
   const sessionItemId = session?.itemId;
   const sessionHref = session ? `/sessions/${session.id}` : undefined;
   // Ready once the shared store holds this project (init happens in an effect below).
@@ -82,6 +86,8 @@ export function QuestWorkspace({ quest, starter, project, session }: Props) {
   const [running, setRunning] = useState<"run" | "submit" | undefined>();
   const [result, setResult] = useState<ExecutionView | undefined>();
   const [extras, setExtras] = useState<SubmissionExtras | undefined>();
+  /** The job id of a passing submission, offered for the reflection card. */
+  const [reflectOn, setReflectOn] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [hints, setHints] = useState(quest.usedHints);
   const [hintError, setHintError] = useState<string | undefined>();
@@ -123,7 +129,10 @@ export function QuestWorkspace({ quest, starter, project, session }: Props) {
           },
         });
         setResult(response.result);
-        if (mode === "submit") setExtras({ awardedXp: response.awardedXp, sessionCompleted: response.sessionCompleted, skills: response.skills });
+        if (mode === "submit") {
+          setExtras({ awardedXp: response.awardedXp, sessionCompleted: response.sessionCompleted, skills: response.skills });
+          if (response.result.outcome === "succeeded") setReflectOn(response.jobId);
+        }
       } catch (caught) {
         setError(caught instanceof ClientApiError ? caught.message : "Couldn't run your code.");
       } finally {
@@ -168,6 +177,7 @@ export function QuestWorkspace({ quest, starter, project, session }: Props) {
             </Link>
           )}
         </div>
+        {journal.reflection && <PastReflection reflection={journal.reflection} />}
         <p className="lg:hidden text-sm text-neutral-600 dark:text-neutral-400">Coding is easiest on a larger screen; everything you type is saved as you go.</p>
         <Markdown>{withoutRepeatedTitle(quest.instructions, quest.title)}</Markdown>
 
@@ -196,6 +206,9 @@ export function QuestWorkspace({ quest, starter, project, session }: Props) {
             </p>
           )}
         </section>
+
+        {reflectOn && <ReflectionCard key={reflectOn} jobId={reflectOn} />}
+        <NotesPanel contentVersionId={quest.contentVersionId} initialBody={journal.noteBody} />
       </section>
 
       <section aria-label="Code" className="flex min-h-[70vh] flex-col overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
