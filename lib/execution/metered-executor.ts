@@ -1,5 +1,6 @@
 import type { Logger } from "../observability/log";
 import {
+  staleBefore,
   decideAdmission,
   worstCaseJobCpuSeconds,
   type ExecutionBudgetConfig,
@@ -59,7 +60,7 @@ export class MeteredJavaExecutor {
     const now = this.clock();
 
     const decision = await ledger.admit(
-      { jobId: options.jobId, userId: options.userId, now, reserveCpuSeconds: reserve },
+      { jobId: options.jobId, userId: options.userId, now, reserveCpuSeconds: reserve, staleBefore: staleBefore(budget, now) },
       (usage) => decideAdmission(usage, budget, reserve, now),
     );
     if (!decision.admitted) {
