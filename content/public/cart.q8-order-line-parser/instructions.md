@@ -20,7 +20,11 @@ Shop staff type orders as text, one line at a time, like `TEA-1, 3`. Write
 | `"TEA-1 3"` | throws |
 
 ## Test it yourself
-Before submitting, write JUnit tests in `src/test/java/shop/OrderLineParserTest.java` for every
-rule above — including the boundaries (`1`, `99`, `100`, a 20- and a 21-character SKU) and the
-malformed cases. Run them with **Run**. Automatic grading of test quality comes later in
-CodeQuest; for now your own tests are how you find the hidden edge cases first.
+This quest grades your tests too. Click **＋ Test file** to create
+`src/test/java/shop/OrderLineParserTest.java`, and write JUnit tests for every rule above —
+including the boundaries (`1`, `99`, `100`, a 20- and a 21-character SKU) and the malformed cases.
+
+- **Run** runs the samples *and* your tests, so you can see them pass or fail.
+- **Submit** also runs your tests against a correct parser (they must all pass) and against
+  several parsers that each hide one realistic bug. You'll see which bugs your tests caught.
+  Catching most of them counts as evidence for your testing skill and earns +20 XP.

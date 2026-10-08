@@ -4,6 +4,7 @@ import { z } from "zod";
 import { contractDefinitionSchema, type CaseResult, type ContractDefinition } from "@/lib/execution/contract";
 import { questPayloadSchema, type QuestPayload } from "@/lib/content/payload";
 import { hintTierSchema } from "@/lib/content/schema";
+import type { TestQualitySpec } from "@/lib/execution/test-quality";
 import type { SkillDimension, SkillState } from "@/lib/learning/mastery";
 
 /**
@@ -24,7 +25,16 @@ export interface QuestRecord extends QuestPayload {
 export interface QuestGrading {
   readonly contract: ContractDefinition;
   readonly hints: ReadonlyArray<{ readonly tier: z.infer<typeof hintTierSchema>; readonly text: string }>;
+  /** Present for quests that grade the learner's own tests (spec §19). */
+  readonly testQuality?: TestQualitySpec;
 }
+
+const testQualitySpecSchema = z.object({
+  target: z.string(),
+  baseline: z.string(),
+  passRatio: z.number().gt(0).lte(1),
+  mutants: z.array(z.object({ id: z.string(), description: z.string(), content: z.string() })).min(1),
+});
 
 export type JobState =
   | "created" | "provisioning" | "compiling" | "running" | "grading"
@@ -39,6 +49,22 @@ export interface ClientExecutionResult {
   readonly compileOutput?: string;
   readonly testOutput?: string;
   readonly totalMs?: number;
+  /** The learner's own JUnit tests on their own code (Run). */
+  readonly learnerTests?: {
+    readonly outcome: string;
+    readonly detail: string;
+    readonly tests?: number;
+    readonly failedTests?: readonly string[];
+    readonly output: string;
+  };
+  /** How well the learner's tests catch bugs (Submit). Mutant descriptions are learner-facing; their code is not. */
+  readonly testQuality?: {
+    readonly status: string;
+    readonly caught: ReadonlyArray<{ readonly id: string; readonly description: string }>;
+    readonly missed: ReadonlyArray<{ readonly id: string; readonly description: string }>;
+    readonly total: number;
+    readonly failingOnReference?: readonly string[];
+  };
 }
 
 export interface JobView {
@@ -181,7 +207,9 @@ export class SupabaseLearningStore implements LearningStore {
 
   async getGrading(contentVersionId: string): Promise<QuestGrading> {
     const data = check("get_grading", await this.db.rpc("get_content_grading", { p_content_version_id: contentVersionId }));
-    return z.object({ contract: contractDefinitionSchema, hints: z.array(z.object({ tier: hintTierSchema, text: z.string() })) }).parse(data);
+    return z
+      .object({ contract: contractDefinitionSchema, hints: z.array(z.object({ tier: hintTierSchema, text: z.string() })), testQuality: testQualitySpecSchema.optional() })
+      .parse(data);
   }
 
   async completedContentIds(userId: string): Promise<Set<string>> {

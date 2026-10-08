@@ -1,7 +1,8 @@
 import { publicContractSpec } from "@/lib/execution/contract";
 import { validateSourceFiles } from "@/lib/execution/source-files";
 import type { ExecutionLimits } from "@/lib/execution/limits";
-import type { LoadedContent } from "./repository";
+import { isLearnerTest, LEARNER_TEST_ROOT } from "@/lib/execution/test-quality";
+import type { LoadedContent, LoadedQuest } from "./repository";
 import { hintTierSchema } from "./schema";
 
 /**
@@ -99,7 +100,46 @@ export function validateContent(content: LoadedContent, limits: Pick<ExecutionLi
     if (leaked !== undefined) issues.push({ item, message: `reference solution line appears in the instructions: "${leaked.slice(0, 60)}"` });
     const spec = JSON.stringify(publicContractSpec(privateData.contract));
     if (spec.includes('"expect"')) issues.push({ item, message: "public contract spec still contains expectations" });
+
+    issues.push(...validateTestQuality(quest, limits));
   }
 
+  return issues;
+}
+
+/**
+ * A quest that claims to assess testing must grade the learner's tests, and test-quality grading
+ * must be well-formed: the target exists in the reference, every mutant really changes it, and the
+ * reference tests are proper test files. (Whether the reference tests pass on the reference and
+ * catch every mutant is checked by running them, in the content gate.)
+ */
+function validateTestQuality(quest: LoadedQuest, limits: Pick<ExecutionLimits, "maxSourceFiles" | "maxTotalSourceBytes">): ContentIssue[] {
+  const item = quest.manifest.id;
+  const issues: ContentIssue[] = [];
+  const assessesTesting = quest.manifest.skills.some((tag) => tag.dimension === "testing");
+  const quality = quest.testQuality;
+  if (quality === undefined) {
+    if (assessesTesting) issues.push({ item, message: "tags a testing-dimension skill but has no testQuality grading" });
+    return issues;
+  }
+  if (!assessesTesting) issues.push({ item, message: "has testQuality grading but tags no testing-dimension skill" });
+
+  const baseline = quest.reference.find((file) => file.path === quality.target);
+  if (baseline === undefined) issues.push({ item, message: `testQuality target ${quality.target} is not in the reference` });
+  const ids = new Set<string>();
+  const contents = new Set<string>();
+  for (const mutant of quality.mutants) {
+    if (ids.has(mutant.id)) issues.push({ item, message: `duplicate mutant id ${mutant.id}` });
+    ids.add(mutant.id);
+    if (baseline !== undefined && mutant.content === baseline.content) issues.push({ item, message: `mutant ${mutant.id} is identical to the reference` });
+    if (contents.has(mutant.content)) issues.push({ item, message: `mutant ${mutant.id} duplicates another mutant` });
+    contents.add(mutant.content);
+  }
+
+  if (quality.referenceTests.length === 0) issues.push({ item, message: "testQuality has no reference tests" });
+  const misplaced = quality.referenceTests.find((file) => !isLearnerTest(file.path));
+  if (misplaced) issues.push({ item, message: `reference test ${misplaced.path} must be under ${LEARNER_TEST_ROOT}` });
+  const combined = validateSourceFiles([...quest.reference, ...quality.referenceTests], limits);
+  if (!combined.ok) issues.push({ item, message: `reference + reference tests invalid: ${JSON.stringify(combined.issues)}` });
   return issues;
 }
