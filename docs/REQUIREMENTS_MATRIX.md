@@ -11,7 +11,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 2 | Game structure, 11 worlds, skill DAG | P2 | `skills`, `skill_edges` | Strict-edge cycle check passes; worlds visible with unavailable scope marked | Not started |
 | 3 | Adaptive diagnostic first launch | P2 | diagnostic flow, `attempts` | Placement changes path without skipping fundamentals | Not started |
 | 4 | Daily home screen + time budget | P1 | `app/page.tsx` | 5/15/30/45/60+ choices create a session | **Done** — XP, reviews due, budget picker, campaign list with unreviewed labels (e2e) |
-| 5 | Adaptive session engine | P1 | `lib/learning/session-planner.ts`, `create_session()` | Items fit budget; reasons cited; resumable | **In progress** — rules-v1 planner (reviews first, next quest as a resumable slice, reason codes recorded); session page with reasons, back-to-session links, completion on the last passing item, resume card on home (e2e) |
+| 5 | Adaptive session engine | P1 | `lib/learning/session-planner.ts`, `create_session()` | Items fit budget; reasons cited; resumable | **Done (P1 scope)** — rules-v1 planner in §5's priority order for available content: overdue reviews, weak skills (from insights), current path, with budget fit and resumable slices; reasons shown on the session page; completion and resume (unit + integration + e2e). Prerequisite gaps and the per-budget activity mix need P2 content |
 | 6 | Java curriculum | P2 | `content/public` manifest | Every listed topic present with review status | Not started |
 | 7 | Big-O world | P2 | question types | Assumptions stated per item | Not started |
 | 8 | Data structures | P2 | content | Per-structure checklist complete | Not started |
@@ -63,7 +63,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 58 | "Why not?" | P2 | question type | — | Not started |
 | 59 | Blank-page mode | P2 | — | No templates | Not started |
 | 60 | Learning loop | all | — | — | **In progress** — attempt → mastery (rules-v1) → review ladder → session planner, recorded in one transaction per graded submit |
-| 61 | Personalisation / ML | P1 rules → P4 models | `recommendations` | Recommendations cite real history | Not started |
+| 61 | Personalisation / ML | P1 rules → P4 models | `recommendations` | Recommendations cite real history | **In progress (rules)** — `insights-v1`: edge cases missed while main checks pass, hint reliance, repeated compile errors, struggling skills; each with sample size, 30-day window and an early-signal label under 6 submissions; minimum 3 submissions, ≥ 2 matches, ≥ 40 %; suggests one concrete quest. Shown on Home; struggling skills feed the planner. Trained models: P4 (spec: not before enough data) |
 | 62 | Coding comeback track | P1→P3 | projects, multi-file workspace | Blank method → tested multi-class app | **In progress** — multi-file shopping-cart project workspace with revisioned saves; later campaigns P2+ |
 | 63 | Stack | P0 | repo | Pinned versions + lockfile | **Done** — `package.json`, `.npmrc save-exact` |
 | 64 | Free-tier limits & failure behaviour | P0→P1 | usage screen, job caps | Quota exhaustion pauses jobs, keeps code | **Done** — admission control (100/day, 2,000/month, CPU-seconds at 80 % of the 5 h quota, one active job, provider-quota pause) on the Supabase ledger; abandoned jobs (function died before settling) reclaimed after 5 min at their worst case; `/usage` screen with runs, compute and database size (unit + integration + e2e) |

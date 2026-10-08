@@ -163,6 +163,25 @@ describe("planSession", () => {
     skills,
   });
 
+  it("planSession_weakSkill_revisitsAPassedQuestAfterOverdueReviews", () => {
+    const quests = [quest(1, true, 20, ["java.loops"]), quest(2, true, 20, ["java.streams"]), quest(3, false)];
+    const due = [{ skillId: "java.loops", dueAt: new Date(NOW.getTime() - DAY), reason: "spaced_review" }];
+
+    const plan = planSession(60, quests, due, NOW, ["java.streams", "java.loops"]);
+
+    expect(plan.items.map((item) => [item.title, item.reasons[0].code])).toEqual([
+      ["Quest 1", "review_due"],
+      ["Quest 2", "weak_skill"],
+      ["Quest 3", "continue_campaign"],
+    ]);
+  });
+
+  it("planSession_weakSkillWithoutAPassedQuest_addsNothingExtra", () => {
+    const plan = planSession(30, [quest(1, false)], [], NOW, ["java.loops"]);
+
+    expect(plan.items.map((item) => item.reasons[0].code)).toEqual(["continue_campaign"]);
+  });
+
   it("planSession_noContent_saysSo", () => {
     expect(planSession(15, [], [], NOW)).toMatchObject({ items: [], emptyReason: "no_content" });
   });

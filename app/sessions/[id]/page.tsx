@@ -7,6 +7,7 @@ import { learningService } from "@/lib/server/container";
 
 const REASON_TEXT: Record<string, string> = {
   review_due: "Includes a review that's due, so it sticks.",
+  weak_skill: "Revisits a skill your recent submissions found hard, using a quest you've already passed.",
   continue_campaign: "Continues your campaign where you left off.",
   continues_later: "The quest is longer than this session — your project is saved, so you can stop any time and pick it up later.",
 };

@@ -7,7 +7,7 @@ import type { SkillState } from "@/lib/learning/mastery";
 import { silentLogger } from "@/lib/observability/log";
 import { ApiError } from "@/lib/server/http";
 import type { RubricResult } from "@/lib/grading/rubric";
-import { FollowUpsAlreadyAnsweredError, type FollowUpAnswersInput, type FollowUpContext } from "@/lib/server/learning-store";
+import { FollowUpsAlreadyAnsweredError, type FollowUpAnswersInput, type FollowUpContext, type RecentSubmission } from "@/lib/server/learning-store";
 import type { ActiveSession, GradedAttemptInput, JobState, LearningStore, QuestGrading, QuestRecord } from "@/lib/server/learning-store";
 import { LearningService, type ExecuteRequest, type MeteredExecutor } from "@/lib/server/learning-service";
 
@@ -89,6 +89,10 @@ class FakeStore implements LearningStore {
     this.recordedFollowUps.push(input);
   }
   async updateJobRubric(_u: string, _j: string, rubric: RubricResult) { this.rubrics.push(rubric); }
+  submissions: RecentSubmission[] = [];
+  submissionsSince: Date | undefined;
+  async recentSubmissions(_u: string, since: Date) { this.submissionsSince = since; return this.submissions; }
+  async skillNames() { return new Map([["java.loops", "Loops"]]); }
 }
 
 function result(outcome: ExecutionResult["outcome"] = "succeeded"): ExecutionResult {
@@ -427,6 +431,44 @@ describe("LearningService rubric and follow-ups", () => {
     await service(store).answerFollowUps(USER, { jobId: JOB, answers: { time: 1, space: 0 } });
 
     expect([store.recordedFollowUps[0].evidence.map((row) => [row.dimension, row.outcome]), store.recordedFollowUps[0].skillStates.length]).toEqual([[["complexity", "partial"]], 1]);
+  });
+});
+
+describe("LearningService.insights", () => {
+  function miss(index: number, contentVersionId = QUEST_ID): RecentSubmission {
+    return {
+      attemptId: `a${index}`,
+      contentVersionId,
+      createdAt: new Date(NOW.getTime() - index * 60_000),
+      outcome: "wrong-answer",
+      hintLevel: 0,
+      cases: [{ id: "sample", passed: true }, { id: "hidden", passed: false }],
+    };
+  }
+
+  it("insights_edgeCasesComeFromTheQuestsGrading", async () => {
+    const store = new FakeStore();
+    store.getGrading = async () => ({ ...GRADING, rubric: { edgeCases: ["hidden"], followUps: [] } });
+    store.submissions = [miss(1), miss(2), miss(3)];
+
+    const insights = await service(store).insights(USER);
+
+    expect(insights.map((entry) => entry.code)).toContain("edge_cases_missed");
+  });
+
+  it("insights_submissionsForQuestsNoLongerVisible_areLeftOut", async () => {
+    const store = new FakeStore();
+    store.submissions = [miss(1, "gone"), miss(2, "gone"), miss(3, "gone")];
+
+    expect(await service(store).insights(USER)).toEqual([]);
+  });
+
+  it("insights_readsTheLast30Days", async () => {
+    const store = new FakeStore();
+
+    await service(store).insights(USER);
+
+    expect(store.submissionsSince).toEqual(new Date("2026-09-07T12:00:00Z"));
   });
 });
 
