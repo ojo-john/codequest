@@ -8,7 +8,7 @@ import { SandboxJavaExecutor } from "@/lib/execution/java-executor";
 import { loadExecutionLimits } from "@/lib/execution/limits";
 import { MeteredJavaExecutor } from "@/lib/execution/metered-executor";
 import type { SandboxProvider } from "@/lib/execution/sandbox-provider";
-import { SupabaseExecutionUsageLedger } from "@/lib/execution/supabase-usage-ledger";
+import { SupabaseDatabaseSize, SupabaseExecutionUsageLedger } from "@/lib/execution/supabase-usage-ledger";
 import { loadVercelSandboxConfig, VercelSandboxProvider } from "@/lib/execution/vercel-sandbox-provider";
 import { createLogger } from "@/lib/observability/log";
 import { ArchiveService } from "./archive-service";
@@ -16,6 +16,7 @@ import { JournalService } from "./journal-service";
 import { SupabaseJournalStore } from "./journal-store";
 import { SupabaseArchiveStore } from "./archive-store";
 import { LearningService } from "./learning-service";
+import { UsageService } from "./usage-service";
 import { SupabaseLearningStore } from "./learning-store";
 
 /**
@@ -71,4 +72,23 @@ export function journalService(): JournalService {
   const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
   journal = new JournalService({ store: new SupabaseJournalStore(db), quests: new SupabaseLearningStore(db) });
   return journal;
+}
+
+/** Supabase Free includes a 500 MB database (spec §64); override when the plan changes. */
+const databaseQuotaSchema = z.coerce.number().int().positive().default(500 * 1024 * 1024);
+
+let usage: UsageService | undefined;
+
+export function usageService(): UsageService {
+  if (usage) return usage;
+  const env = process.env;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(env));
+  usage = new UsageService({
+    ledger: new SupabaseExecutionUsageLedger(db),
+    budget: loadExecutionBudgetConfig(env),
+    database: new SupabaseDatabaseSize(db),
+    databaseQuotaBytes: databaseQuotaSchema.parse(env.SUPABASE_DATABASE_QUOTA_BYTES),
+    logger: createLogger({ component: "usage" }),
+  });
+  return usage;
 }
