@@ -62,6 +62,15 @@ describe("remapArchiveIds", () => {
     });
   });
 
+  it("remapArchiveIds_followUpAnswers_followTheirAttempt", () => {
+    const attemptId = archiveData().attempts[0].id;
+    const data = archiveData({ followup_answers: [{ id: "b0000000-0000-4000-8000-000000000001", attempt_id: attemptId, followup_id: "why", choice: 1, correct: true, created_at: "2026-10-01T10:00:00Z" }] });
+
+    const remapped = remapArchiveIds(data, EXPORTER, OTHER);
+
+    expect(remapped.followup_answers?.[0].attempt_id).toBe(remapped.attempts[0].id);
+  });
+
   it("remapArchiveIds_sameArchiveTwice_isDeterministic", () => {
     expect(remapArchiveIds(archiveData(), EXPORTER, OTHER)).toEqual(remapArchiveIds(archiveData(), EXPORTER, OTHER));
   });
