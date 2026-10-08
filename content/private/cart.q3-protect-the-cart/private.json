@@ -751,5 +751,45 @@
       "text": "Product: if text is null or isBlank() -> throw; if price < 0 -> throw. changeQuantity: existing = map.get(sku); if null -> throw; if qty < 0 -> throw; if qty == 0 -> map.remove(sku) else map.put(sku, new CartItem(existing.product(), qty))."
     }
   ],
-  "referenceDir": "reference"
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "product-allows-free-item",
+      "product-rejects-empty-category",
+      "rejected-add-leaves-cart-unchanged",
+      "items-cannot-change-the-cart",
+      "change-quantity-to-zero-removes",
+      "change-quantity-unknown-sku"
+    ],
+    "followUps": [
+      {
+        "id": "why-validate-in-constructor",
+        "criterion": "explanation",
+        "skill": "java.encapsulation",
+        "prompt": "Why validate in the constructor rather than in every method that uses the fields?",
+        "options": [
+          "Constructors run faster than other methods.",
+          "Once constructed, the object can never hold invalid data, so every method can trust its fields without re-checking.",
+          "Java doesn't allow exceptions in other methods.",
+          "So that no setters are needed."
+        ],
+        "answer": 1,
+        "why": "Validating once at construction makes the invariant true for the object's whole life (its fields are final). Checks scattered across methods are easy to forget in one place."
+      },
+      {
+        "id": "why-unmodifiable-items",
+        "criterion": "explanation",
+        "skill": "java.encapsulation",
+        "prompt": "What would go wrong if items() returned a list callers could modify?",
+        "options": [
+          "Nothing: callers are trusted code.",
+          "Callers could add or remove lines behind the cart's back, bypassing its quantity and validation rules.",
+          "The list would use twice the memory.",
+          "The cart would re-sort itself."
+        ],
+        "answer": 1,
+        "why": "Returning mutable internal state lets any caller break the cart's invariants. An unmodifiable view (or a copy) keeps every change going through the cart's own methods."
+      }
+    ]
+  }
 }

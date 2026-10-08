@@ -57,5 +57,8 @@ export function remapArchiveIds(data: ArchiveData, subject: string, targetUserId
       id: id(row.id),
       recommendation_id: id(row.recommendation_id),
     })),
+    ...(data.followup_answers && {
+      followup_answers: data.followup_answers.map((row) => ({ ...row, id: id(row.id), attempt_id: id(row.attempt_id) })),
+    }),
   };
 }

@@ -5,6 +5,7 @@ import { contractDefinitionSchema, type CaseResult, type ContractDefinition } fr
 import { questPayloadSchema, type QuestPayload } from "@/lib/content/payload";
 import { hintTierSchema } from "@/lib/content/schema";
 import type { TestQualitySpec } from "@/lib/execution/test-quality";
+import type { FollowUpCriterion, RubricResult } from "@/lib/grading/rubric";
 import type { SkillDimension, SkillState } from "@/lib/learning/mastery";
 
 /**
@@ -27,7 +28,60 @@ export interface QuestGrading {
   readonly hints: ReadonlyArray<{ readonly tier: z.infer<typeof hintTierSchema>; readonly text: string }>;
   /** Present for quests that grade the learner's own tests (spec §19). */
   readonly testQuality?: TestQualitySpec;
+  /** Edge-case checks and follow-up questions for the rubric (spec §14). */
+  readonly rubric?: QuestRubric;
 }
+
+export interface FollowUpQuestion {
+  readonly id: string;
+  readonly criterion: FollowUpCriterion;
+  readonly skill: string;
+  readonly prompt: string;
+  readonly options: readonly string[];
+  readonly answer: number;
+  readonly why: string;
+}
+
+export interface QuestRubric {
+  readonly edgeCases: readonly string[];
+  readonly followUps: readonly FollowUpQuestion[];
+}
+
+const questRubricSchema = z.object({
+  edgeCases: z.array(z.string()),
+  followUps: z.array(
+    z.object({
+      id: z.string(),
+      criterion: z.enum(["explanation", "time_complexity", "space_complexity", "algorithm_choice"]),
+      skill: z.string(),
+      prompt: z.string(),
+      options: z.array(z.string()),
+      answer: z.number().int(),
+      why: z.string(),
+    }),
+  ),
+});
+
+/** What answering an attempt's follow-ups needs to know about it. */
+export interface FollowUpContext {
+  readonly attemptId: string;
+  readonly contentVersionId: string;
+  readonly hintLevel: number;
+  readonly result: ClientExecutionResult | null;
+  /** Follow-up id → the learner's recorded answer. Empty until answered. */
+  readonly answered: ReadonlyMap<string, { readonly choice: number; readonly correct: boolean }>;
+}
+
+/** The attempt's follow-ups were already answered (by an earlier or concurrent request). */
+export class FollowUpsAlreadyAnsweredError extends Error {
+  constructor() {
+    super("follow-ups already answered");
+    this.name = "FollowUpsAlreadyAnsweredError";
+  }
+}
+
+/** record_followup_answers: already answered, or not the learner's attempt. */
+const ALREADY_ANSWERED = "CQ409";
 
 const testQualitySpecSchema = z.object({
   target: z.string(),
@@ -58,6 +112,10 @@ export interface ClientExecutionResult {
     readonly output: string;
   };
   /** How well the learner's tests catch bugs (Submit). Mutant descriptions are learner-facing; their code is not. */
+  /** Rubric for a graded submission (spec §14); updated once follow-ups are answered. */
+  readonly rubric?: RubricResult;
+  /** Questions to answer after a pass; the canonical answers stay on the server. */
+  readonly followUps?: ReadonlyArray<{ readonly id: string; readonly criterion: string; readonly prompt: string; readonly options: readonly string[] }>;
   readonly testQuality?: {
     readonly status: string;
     readonly caught: ReadonlyArray<{ readonly id: string; readonly description: string }>;
@@ -140,6 +198,20 @@ export interface LearningStore {
   getJob(userId: string, jobId: string): Promise<JobView | undefined>;
   recordGradedAttempt(input: GradedAttemptInput): Promise<GradedAttemptOutcome>;
   activeSession(userId: string, startedAfter: Date): Promise<ActiveSession | undefined>;
+  /** The graded attempt for one of the learner's jobs, with its follow-up answers so far. */
+  followUpContext(userId: string, jobId: string): Promise<FollowUpContext | undefined>;
+  /** Atomic; throws FollowUpsAlreadyAnsweredError if any was answered before (nothing recorded). */
+  recordFollowUpAnswers(input: FollowUpAnswersInput): Promise<void>;
+  /** Replaces the rubric in the job's stored result so a reload shows the latest. */
+  updateJobRubric(userId: string, jobId: string, rubric: RubricResult): Promise<void>;
+}
+
+export interface FollowUpAnswersInput {
+  readonly userId: string;
+  readonly attemptId: string;
+  readonly answers: ReadonlyArray<{ readonly followup_id: string; readonly choice: number; readonly correct: boolean }>;
+  readonly evidence: GradedAttemptInput["evidence"];
+  readonly skillStates: GradedAttemptInput["skillStates"];
 }
 
 /** Store failure (database unreachable, unexpected response). Surfaces as a 503, never as a learner outcome. */
@@ -208,7 +280,12 @@ export class SupabaseLearningStore implements LearningStore {
   async getGrading(contentVersionId: string): Promise<QuestGrading> {
     const data = check("get_grading", await this.db.rpc("get_content_grading", { p_content_version_id: contentVersionId }));
     return z
-      .object({ contract: contractDefinitionSchema, hints: z.array(z.object({ tier: hintTierSchema, text: z.string() })), testQuality: testQualitySpecSchema.optional() })
+      .object({
+        contract: contractDefinitionSchema,
+        hints: z.array(z.object({ tier: hintTierSchema, text: z.string() })),
+        testQuality: testQualitySpecSchema.optional(),
+        rubric: questRubricSchema.optional(),
+      })
       .parse(data);
   }
 
@@ -351,4 +428,42 @@ export class SupabaseLearningStore implements LearningStore {
     return remaining === 0 ? undefined : { id: row.id, budgetMinutes: row.budget_minutes, remaining };
   }
 
+
+  async followUpContext(userId: string, jobId: string): Promise<FollowUpContext | undefined> {
+    const attempt = check(
+      "followup_attempt",
+      await this.db.from("attempts").select("id, content_version_id, hint_level").eq("execution_job_id", jobId).eq("user_id", userId).eq("state", "graded").maybeSingle(),
+    ) as { id: string; content_version_id: string; hint_level: number } | null;
+    if (attempt === null) return undefined;
+    const [job, answers] = await Promise.all([
+      this.getJob(userId, jobId),
+      this.db.from("followup_answers").select("followup_id, choice, correct").eq("attempt_id", attempt.id).eq("user_id", userId),
+    ]);
+    const rows = check("followup_answers", answers) as Array<{ followup_id: string; choice: number; correct: boolean }>;
+    return {
+      attemptId: attempt.id,
+      contentVersionId: attempt.content_version_id,
+      hintLevel: Number(attempt.hint_level),
+      result: job?.result ?? null,
+      answered: new Map(rows.map((row) => [row.followup_id, { choice: Number(row.choice), correct: row.correct }])),
+    };
+  }
+
+  async recordFollowUpAnswers(input: FollowUpAnswersInput): Promise<void> {
+    const { error } = await this.db.rpc("record_followup_answers", {
+      p_user_id: input.userId,
+      p_attempt_id: input.attemptId,
+      p_answers: input.answers,
+      p_evidence: input.evidence,
+      p_skill_states: input.skillStates,
+    });
+    if (error?.code === ALREADY_ANSWERED) throw new FollowUpsAlreadyAnsweredError();
+    if (error) throw new StoreError("record_followup_answers", error.message, { cause: error });
+  }
+
+  async updateJobRubric(userId: string, jobId: string, rubric: RubricResult): Promise<void> {
+    const job = await this.getJob(userId, jobId);
+    if (job?.result === null || job === undefined) return;
+    check("update_job_rubric", await this.db.from("execution_jobs").update({ result: { ...job.result, rubric } }).eq("id", jobId).eq("user_id", userId));
+  }
 }

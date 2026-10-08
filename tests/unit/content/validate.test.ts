@@ -121,3 +121,47 @@ describe("repository content", () => {
     expect(loaded.quests.length).toBeGreaterThan(0);
   });
 });
+
+describe("validateContent rubric", () => {
+  const FOLLOW_UP = { id: "why", criterion: "explanation", skill: "java.a", prompt: "Why does it work?", options: ["one", "two"], answer: 1, why: "Because it does." };
+
+  function withRubric(rubric: unknown, dimension: "implementation" | "explanation" = "implementation"): LoadedQuest {
+    const base = quest();
+    return {
+      ...base,
+      manifest: { ...base.manifest, skills: [{ skill: "java.a", dimension }] },
+      privateData: questPrivateSchema.parse({ ...base.privateData, rubric }),
+    };
+  }
+
+  it("validateContent_wellFormedRubric_hasNoIssues", () => {
+    expect(messages(content([withRubric({ edgeCases: ["c"], followUps: [FOLLOW_UP] }, "explanation")]))).toEqual([]);
+  });
+
+  it("validateContent_edgeCaseNotInTheContract_isReported", () => {
+    expect(messages(content([withRubric({ edgeCases: ["nope"] })])).join()).toMatch(/edge case nope is not a contract case/);
+  });
+
+  it("validateContent_answerOutsideTheOptions_isReported", () => {
+    expect(messages(content([withRubric({ followUps: [{ ...FOLLOW_UP, answer: 2 }] })])).join()).toMatch(/answer 2 is not one of its options/);
+  });
+
+  it("validateContent_followUpForUnknownSkill_isReported", () => {
+    expect(messages(content([withRubric({ followUps: [{ ...FOLLOW_UP, skill: "java.zzz" }] })])).join()).toMatch(/unknown skill java.zzz/);
+  });
+
+  it("validateContent_explanationTagWithoutAQuestion_isReported", () => {
+    expect(messages(content([withRubric(undefined, "explanation")])).join()).toMatch(/no follow-up question assesses it/);
+  });
+
+  it("validateContent_followUpOnACodeEvidencedDimension_isReported", () => {
+    const base = withRubric({ followUps: [{ ...FOLLOW_UP, criterion: "algorithm_choice" }] });
+    const clashing = { ...base, manifest: { ...base.manifest, skills: [{ skill: "java.a", dimension: "recognition" as const }] } };
+
+    expect(messages(content([clashing])).join()).toMatch(/passing code already evidences/);
+  });
+
+  it("validateContent_duplicateFollowUpIds_areReported", () => {
+    expect(messages(content([withRubric({ followUps: [FOLLOW_UP, FOLLOW_UP] })])).join()).toMatch(/duplicate follow-up id why/);
+  });
+});

@@ -2,6 +2,8 @@ import { publicContractSpec } from "@/lib/execution/contract";
 import { validateSourceFiles } from "@/lib/execution/source-files";
 import type { ExecutionLimits } from "@/lib/execution/limits";
 import { isLearnerTest, LEARNER_TEST_ROOT } from "@/lib/execution/test-quality";
+import { dimensionForCriterion } from "@/lib/grading/rubric";
+import { ANSWER_ONLY_DIMENSIONS } from "@/lib/learning/mastery";
 import type { LoadedContent, LoadedQuest } from "./repository";
 import { hintTierSchema } from "./schema";
 
@@ -102,6 +104,7 @@ export function validateContent(content: LoadedContent, limits: Pick<ExecutionLi
     if (spec.includes('"expect"')) issues.push({ item, message: "public contract spec still contains expectations" });
 
     issues.push(...validateTestQuality(quest, limits));
+    issues.push(...validateRubric(quest, skillIds));
   }
 
   return issues;
@@ -141,5 +144,45 @@ function validateTestQuality(quest: LoadedQuest, limits: Pick<ExecutionLimits, "
   if (misplaced) issues.push({ item, message: `reference test ${misplaced.path} must be under ${LEARNER_TEST_ROOT}` });
   const combined = validateSourceFiles([...quest.reference, ...quality.referenceTests], limits);
   if (!combined.ok) issues.push({ item, message: `reference + reference tests invalid: ${JSON.stringify(combined.issues)}` });
+  return issues;
+}
+
+/**
+ * Rubric inputs must point at real things, and a quest that claims to assess explanation or
+ * complexity must actually ask about it: those dimensions get evidence only from follow-up answers
+ * (never from code passing), so a tag without a matching question would never be evidenced.
+ */
+function validateRubric(quest: LoadedQuest, skillIds: ReadonlySet<string>): ContentIssue[] {
+  const item = quest.manifest.id;
+  const issues: ContentIssue[] = [];
+  const rubric = quest.privateData.rubric;
+  const caseIds = new Set(quest.privateData.contract.cases.map((testCase) => testCase.id));
+  for (const id of rubric?.edgeCases ?? []) {
+    if (!caseIds.has(id)) issues.push({ item, message: `rubric edge case ${id} is not a contract case` });
+  }
+  if (rubric && new Set(rubric.edgeCases).size !== rubric.edgeCases.length) issues.push({ item, message: "rubric edge cases repeat" });
+
+  const followUpIds = new Set<string>();
+  for (const followUp of rubric?.followUps ?? []) {
+    if (followUpIds.has(followUp.id)) issues.push({ item, message: `duplicate follow-up id ${followUp.id}` });
+    followUpIds.add(followUp.id);
+    if (!skillIds.has(followUp.skill)) issues.push({ item, message: `follow-up ${followUp.id} names unknown skill ${followUp.skill}` });
+    if (followUp.answer >= followUp.options.length) issues.push({ item, message: `follow-up ${followUp.id} answer ${followUp.answer} is not one of its options` });
+    if (new Set(followUp.options).size !== followUp.options.length) issues.push({ item, message: `follow-up ${followUp.id} repeats an option` });
+  }
+
+  // Code evidence and answer evidence for one attempt must not land on the same skill dimension
+  // (mastery_evidence keeps one row per attempt, skill and dimension).
+  for (const followUp of rubric?.followUps ?? []) {
+    const dimension = dimensionForCriterion(followUp.criterion);
+    const clash = !ANSWER_ONLY_DIMENSIONS.has(dimension) && quest.manifest.skills.some((tag) => tag.skill === followUp.skill && tag.dimension === dimension);
+    if (clash) issues.push({ item, message: `follow-up ${followUp.id} assesses ${followUp.skill} (${dimension}), which passing code already evidences` });
+  }
+
+  for (const tag of quest.manifest.skills) {
+    if (tag.dimension !== "explanation" && tag.dimension !== "complexity") continue;
+    const asked = (rubric?.followUps ?? []).some((followUp) => followUp.skill === tag.skill && dimensionForCriterion(followUp.criterion) === tag.dimension);
+    if (!asked) issues.push({ item, message: `tags ${tag.skill} (${tag.dimension}) but no follow-up question assesses it` });
+  }
   return issues;
 }

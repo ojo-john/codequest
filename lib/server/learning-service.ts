@@ -8,6 +8,7 @@ import type { MeteredExecuteOptions, MeteredExecution } from "@/lib/execution/me
 import { validateSourceFiles, type SourceFile, type ValidatedSourceSet } from "@/lib/execution/source-files";
 import { testingOutcome, type TestQualitySpec } from "@/lib/execution/test-quality";
 import { DuplicateJobError } from "@/lib/execution/usage-ledger";
+import { computeRubric, dimensionForCriterion, RUBRIC_VERSION, type RubricResult } from "@/lib/grading/rubric";
 import {
   evidenceFor,
   independenceFor,
@@ -15,13 +16,23 @@ import {
   MASTERY_MODEL_VERSION,
   SCHEDULER_VERSION,
   updateSkillState,
+  type EvidenceOutcome,
   type SkillState,
 } from "@/lib/learning/mastery";
 import { BUDGET_CHOICES, planSession, type BudgetMinutes, type SessionPlan } from "@/lib/learning/session-planner";
 import { xpAwardsFor } from "@/lib/learning/xp";
 import type { Logger } from "@/lib/observability/log";
 import { ApiError } from "./http";
-import type { ClientExecutionResult, JobState, LearningStore, QuestRecord } from "./learning-store";
+import {
+  FollowUpsAlreadyAnsweredError,
+  type ClientExecutionResult,
+  type FollowUpContext,
+  type FollowUpQuestion,
+  type JobState,
+  type LearningStore,
+  type QuestGrading,
+  type QuestRecord,
+} from "./learning-store";
 
 /**
  * The learning loop's server logic (spec §5, §15, §21–22, §36, §67, §70). All persistence goes
@@ -51,6 +62,17 @@ export const executeRequestSchema = z.object({
   activeSeconds: z.number().int().min(0).max(4 * 3600).default(0),
 });
 export type ExecuteRequest = z.infer<typeof executeRequestSchema>;
+
+export const answerFollowUpsSchema = z.object({
+  jobId: z.uuid(),
+  /** Follow-up id → chosen option index. Every question is answered at once. */
+  answers: z.record(z.string().max(60), z.number().int().min(0).max(9)),
+});
+
+export interface FollowUpOutcome {
+  readonly results: ReadonlyArray<{ readonly id: string; readonly choice: number; readonly correct: boolean; readonly answer: number; readonly why: string }>;
+  readonly rubric: RubricResult;
+}
 
 export const createSessionSchema = z.object({
   budgetMinutes: z.union(BUDGET_CHOICES.map((choice) => z.literal(choice)) as [z.ZodLiteral<5>, ...z.ZodLiteral<BudgetMinutes>[]]),
@@ -176,7 +198,7 @@ export class LearningService {
       throw new ApiError(rejection.status, execution.reason, rejection.message, undefined, execution.retryAfter ? { "retry-after": execution.retryAfter.toUTCString() } : undefined);
     }
 
-    const result = toClientResult(request.mode, execution.result, grading.testQuality);
+    const result = toClientResult(request.mode, execution.result, grading);
     await this.store.updateJob(request.jobId, {
       state: OUTCOME_TO_STATE[execution.result.outcome],
       outcomeDetail: execution.result.detail,
@@ -187,6 +209,86 @@ export class LearningService {
 
     if (request.mode === "run" || execution.result.outcome === "cancelled") return { jobId: request.jobId, result, awardedXp: 0, sessionCompleted: false, skills: [] };
     return { jobId: request.jobId, result, ...(await this.recordSubmission(userId, request, quest, execution.result, grading.testQuality)) };
+  }
+
+  /**
+   * Grades the follow-up questions of a passed submission (spec §14, §43, §46): deterministic,
+   * against the canonical answers. The first set of answers counts; asking again returns them.
+   * Each answer is evidence for its skill's explanation/complexity dimension.
+   */
+  async answerFollowUps(userId: string, request: z.infer<typeof answerFollowUpsSchema>): Promise<FollowUpOutcome> {
+    const context = await this.store.followUpContext(userId, request.jobId);
+    if (context === undefined || context.result === null) throw new ApiError(404, "not_found", "There's no graded submission with follow-up questions.");
+    const grading = await this.store.getGrading(context.contentVersionId);
+    const questions = grading.rubric?.followUps ?? [];
+    if (questions.length === 0 || context.result.outcome !== "succeeded") throw new ApiError(409, "no_follow_ups", "This submission has no follow-up questions.");
+
+    let answered = context.answered;
+    if (answered.size === 0) {
+      const ids = Object.keys(request.answers);
+      if (ids.length !== questions.length || questions.some((question) => request.answers[question.id] === undefined)) {
+        throw new ApiError(400, "answer_every_question", "Answer every question before checking.");
+      }
+      const invalid = questions.find((question) => request.answers[question.id] >= question.options.length);
+      if (invalid) throw new ApiError(400, "invalid_choice", `That isn't one of the options for "${invalid.prompt}".`);
+      answered = await this.recordFollowUps(userId, request.jobId, context, questions, request.answers);
+    }
+
+    const correct = new Map([...answered].map(([id, answer]) => [id, answer.correct]));
+    const rubric = rubricFor(context.result.cases ?? [], grading, correct);
+    await this.store.updateJobRubric(userId, request.jobId, rubric);
+    return {
+      results: questions.map((question) => {
+        const answer = answered.get(question.id);
+        return { id: question.id, choice: answer?.choice ?? -1, correct: answer?.correct ?? false, answer: question.answer, why: question.why };
+      }),
+      rubric,
+    };
+  }
+
+  private async recordFollowUps(
+    userId: string,
+    jobId: string,
+    context: FollowUpContext,
+    questions: readonly FollowUpQuestion[],
+    choices: Record<string, number>,
+  ): Promise<ReadonlyMap<string, { choice: number; correct: boolean }>> {
+    const now = this.clock();
+    const independence = independenceFor(context.hintLevel);
+    const answers = questions.map((question) => ({ followup_id: question.id, choice: choices[question.id], correct: choices[question.id] === question.answer }));
+    // mastery_evidence holds one row per (attempt, skill, dimension): answers about the same skill
+    // dimension (e.g. time and space complexity) combine into one row.
+    const evidence = [...groupBy(questions.map((question, index) => ({ question, correct: answers[index].correct })), ({ question }) => `${question.skill}:${dimensionForCriterion(question.criterion)}`).values()].map((group) => ({
+      skillId: group[0].question.skill,
+      dimension: dimensionForCriterion(group[0].question.criterion),
+      outcome: combinedOutcome(group.map((entry) => entry.correct)),
+      independence,
+      modelVersion: MASTERY_MODEL_VERSION,
+    }));
+    const previous = new Map<string, SkillState>((await this.store.skillStates(userId)).map((state) => [`${state.skillId}:${state.dimension}`, state]));
+    const finalStates = evidence.map((row) => updateSkillState(previous.get(`${row.skillId}:${row.dimension}`), row, now));
+    try {
+      await this.store.recordFollowUpAnswers({
+        userId,
+        attemptId: context.attemptId,
+        answers,
+        evidence: evidence.map((row) => ({ skill_id: row.skillId, dimension: row.dimension, outcome: row.outcome, independence: row.independence, model_version: row.modelVersion })),
+        skillStates: finalStates.map((update) => ({
+          skill_id: update.skillId,
+          dimension: update.dimension,
+          estimate: update.estimate,
+          evidence_count: update.evidenceCount,
+          review_due_at: update.reviewDueAt.toISOString(),
+          scheduler_version: SCHEDULER_VERSION,
+          model_version: MASTERY_MODEL_VERSION,
+        })),
+      });
+    } catch (error) {
+      if (!(error instanceof FollowUpsAlreadyAnsweredError)) throw error;
+      // A concurrent request answered first; its answers are the ones that count.
+      return (await this.store.followUpContext(userId, jobId))?.answered ?? new Map();
+    }
+    return new Map(answers.map((answer) => [answer.followup_id, { choice: answer.choice, correct: answer.correct }]));
   }
 
   /** The session to offer "resume" for on the home screen, if any. */
@@ -253,7 +355,7 @@ export class LearningService {
       activeSeconds: request.activeSeconds,
       state: result.outcome === "infrastructure-error" ? "infrastructure_error" : "graded",
       outcome: result.outcome,
-      rubricVersion: null,
+      rubricVersion: result.outcome === "infrastructure-error" ? null : RUBRIC_VERSION,
       evidence: evidence.map((row) => ({ skill_id: row.skillId, dimension: row.dimension, outcome: row.outcome, independence: row.independence, model_version: row.modelVersion })),
       skillStates: updates.map((update) => ({
         skill_id: update.skillId,
@@ -275,9 +377,44 @@ export class LearningService {
   }
 }
 
-function toClientResult(mode: "run" | "submit", result: ExecutionResult, quality: TestQualitySpec | undefined): ClientExecutionResult {
+function groupBy<T>(items: readonly T[], key: (item: T) => string): Map<string, T[]> {
+  const groups = new Map<string, T[]>();
+  for (const item of items) groups.set(key(item), [...(groups.get(key(item)) ?? []), item]);
+  return groups;
+}
+
+/** All right → pass, none → fail, some → partial. */
+function combinedOutcome(correct: readonly boolean[]): EvidenceOutcome {
+  const right = correct.filter(Boolean).length;
+  if (right === correct.length) return "pass";
+  return right === 0 ? "fail" : "partial";
+}
+
+/** Rubric for a graded submission; undefined for Run and for outcomes that aren't a grade. */
+function submissionRubric(mode: "run" | "submit", result: ExecutionResult, grading: QuestGrading, answers?: ReadonlyMap<string, boolean>): RubricResult | undefined {
+  if (mode === "run" || result.outcome === "infrastructure-error" || result.outcome === "cancelled") return undefined;
+  return rubricFor(result.caseResults ?? [], grading, answers);
+}
+
+function rubricFor(cases: ReadonlyArray<{ id: string; passed: boolean }>, grading: QuestGrading, answers?: ReadonlyMap<string, boolean>): RubricResult {
+  return computeRubric({
+    cases,
+    totalChecks: grading.contract.cases.length,
+    edgeCaseIds: grading.rubric?.edgeCases ?? [],
+    followUps: grading.rubric?.followUps ?? [],
+    answers,
+  });
+}
+
+function toClientResult(mode: "run" | "submit", result: ExecutionResult, grading: QuestGrading): ClientExecutionResult {
+  const quality = grading.testQuality;
   const describe = (id: string) => ({ id, description: quality?.mutants.find((mutant) => mutant.id === id)?.description ?? id });
+  const rubric = submissionRubric(mode, result, grading);
+  const followUps = mode === "submit" && result.outcome === "succeeded" ? (grading.rubric?.followUps ?? []) : [];
   return {
+    ...(rubric && { rubric }),
+    // The questions only: answers and explanations stay on the server until answered.
+    ...(followUps.length > 0 && { followUps: followUps.map((question) => ({ id: question.id, criterion: question.criterion, prompt: question.prompt, options: question.options })) }),
     ...(result.learnerTests && {
       learnerTests: {
         outcome: result.learnerTests.outcome,

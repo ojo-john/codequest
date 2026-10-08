@@ -27,6 +27,9 @@ export interface EvidenceRow {
   readonly modelVersion: string;
 }
 
+/** Dimensions evidenced only by follow-up answers, never by code passing. */
+export const ANSWER_ONLY_DIMENSIONS: ReadonlySet<SkillDimension> = new Set(["explanation", "complexity"]);
+
 /** Hint tier 5 is the full solution; any lower tier counts as hinted (spec §15, §70). */
 export const SOLUTION_HINT_TIER = 5;
 
@@ -53,6 +56,9 @@ export function evidenceFor(
   if (outcome === "infrastructure-error" || outcome === "cancelled") return [];
   const result: EvidenceOutcome = outcome === "succeeded" ? "pass" : "fail";
   return tags.flatMap((tag) => {
+    // Passing code says nothing about explaining it or analysing its complexity: those dimensions
+    // get evidence only from follow-up answers (spec §14).
+    if (ANSWER_ONLY_DIMENSIONS.has(tag.dimension)) return [];
     const tagOutcome = tag.dimension === "testing" && testing !== undefined ? testing.outcome : result;
     return tagOutcome === undefined ? [] : [{ skillId: tag.skill, dimension: tag.dimension, outcome: tagOutcome, independence, modelVersion: MASTERY_MODEL_VERSION }];
   });

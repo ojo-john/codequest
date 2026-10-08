@@ -536,7 +536,7 @@
   "hints": [
     {
       "tier": "direction",
-      "text": "Start with the two requiresShipping methods \u2014 Product returns true, DigitalProduct overrides it to return false."
+      "text": "Start with the two requiresShipping methods — Product returns true, DigitalProduct overrides it to return false."
     },
     {
       "tier": "pattern",
@@ -544,12 +544,50 @@
     },
     {
       "tier": "key_insight",
-      "text": "The strategies never check for DigitalProduct themselves. They ask the cart, and the cart asks each product \u2014 the override does the work through polymorphism."
+      "text": "The strategies never check for DigitalProduct themselves. They ask the cart, and the cart asks each product — the override does the work through polymorphism."
     },
     {
       "tier": "pseudocode",
       "text": "requiresShipping: for item in lines: if item.product().requiresShipping() return true; return false. shippingCentsFor(a): return requiresShipping() ? Checkout.shippingCents(a) : 0. In strategies replace Checkout.shippingCents(x) with cart.shippingCentsFor(x)."
     }
   ],
-  "referenceDir": "reference"
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "digital-product-is-validated-like-any-product",
+      "digital-only-cart-ships-free",
+      "mixed-cart-pays-shipping",
+      "empty-cart-needs-no-shipping"
+    ],
+    "followUps": [
+      {
+        "id": "why-extends",
+        "criterion": "explanation",
+        "skill": "java.inheritance",
+        "prompt": "What justifies DigitalProduct extends Product here?",
+        "options": [
+          "It saves retyping Product's fields.",
+          "A DigitalProduct can stand in anywhere a Product is expected and everything still behaves correctly (substitutability).",
+          "Inheritance is always better than composition.",
+          "Java requires a subclass for every new product type."
+        ],
+        "answer": 1,
+        "why": "Reuse alone isn't a reason to inherit. The test is substitutability (Liskov): carts, line totals and reports all keep working when handed a DigitalProduct."
+      },
+      {
+        "id": "when-composition",
+        "criterion": "explanation",
+        "skill": "java.inheritance",
+        "prompt": "When would composition (Product holds a ShippingPolicy object) beat inheritance?",
+        "options": [
+          "Never.",
+          "When a product must combine independent behaviours, e.g. digital and gift-wrapped, or change its policy at run time.",
+          "When there is only one kind of product.",
+          "When the subclass adds no fields."
+        ],
+        "answer": 1,
+        "why": "A class has one superclass, so combining variations by inheritance multiplies subclasses. Holding policy objects lets behaviours mix and change independently."
+      }
+    ]
+  }
 }

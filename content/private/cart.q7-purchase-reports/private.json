@@ -911,5 +911,58 @@
       "text": "totals: items.stream().collect(groupingBy(i -> i.product().category(), TreeMap::new, summingLong(CartItem::lineTotalCents))). skus: filter(lineTotal >= min).map(sku).sorted().toList(). units: filter(category equals).mapToLong(CartItem::quantity).sum()."
     }
   ],
-  "referenceDir": "reference"
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "totals-by-category-empty",
+      "skus-at-least-is-inclusive-and-sorted",
+      "skus-at-least-none",
+      "skus-at-least-zero-is-all",
+      "units-in-unknown-category"
+    ],
+    "followUps": [
+      {
+        "id": "stream-mutates",
+        "criterion": "explanation",
+        "skill": "java.streams",
+        "prompt": "Does items.stream().filter(...).mapToLong(...).sum() change the items list?",
+        "options": [
+          "Yes: filter removes the lines that don't match.",
+          "No: the pipeline reads its source and builds a new result; the list is unchanged.",
+          "Only when the list is a LinkedList.",
+          "Yes: sum() empties it."
+        ],
+        "answer": 1,
+        "why": "Stream operations don't modify their source. filter produces a new stream of the matching elements; the original list is untouched."
+      },
+      {
+        "id": "group-by-time",
+        "criterion": "time_complexity",
+        "skill": "java.streams",
+        "prompt": "totalsByCategory puts n lines into a TreeMap with c categories. Roughly how much work is that?",
+        "options": [
+          "O(1)",
+          "O(n log c): each line is added to a sorted map of c keys.",
+          "O(n²)",
+          "O(c²)"
+        ],
+        "answer": 1,
+        "why": "Each of the n lines does one TreeMap lookup/update, which costs O(log c) in a balanced tree of c categories."
+      },
+      {
+        "id": "stream-vs-loop-speed",
+        "criterion": "explanation",
+        "skill": "java.streams",
+        "prompt": "For a shopping cart, is there a performance difference between the stream and the for-loop versions that matters?",
+        "options": [
+          "Yes: streams are always about 10× slower.",
+          "Not at cart sizes: both make one pass, so choose whichever is clearer to read.",
+          "Yes: the JIT can't optimise loops.",
+          "Streams automatically run in parallel threads."
+        ],
+        "answer": 1,
+        "why": "Both versions are a single linear pass. Streams have a small constant overhead that is irrelevant for tens of items; readability decides."
+      }
+    ]
+  }
 }

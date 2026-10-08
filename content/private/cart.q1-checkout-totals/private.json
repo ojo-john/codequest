@@ -406,5 +406,65 @@
       "text": "lineTotal: if price < 0 or quantity < 1 -> throw; return multiplyExact(price, quantity). subtotal: if lengths differ -> throw; total = 0; for i in 0..length-1: total = addExact(total, lineTotal(prices[i], quantities[i])). shipping: if subtotal == 0 or subtotal >= threshold -> 0 else standard fee."
     }
   ],
-  "referenceDir": "reference"
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "line-single-unit",
+      "line-free-item",
+      "line-rejects-negative-price",
+      "line-rejects-zero-quantity",
+      "line-rejects-negative-quantity",
+      "line-overflow-is-detected",
+      "subtotal-includes-last-line",
+      "subtotal-empty-cart",
+      "subtotal-mismatched-arrays",
+      "shipping-at-threshold",
+      "shipping-empty-cart",
+      "shipping-one-cent"
+    ],
+    "followUps": [
+      {
+        "id": "why-multiply-exact",
+        "criterion": "explanation",
+        "skill": "java.integer-arithmetic",
+        "prompt": "Why does lineTotalCents use Math.multiplyExact instead of unitPriceCents * quantity?",
+        "options": [
+          "It is faster than the * operator.",
+          "* silently wraps around when the result doesn't fit in a long, giving a wrong (even negative) total; multiplyExact throws instead.",
+          "* can't multiply a long by an int.",
+          "multiplyExact rounds the result to whole cents."
+        ],
+        "answer": 1,
+        "why": "Java integer arithmetic overflows silently: the bits wrap around. Math.multiplyExact and Math.addExact throw ArithmeticException instead, so a huge cart fails loudly rather than charging a wrong amount."
+      },
+      {
+        "id": "subtotal-time",
+        "criterion": "time_complexity",
+        "skill": "java.loops",
+        "prompt": "For a cart with n lines, how does the work done by subtotalCents grow?",
+        "options": [
+          "O(1): it just adds two arrays together.",
+          "O(n): one pass, constant work per line.",
+          "O(n²): each line is compared with every other line.",
+          "O(log n): it halves the cart each step."
+        ],
+        "answer": 1,
+        "why": "The loop visits each line once and does a fixed amount of work per line (validate, multiply, add), so the work grows linearly with n."
+      },
+      {
+        "id": "subtotal-space",
+        "criterion": "space_complexity",
+        "skill": "java.loops",
+        "prompt": "How much extra memory does subtotalCents need beyond its two input arrays?",
+        "options": [
+          "O(1): a running total and a loop index.",
+          "O(n): a copy of the line totals.",
+          "O(n²): a table of every pair of lines.",
+          "It depends on the prices."
+        ],
+        "answer": 0,
+        "why": "Only a running total and an index are kept, whatever the cart size. Building a list of line totals first would cost O(n) for no benefit."
+      }
+    ]
+  }
 }

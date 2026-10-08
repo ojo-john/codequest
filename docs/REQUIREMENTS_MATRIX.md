@@ -20,7 +20,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 11 | Template memory | P2 | blank editor | No snippets; graded on execution | Not started |
 | 12 | Monaco editor | P1 | `components/workspace/*` | Run/submit/tests/reset-with-warning; AI off | **In progress** — multi-file Monaco (self-hosted assets), Run/Submit + shortcuts, confirmed reset, font size; custom tests (learner JUnit files, run alongside samples); Vim mode pending |
 | 13 | Secure Java execution | P0→P1 | `lib/execution`, `runner/` | Proof + smoke suites pass on Vercel | **In progress** — gate passed on Docker + Vercel incl. capability drop and contract grading ([evidence](evidence/)); run/submit UI is P1 |
-| 14 | Code grader rubric | P1 | `lib/grading` | Tests decide correctness; incomplete ≠ zero | **In progress** — correctness layer done: contract grading (hidden expectations server-side) + JUnit; rubric weighting P1 |
+| 14 | Code grader rubric | P1 | `lib/grading` | Tests decide correctness; incomplete ≠ zero | **Done (rules-v1)** — `rubric-v1` with the spec's weights: correctness from hidden checks, edge cases from tagged checks, explanation + time/space complexity from follow-up questions with canonical answers; algorithm choice and code quality shown as *not assessed* (never zero); score over the assessed share; stored on the attempt and the job result (unit + integration + e2e). Reviewed reasoning for the rest: P4 |
 | 15 | Hints (superseded by §70 for XP) | P1 | `hint_requests`, `/api/v1/quests/:id/hints` | Hint level recorded; no XP deduction | **Done (server)** — curated tiers served one at a time, recorded server-side, change independence only |
 | 16 | Socratic AI tutor | P4 | optional | Server-side reveal policy | Not started |
 | 17 | Debug Dungeon | P2 | content | Diagnosis + minimal fix + failing test | Not started |
@@ -45,10 +45,10 @@ mocks · **P4** advanced ML + optional tutor.
 | 40 | Dashboard | P2 | progress page | Sample sizes shown | Not started |
 | 41 | Readiness ≠ XP | P2 | readiness model | Easy grinding can't inflate readiness | Not started |
 | 42 | Knowledge-graph data model | P0→P1 | migrations | Attempts reference immutable versions | **In progress** — schema + immutability triggers tested locally |
-| 43 | Question types | P1→P2 | grading per type | Accessible interaction per type | Not started |
+| 43 | Question types | P1→P2 | grading per type | Accessible interaction per type | **In progress** — multiple-choice follow-ups (radio groups with legends, keyboard-usable) graded deterministically; other types P2 |
 | 44 | Content accuracy | P1 | content gate | Every example compiles on pinned JDK | **In progress** — `content:check` runs every reference and starter in the real runner (CI + Vercel); 9 quests |
 | 45 | Content versioning | P0→P1 | `content_versions.status` | Scored versions never mutated | **In progress** — published versions immutable (trigger, tested); truthful review date enforced |
-| 46 | Answer validation | P1 | `lib/grading` | AI cannot override failing tests | Not started |
+| 46 | Answer validation | P1 | `lib/grading` | AI cannot override failing tests | **Done (no AI yet)** — objective answers and executable tests graded deterministically; explanation/complexity evidence only from answers, never from code passing; no AI path exists to override tests. Disputes: n/a until subjective feedback (P4) |
 | 47 | NFRs (perf, a11y, privacy) | P1→P3 | — | axe checks; targets defined w/ conditions | **In progress** — execution latency measured ~3–4.5 s warm on Vercel (target < 5 s); rest P1+; privacy: signed export, import, project ZIPs and confirmed deletion (`/data`) |
 | 48 | Offline / interruption | P1 | Dexie drafts, revisions | Reload restores code; no silent discard | **In progress** — IndexedDB drafts, debounced saves with expected revisions, explicit conflict UI, offline retry with backoff, last result restored on reload (e2e: reload restores code) |
 | 49 | Notifications | P3 | prefs | No guilt copy; quiet hours | Not started |
