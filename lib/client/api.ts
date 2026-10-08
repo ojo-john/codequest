@@ -17,13 +17,27 @@ export class ClientApiError extends Error {
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
-export async function apiCall<T>(path: string, init: { method?: string; body?: unknown; timeoutMs?: number } = {}): Promise<T> {
+export interface ApiCallInit {
+  readonly method?: string;
+  /** Sent as JSON. */
+  readonly body?: unknown;
+  /** Sent as-is instead of `body` (e.g. a compressed file upload). */
+  readonly upload?: { readonly bytes: Blob; readonly contentType: string };
+  readonly timeoutMs?: number;
+}
+
+function requestBody(init: ApiCallInit): { headers?: Record<string, string>; body?: BodyInit } {
+  if (init.upload !== undefined) return { headers: { "content-type": init.upload.contentType }, body: init.upload.bytes };
+  if (init.body !== undefined) return { headers: { "content-type": "application/json" }, body: JSON.stringify(init.body) };
+  return {};
+}
+
+export async function apiCall<T>(path: string, init: ApiCallInit = {}): Promise<T> {
   let response: Response;
   try {
     response = await fetch(path, {
       method: init.method ?? "GET",
-      headers: init.body === undefined ? undefined : { "content-type": "application/json" },
-      body: init.body === undefined ? undefined : JSON.stringify(init.body),
+      ...requestBody(init),
       signal: AbortSignal.timeout(init.timeoutMs ?? DEFAULT_TIMEOUT_MS),
     });
   } catch (error) {
