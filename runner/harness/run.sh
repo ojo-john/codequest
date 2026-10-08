@@ -8,6 +8,7 @@
 #   run.sh compile  <workdir> <wall_seconds> <output_bytes> <heap_mb>
 #   run.sh test     <workdir> <wall_seconds> <output_bytes> <heap_mb>   # JUnit tests in the sources
 #   run.sh contract <workdir> <wall_seconds> <output_bytes> <heap_mb>   # contract.json -> results.jsonl
+#   run.sh overlays <workdir> <wall_seconds> <output_bytes> <heap_mb>   # test-quality variants (after compile)
 #
 # Privilege: the Vercel Sandbox exec agent starts commands as uid `learner` but with a FULL
 # capability set (including ambient caps, which survive execve) — effectively root. Before any
@@ -47,7 +48,7 @@ exit_with_status() {
 }
 
 if [[ $# -ne 5 ]]; then
-  echo "usage: run.sh <compile|test|contract> <workdir> <wall_seconds> <output_bytes> <heap_mb>" >&2
+  echo "usage: run.sh <compile|test|contract|overlays> <workdir> <wall_seconds> <output_bytes> <heap_mb>" >&2
   exit "$EXIT_USAGE"
 fi
 
@@ -124,6 +125,45 @@ case "$mode" in
         -cp "$CONTRACT_RUNNER_JAR:classes" codequest.contract.ContractRunner contract.json results.jsonl \
       2>&1 | head -c "$output_bytes"
     exit_with_status "${PIPESTATUS[0]}"
+    ;;
+  overlays)
+    # Test-quality grading (spec §19). The project is already compiled into classes/ (learner
+    # code + learner tests). Each overlays/o<N>/src holds ONE replacement source file (o0 = the
+    # reference, o1.. = mutants); it is compiled against classes/ and the learner's tests then run
+    # with the overlay first on the class path, so it shadows the learner's version.
+    # One line per overlay in overlays/results.txt: "<N> <compile_status> <test_status|->".
+    # Variant output is discarded (never shown to the learner). The server bounds the whole loop.
+    results=overlays/results.txt
+    : > "$results"
+    for dir in overlays/o?; do
+      [[ -d "$dir" ]] || continue
+      name="${dir#overlays/o}"
+      rm -rf "$dir/classes" "$dir/reports"
+      mkdir -p "$dir/classes"
+      find "$dir/src" -type f -name '*.java' -print > "$dir/sources.txt"
+      "${unprivileged[@]}" timeout --signal=KILL "${wall_seconds}s" \
+        javac "-J-Xmx${heap_mb}m" -encoding UTF-8 -proc:none -d "$dir/classes" -cp "classes:$JUNIT_JAR" "@$dir/sources.txt" \
+        > /dev/null 2>&1
+      compile_status=$?
+      if [[ $compile_status -ne 0 ]]; then
+        echo "$name $compile_status -" >> "$results"
+        continue
+      fi
+      "${unprivileged[@]}" timeout --signal=KILL "${wall_seconds}s" \
+        java "-Xmx${heap_mb}m" -Xss4m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 \
+          -XX:+ExitOnOutOfMemoryError \
+          -jar "$JUNIT_JAR" execute \
+          --class-path "$dir/classes:classes" --scan-class-path=classes --fail-if-no-tests \
+          --disable-banner --details=none --reports-dir "$dir/reports" \
+        > /dev/null 2>&1
+      test_status=$?
+      echo "$name $compile_status $test_status" >> "$results"
+      # Tests that fail on the reference make every mutant verdict meaningless: stop early.
+      if [[ "$name" == "0" && $test_status -ne 0 ]]; then
+        break
+      fi
+    done
+    exit 0
     ;;
   *)
     echo "run.sh: unknown mode '$mode'" >&2

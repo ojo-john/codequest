@@ -246,6 +246,63 @@ describe("LearningService.execute reporting", () => {
   });
 });
 
+describe("LearningService.execute with test-quality grading", () => {
+  const QUALITY = {
+    target: "src/main/java/shop/Checkout.java",
+    baseline: "// ref",
+    passRatio: 0.5,
+    mutants: [{ id: "m1", description: "accepts zero", content: "// m1" }, { id: "m2", description: "skips trim", content: "// m2" }],
+  };
+  const TESTING_QUEST: QuestRecord = { ...QUEST, skills: [{ skill: "java.loops", dimension: "implementation" }, { skill: "java.unit-testing", dimension: "testing" }] };
+
+  function storeWithQuality(): FakeStore {
+    const store = new FakeStore();
+    store.quests = [TESTING_QUEST];
+    store.getGrading = async () => ({ ...GRADING, testQuality: QUALITY });
+    return store;
+  }
+
+  it("execute_run_asksForTheLearnersOwnTestsButNoTestQuality", async () => {
+    const executor = new ScriptedExecutor();
+
+    await service(storeWithQuality(), executor).execute(USER, request({ mode: "run" }), "r", silentLogger);
+
+    expect([executor.calls[0].runLearnerTests, executor.calls[0].testQuality]).toEqual([true, undefined]);
+  });
+
+  it("execute_submit_gradesTestQualityAndRecordsTestingEvidenceFromIt", async () => {
+    const store = storeWithQuality();
+    const executor = new ScriptedExecutor({
+      admitted: true,
+      result: { ...result(), testQuality: { status: "graded", caught: ["m1"], missed: [{ id: "m2", description: "skips trim" }], total: 2 } },
+    });
+
+    const response = await service(store, executor).execute(USER, request(), "r", silentLogger);
+
+    expect(executor.calls[0].testQuality).toEqual(QUALITY);
+    expect(store.attempts[0].evidence.map((row) => [row.dimension, row.outcome])).toEqual([["implementation", "pass"], ["testing", "pass"]]);
+    expect(response.result.testQuality?.caught).toEqual([{ id: "m1", description: "accepts zero" }]);
+  });
+
+  it("execute_submitWithoutLearnerTests_recordsTestingFailButStillPassesTheCode", async () => {
+    const store = storeWithQuality();
+    const executor = new ScriptedExecutor({ admitted: true, result: { ...result(), testQuality: { status: "no_tests", caught: [], missed: [], total: 2 } } });
+
+    await service(store, executor).execute(USER, request(), "r", silentLogger);
+
+    expect([store.attempts[0].evidence.map((row) => row.outcome), store.attempts[0].xp.some((award) => award.event_key.startsWith("quest-tests:"))]).toEqual([["pass", "fail"], false]);
+  });
+
+  it("execute_testsCaughtEnoughBugs_awardsTheTestQualityXp", async () => {
+    const store = storeWithQuality();
+    const executor = new ScriptedExecutor({ admitted: true, result: { ...result(), testQuality: { status: "graded", caught: ["m1", "m2"], missed: [], total: 2 } } });
+
+    await service(store, executor).execute(USER, request(), "r", silentLogger);
+
+    expect(store.attempts[0].xp.map((award) => award.event_key)).toContain("quest-tests:cart.q1-checkout-totals");
+  });
+});
+
 describe("LearningService.activeSession", () => {
   it("activeSession_asksForSessionsFromTheLast24Hours", async () => {
     const store = new FakeStore();

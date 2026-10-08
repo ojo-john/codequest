@@ -7,6 +7,7 @@ import {
   classifyTest,
   type Classification,
   type ExecutionStage,
+  KILLED_EXIT_CODE,
   type TestSummary,
   parseJUnitReport,
 } from "./outcome";
@@ -19,6 +20,7 @@ import {
   type SandboxUsage,
 } from "./sandbox-provider";
 import type { ValidatedSourceSet } from "./source-files";
+import { hasLearnerTests, scoreTestQuality, type TestQualityReport, type TestQualitySpec, type VariantVerdict } from "./test-quality";
 
 export interface ExecutionResult extends Classification {
   /** Stage the job reached; for failures, the stage that failed. */
@@ -33,6 +35,15 @@ export interface ExecutionResult extends Classification {
   readonly activeCpuMs?: number;
   /** Contract mode only: per-case results (details only for visible samples). */
   readonly caseResults?: readonly CaseResult[];
+  /** The learner's own JUnit tests run on their own code (shown to them; never decides the outcome). */
+  readonly learnerTests?: LearnerTestRun;
+  /** How well the learner's tests catch bugs (submit with a test-quality spec only). */
+  readonly testQuality?: TestQualityReport;
+}
+
+export interface LearnerTestRun extends Classification {
+  readonly summary?: TestSummary;
+  readonly output: string;
 }
 
 /**
@@ -48,6 +59,10 @@ export interface ExecuteOptions {
   readonly grading?: GradingMode;
   /** Caller cancellation (client disconnect, explicit cancel). */
   readonly signal?: AbortSignal;
+  /** Contract mode: also run the learner's JUnit tests (under src/test/java) on their own code. */
+  readonly runLearnerTests?: boolean;
+  /** Contract mode: grade the learner's tests against the reference and its mutants. */
+  readonly testQuality?: TestQualitySpec;
 }
 
 export interface JavaExecutor {
@@ -176,7 +191,8 @@ export class SandboxJavaExecutor implements JavaExecutor {
         enterStage("report");
         const resultsText = await session.readFileBounded(SANDBOX_LAYOUT.contractResultsFile, limits.maxReportBytes, signal);
         const grade = gradeContract(grading.contract, parseContractResults(resultsText ?? ""), run.exitCode);
-        return finish(grade, { summary: grade.summary, caseResults: grade.cases });
+        const extras = await this.learnerTestExtras(session, sources, options, signal, startedAt + lifetimeMs, log);
+        return finish(grade, { summary: grade.summary, caseResults: grade.cases, ...extras });
       }
       const test = await session.runHarness(
         this.harnessArgs("test", limits.testWallSeconds),
@@ -214,7 +230,92 @@ export class SandboxJavaExecutor implements JavaExecutor {
     }
   }
 
-  private harnessArgs(mode: "compile" | "test" | "contract", wallSeconds: number): string[] {
+  /**
+   * After contract grading: the learner's own tests, and the test-quality variants. These never
+   * change the contract outcome, so a time-budget or infrastructure problem here degrades to
+   * "no extra result" instead of failing a job that was already graded. Caller cancellation
+   * still propagates.
+   */
+  private async learnerTestExtras(
+    session: SandboxSession,
+    sources: ValidatedSourceSet,
+    options: ExecuteOptions,
+    signal: AbortSignal,
+    lifetimeEndsAt: number,
+    log: Logger,
+  ): Promise<Pick<ExecutionResult, "learnerTests" | "testQuality">> {
+    if (!options.runLearnerTests && options.testQuality === undefined) return {};
+    if (!hasLearnerTests(sources)) {
+      return options.testQuality ? { testQuality: { status: "no_tests", caught: [], missed: [], total: options.testQuality.mutants.length } } : {};
+    }
+    const deadline = lifetimeEndsAt - EXTRAS_SAFETY_MS;
+    const extras: { learnerTests?: LearnerTestRun; testQuality?: TestQualityReport } = {};
+    try {
+      if (options.runLearnerTests) extras.learnerTests = await this.runLearnerTests(session, signal, deadline);
+      if (options.testQuality) extras.testQuality = await this.gradeLearnerTests(session, options.testQuality, signal, deadline);
+    } catch (error) {
+      if (options.signal?.aborted) throw error;
+      if (!(error instanceof SandboxInfrastructureError) && !isAbortError(error) && !signal.aborted) throw error;
+      const errorType = error instanceof SandboxInfrastructureError ? error.errorType : "lifetime_deadline";
+      log.log("warn", "execution.learner_tests_incomplete", { errorType });
+      log.metric("execution.learner_tests_incomplete", 1, { errorType });
+      if (options.testQuality && extras.testQuality === undefined) {
+        extras.testQuality = { status: "incomplete", caught: [], missed: [], total: options.testQuality.mutants.length };
+      }
+    }
+    return extras;
+  }
+
+  private async runLearnerTests(session: SandboxSession, signal: AbortSignal, deadline: number): Promise<LearnerTestRun | undefined> {
+    const wall = this.wallWithin(this.limits.testWallSeconds, deadline);
+    if (wall === undefined) return undefined;
+    const test = await session.runHarness(this.harnessArgs("test", wall), { timeoutMs: (wall + this.limits.commandGraceSeconds) * 1000, signal });
+    const reportXml = await session.readFileBounded(SANDBOX_LAYOUT.reportFile, this.limits.maxReportBytes, signal);
+    const summary = reportXml === undefined ? undefined : parseJUnitReport(reportXml);
+    return { ...classifyTest(test, summary, this.limits.maxOutputBytes), summary, output: boundOutput(test.output, this.limits.maxOutputBytes) };
+  }
+
+  /**
+   * Runs the learner's tests against the reference (overlay 0) and then each mutant, in one
+   * harness call. Each overlay is a single replacement file compiled on top of the already
+   * compiled project, so a variant costs one small javac and one test run.
+   */
+  private async gradeLearnerTests(session: SandboxSession, spec: TestQualitySpec, signal: AbortSignal, deadline: number): Promise<TestQualityReport> {
+    const variants = [spec.baseline, ...spec.mutants.map((mutant) => mutant.content)];
+    await session.writeLearnerFiles(
+      variants.map((content, index) => ({ path: `${SANDBOX_LAYOUT.jobDirRelative}/${OVERLAYS_DIR}/o${index}/src/${spec.target}`, content })),
+      signal,
+    );
+    // Whole milliseconds: the clock is fractional and AbortSignal.timeout rejects non-integers.
+    const budgetMs = Math.floor(deadline - this.now());
+    const stepWall = this.wallWithin(this.limits.testWallSeconds, deadline);
+    if (stepWall === undefined) return scoreTestQuality(spec, { kind: "not_run" }, []);
+    // The loop as a whole is bounded by the remaining budget; overlays it didn't reach count as not run.
+    await session.runHarness(this.harnessArgs("overlays", stepWall), { timeoutMs: budgetMs, signal });
+
+    const results = parseOverlayResults((await session.readFileBounded(`${SANDBOX_LAYOUT.jobDir}/${OVERLAYS_DIR}/results.txt`, OVERLAY_RESULTS_MAX_BYTES, signal)) ?? "");
+    let baseline = results.get(0) ?? { kind: "not_run" };
+    if (baseline.kind === "tests_failed") {
+      const reportXml = await session.readFileBounded(`${SANDBOX_LAYOUT.jobDir}/${OVERLAYS_DIR}/o0/reports/TEST-junit-jupiter.xml`, this.limits.maxReportBytes, signal);
+      baseline = { kind: "tests_failed", failedTests: (reportXml === undefined ? undefined : parseJUnitReport(reportXml))?.failedTests ?? [] };
+    }
+    const mutants: VariantVerdict[] = [];
+    for (let index = 1; index < variants.length; index++) {
+      const verdict = results.get(index);
+      if (verdict === undefined || verdict.kind === "not_run") break;
+      mutants.push(verdict);
+    }
+    return scoreTestQuality(spec, baseline, mutants);
+  }
+
+  /** The wall-clock seconds a command may use without crossing `deadline`, or undefined if too little is left. */
+  private wallWithin(limitSeconds: number, deadline: number): number | undefined {
+    const available = Math.floor((deadline - this.now()) / 1000) - this.limits.commandGraceSeconds;
+    if (available < MIN_TEST_WALL_SECONDS) return undefined;
+    return Math.min(limitSeconds, available);
+  }
+
+  private harnessArgs(mode: "compile" | "test" | "contract" | "overlays", wallSeconds: number): string[] {
     return [
       mode,
       SANDBOX_LAYOUT.jobDir,
@@ -237,6 +338,36 @@ export class SandboxJavaExecutor implements JavaExecutor {
       return {};
     }
   }
+}
+
+/** Test-quality overlays, under the job directory (the harness accepts o0–o9). */
+const OVERLAYS_DIR = "overlays";
+const OVERLAY_RESULTS_MAX_BYTES = 1024;
+/** Inside the overlays loop the harness records `timeout`'s raw 124 (or 137 for an outer SIGKILL). */
+const DEADLINE_STATUSES = new Set([124, KILLED_EXIT_CODE]);
+/** Time kept back at the end of the sandbox lifetime for reading results and cleanup. */
+const EXTRAS_SAFETY_MS = 5000;
+/** Don't start a compile or test command with less wall time than this. */
+const MIN_TEST_WALL_SECONDS = 3;
+
+/**
+ * Parses the harness's overlays/results.txt: "<index> <compile_status> <test_status|->" per line.
+ * A compile killed by the deadline is "not run"; a test run killed by the deadline counts as the
+ * tests failing (they hung on that variant). Malformed lines are ignored.
+ */
+export function parseOverlayResults(text: string): Map<number, VariantVerdict> {
+  const verdicts = new Map<number, VariantVerdict>();
+  for (const line of text.split("\n")) {
+    const match = /^(\d) (\d{1,3}) (\d{1,3}|-)$/.exec(line.trim());
+    if (match === null) continue;
+    const [, index, compileStatus, testStatus] = match;
+    let verdict: VariantVerdict;
+    if (compileStatus !== "0") verdict = DEADLINE_STATUSES.has(Number(compileStatus)) ? { kind: "not_run" } : { kind: "compile_error" };
+    else if (testStatus === "0") verdict = { kind: "tests_passed" };
+    else verdict = { kind: "tests_failed", failedTests: [] };
+    verdicts.set(Number(index), verdict);
+  }
+  return verdicts;
 }
 
 /** Defence in depth: the harness already truncates, but never trust a remote byte count. */

@@ -37,6 +37,28 @@ describe("evidenceFor", () => {
       { skillId: "java.methods", dimension: "design", outcome: "pass", independence: "hinted" },
     ]);
   });
+
+  const WITH_TESTING = [...TAGS, { skill: "java.unit-testing", dimension: "testing" as const }];
+
+  it("evidenceFor_testingTagWithTestQuality_usesTheTestQualityOutcome", () => {
+    const rows = evidenceFor("succeeded", WITH_TESTING, "independent", { outcome: "partial" });
+
+    expect(rows.map((row) => [row.dimension, row.outcome])).toEqual([["implementation", "pass"], ["testing", "partial"]]);
+  });
+
+  it("evidenceFor_testQualityNotJudged_dropsOnlyTheTestingRow", () => {
+    const rows = evidenceFor("succeeded", WITH_TESTING, "independent", { outcome: undefined });
+
+    expect(rows.map((row) => row.dimension)).toEqual(["implementation"]);
+  });
+
+  it("evidenceFor_testingTagWithoutTestQuality_followsTheCodeOutcome", () => {
+    expect(evidenceFor("wrong-answer", WITH_TESTING, "independent").map((row) => row.outcome)).toEqual(["fail", "fail"]);
+  });
+
+  it("evidenceFor_infrastructureErrorWithTestQuality_producesNoEvidence", () => {
+    expect(evidenceFor("infrastructure-error", WITH_TESTING, "independent", { outcome: "pass" })).toEqual([]);
+  });
 });
 
 describe("independenceFor", () => {
@@ -106,6 +128,17 @@ describe("xpAwardsFor", () => {
 
   it("xpAwardsFor_hintedPass_getsChallengeXpWithoutPenalty", () => {
     expect(xpAwardsFor("cart.q1", "succeeded", "hinted")).toEqual([{ eventKey: "quest-pass:cart.q1", delta: XP.codingChallenge }]);
+  });
+
+  it("xpAwardsFor_passWithTestsThatCaughtTheBugs_addsTheTestQualityAward", () => {
+    expect(xpAwardsFor("cart.q8", "succeeded", "hinted", true)).toEqual([
+      { eventKey: "quest-pass:cart.q8", delta: XP.codingChallenge },
+      { eventKey: "quest-tests:cart.q8", delta: XP.testQuality },
+    ]);
+  });
+
+  it("xpAwardsFor_failedCodeWithGoodTests_awardsNothing", () => {
+    expect(xpAwardsFor("cart.q8", "wrong-answer", "independent", true)).toEqual([]);
   });
 
   it("xpAwardsFor_independentPass_addsTheNoHintBonusUnderItsOwnKey", () => {
