@@ -202,8 +202,21 @@ export interface LearningStore {
   followUpContext(userId: string, jobId: string): Promise<FollowUpContext | undefined>;
   /** Atomic; throws FollowUpsAlreadyAnsweredError if any was answered before (nothing recorded). */
   recordFollowUpAnswers(input: FollowUpAnswersInput): Promise<void>;
+  /** Skill id → display name. */
+  skillNames(): Promise<Map<string, string>>;
+  /** Graded submissions since `since`, newest first, with their per-check results (for insights). */
+  recentSubmissions(userId: string, since: Date, limit: number): Promise<RecentSubmission[]>;
   /** Replaces the rubric in the job's stored result so a reload shows the latest. */
   updateJobRubric(userId: string, jobId: string, rubric: RubricResult): Promise<void>;
+}
+
+export interface RecentSubmission {
+  readonly attemptId: string;
+  readonly contentVersionId: string;
+  readonly createdAt: Date;
+  readonly outcome: string;
+  readonly hintLevel: number;
+  readonly cases: ReadonlyArray<{ readonly id: string; readonly passed: boolean }>;
 }
 
 export interface FollowUpAnswersInput {
@@ -465,5 +478,32 @@ export class SupabaseLearningStore implements LearningStore {
     const job = await this.getJob(userId, jobId);
     if (job?.result === null || job === undefined) return;
     check("update_job_rubric", await this.db.from("execution_jobs").update({ result: { ...job.result, rubric } }).eq("id", jobId).eq("user_id", userId));
+  }
+
+  async recentSubmissions(userId: string, since: Date, limit: number): Promise<RecentSubmission[]> {
+    const rows = check(
+      "recent_submissions",
+      await this.db
+        .from("attempts")
+        .select("id, content_version_id, created_at, outcome, hint_level, execution_jobs!attempts_execution_job_id_fkey(result)")
+        .eq("user_id", userId)
+        .eq("state", "graded")
+        .gte("created_at", since.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(limit),
+    ) as unknown as Array<{ id: string; content_version_id: string; created_at: string; outcome: string | null; hint_level: number; execution_jobs: { result: { cases?: Array<{ id: string; passed: boolean }> } | null } | null }>;
+    return rows.map((row) => ({
+      attemptId: row.id,
+      contentVersionId: row.content_version_id,
+      createdAt: new Date(row.created_at),
+      outcome: row.outcome ?? "unknown",
+      hintLevel: Number(row.hint_level),
+      cases: (row.execution_jobs?.result?.cases ?? []).map((testCase) => ({ id: testCase.id, passed: testCase.passed })),
+    }));
+  }
+
+  async skillNames(): Promise<Map<string, string>> {
+    const rows = check("skill_names", await this.db.from("skills").select("id, name")) as Array<{ id: string; name: string }>;
+    return new Map(rows.map((row) => [row.id, row.name]));
   }
 }
