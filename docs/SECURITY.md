@@ -34,6 +34,12 @@ Scope: **owner-personal learning** (spec §65). This is not a public contest jud
    themselves** (visible samples, test-writing quests). Anything hidden — problem grading,
    project acceptance tests, mastery evidence — must use **contract mode**, where the same attack
    is graded wrong (`contract-forgery`, a required check).
+   **Test-quality grading** (spec §19, the `overlays` harness mode) is the same case: it runs the
+   learner's *own* tests against the reference and planted-bug variants of one file, so a learner
+   could forge `overlays/results.txt` from inside a test. It only grades the learner's tests, the
+   variant sources are present in the sandbox while those tests run, and nothing but a
+   caught/missed verdict per variant (and failing test names against the reference) leaves it.
+   Correctness of the learner's code is still decided by contract mode.
 2. **Contract inputs are visible** to learner code (it must receive them). Only expected outputs
    are secret; hidden cases resist memorisation, they are not cryptographic secrets.
 3. **Heap cap ≠ memory cap.** `-Xmx` does not bound native/metaspace/thread memory; the VM's own

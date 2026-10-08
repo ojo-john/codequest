@@ -6,6 +6,7 @@ import type { ExecutionResult } from "@/lib/execution/java-executor";
 import type { ExecutionLimits } from "@/lib/execution/limits";
 import type { MeteredExecuteOptions, MeteredExecution } from "@/lib/execution/metered-executor";
 import { validateSourceFiles, type SourceFile, type ValidatedSourceSet } from "@/lib/execution/source-files";
+import { testingOutcome, type TestQualitySpec } from "@/lib/execution/test-quality";
 import { DuplicateJobError } from "@/lib/execution/usage-ledger";
 import {
   evidenceFor,
@@ -160,6 +161,9 @@ export class LearningService {
         jobId: request.jobId,
         userId,
         grading: { kind: "contract", contract },
+        // Run shows the learner's own tests; Submit grades how well they catch bugs.
+        runLearnerTests: request.mode === "run",
+        testQuality: request.mode === "submit" ? grading.testQuality : undefined,
         signal,
         onAdmitted: () => this.store.updateJob(request.jobId, { state: "provisioning", gradingMode: "contract" }),
       });
@@ -172,7 +176,7 @@ export class LearningService {
       throw new ApiError(rejection.status, execution.reason, rejection.message, undefined, execution.retryAfter ? { "retry-after": execution.retryAfter.toUTCString() } : undefined);
     }
 
-    const result = toClientResult(request.mode, execution.result);
+    const result = toClientResult(request.mode, execution.result, grading.testQuality);
     await this.store.updateJob(request.jobId, {
       state: OUTCOME_TO_STATE[execution.result.outcome],
       outcomeDetail: execution.result.detail,
@@ -182,7 +186,7 @@ export class LearningService {
     log.log("info", "learning.executed", { mode: request.mode, outcome: execution.result.outcome, contentId: quest.contentId });
 
     if (request.mode === "run" || execution.result.outcome === "cancelled") return { jobId: request.jobId, result, awardedXp: 0, sessionCompleted: false, skills: [] };
-    return { jobId: request.jobId, result, ...(await this.recordSubmission(userId, request, quest, execution.result)) };
+    return { jobId: request.jobId, result, ...(await this.recordSubmission(userId, request, quest, execution.result, grading.testQuality)) };
   }
 
   /** The session to offer "resume" for on the home screen, if any. */
@@ -223,11 +227,12 @@ export class LearningService {
     return quest;
   }
 
-  private async recordSubmission(userId: string, request: ExecuteRequest, quest: QuestRecord, result: ExecutionResult) {
+  private async recordSubmission(userId: string, request: ExecuteRequest, quest: QuestRecord, result: ExecutionResult, quality: TestQualitySpec | undefined) {
     const now = this.clock();
     const hintLevel = await this.store.hintLevel(userId, request.contentVersionId);
     const independence = independenceFor(hintLevel);
-    const evidence = evidenceFor(result.outcome, quest.skills, independence);
+    const testing = quality === undefined ? undefined : { outcome: result.testQuality === undefined ? undefined : testingOutcome(result.testQuality, quality.passRatio) };
+    const evidence = evidenceFor(result.outcome, quest.skills, independence, testing);
     const previous = new Map<string, SkillState>((await this.store.skillStates(userId)).map((state) => [`${state.skillId}:${state.dimension}`, state]));
     const updates = evidence.map((row) => {
       const key = `${row.skillId}:${row.dimension}`;
@@ -235,7 +240,7 @@ export class LearningService {
       previous.set(key, update as SkillState);
       return update;
     });
-    const xp = xpAwardsFor(quest.contentId, result.outcome, independence);
+    const xp = xpAwardsFor(quest.contentId, result.outcome, independence, testing?.outcome === "pass");
 
     const recorded = await this.store.recordGradedAttempt({
       userId,
@@ -270,8 +275,27 @@ export class LearningService {
   }
 }
 
-function toClientResult(mode: "run" | "submit", result: ExecutionResult): ClientExecutionResult {
+function toClientResult(mode: "run" | "submit", result: ExecutionResult, quality: TestQualitySpec | undefined): ClientExecutionResult {
+  const describe = (id: string) => ({ id, description: quality?.mutants.find((mutant) => mutant.id === id)?.description ?? id });
   return {
+    ...(result.learnerTests && {
+      learnerTests: {
+        outcome: result.learnerTests.outcome,
+        detail: result.learnerTests.detail,
+        tests: result.learnerTests.summary?.tests,
+        failedTests: result.learnerTests.summary?.failedTests,
+        output: result.learnerTests.output,
+      },
+    }),
+    ...(result.testQuality && {
+      testQuality: {
+        status: result.testQuality.status,
+        caught: result.testQuality.caught.map(describe),
+        missed: result.testQuality.missed,
+        total: result.testQuality.total,
+        failingOnReference: result.testQuality.failingOnReference,
+      },
+    }),
     mode,
     outcome: result.outcome,
     detail: result.detail,

@@ -12,6 +12,7 @@ import { useActiveSeconds } from "@/lib/client/use-active-seconds";
 import { useWorkspace, type FileStatus } from "@/lib/workspace/store";
 import { useProjectSync } from "@/lib/workspace/use-project-sync";
 import { CodeEditor } from "./code-editor";
+import { NewTestFile } from "./new-test-file";
 import { ResultsPanel, type ExecutionView, type SubmissionExtras } from "./results-panel";
 
 export interface QuestView {
@@ -212,7 +213,8 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
       </section>
 
       <section aria-label="Code" className="flex min-h-[70vh] flex-col overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
-        <div role="tablist" aria-label="Files" className="flex overflow-x-auto border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="flex flex-wrap items-stretch border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900">
+        <div role="tablist" aria-label="Files" className="flex min-w-0 flex-1 overflow-x-auto">
           {order.map((path) => {
             const file = files[path];
             return (
@@ -230,6 +232,8 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
               </button>
             );
           })}
+        </div>
+          <NewTestFile />
         </div>
 
         {active?.status === "conflict" && active.conflict && (

@@ -6,7 +6,7 @@ import {
   type ExecutionBudgetConfig,
   type RejectionReason,
 } from "./budget";
-import type { ExecutionResult, GradingMode, JavaExecutor } from "./java-executor";
+import type { ExecuteOptions, ExecutionResult, GradingMode, JavaExecutor } from "./java-executor";
 import type { ExecutionLimits } from "./limits";
 import type { ValidatedSourceSet } from "./source-files";
 import type { ExecutionUsageLedger } from "./usage-ledger";
@@ -17,6 +17,8 @@ export interface MeteredExecuteOptions {
   /** Authenticated user id — never a browser-supplied value (spec §66). */
   readonly userId: string;
   readonly grading?: GradingMode;
+  readonly runLearnerTests?: ExecuteOptions["runLearnerTests"];
+  readonly testQuality?: ExecuteOptions["testQuality"];
   readonly signal?: AbortSignal;
   /** Called after admission, before the sandbox starts (persist the job's state, spec §67). */
   readonly onAdmitted?: () => Promise<void>;
@@ -72,7 +74,13 @@ export class MeteredJavaExecutor {
     let settleCpuSeconds = reserve;
     try {
       await options.onAdmitted?.();
-      const result = await inner.execute(sources, { requestId: options.requestId, grading: options.grading, signal: options.signal });
+      const result = await inner.execute(sources, {
+        requestId: options.requestId,
+        grading: options.grading,
+        runLearnerTests: options.runLearnerTests,
+        testQuality: options.testQuality,
+        signal: options.signal,
+      });
       if (result.activeCpuMs !== undefined) settleCpuSeconds = result.activeCpuMs / 1000;
       if (result.outcome === "infrastructure-error" && result.infrastructureErrorType === "provider_quota") {
         const until = new Date(now.getTime() + budget.providerQuotaPauseHours * MS_PER_HOUR);
