@@ -1,0 +1,22 @@
+{
+  "kind": "quest",
+  "id": "cart.q1-checkout-totals",
+  "version": 1,
+  "title": "Checkout totals",
+  "summary": "Write the three methods behind a shop's checkout: a line total, a cart subtotal and the shipping fee — with validation and no lost last line.",
+  "campaign": { "id": "campaign.shopping-cart", "order": 1 },
+  "stage": "completion",
+  "estimatedMinutes": 15,
+  "skills": [
+    { "skill": "java.methods", "dimension": "implementation" },
+    { "skill": "java.loops", "dimension": "implementation" },
+    { "skill": "java.conditions", "dimension": "implementation" },
+    { "skill": "java.input-validation", "dimension": "implementation" },
+    { "skill": "java.integer-arithmetic", "dimension": "implementation" }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": { "status": "draft" },
+  "provenance": { "author": "Claude (AI-drafted for CodeQuest)", "license": "All rights reserved (CodeQuest owner)", "source": "original" }
+}

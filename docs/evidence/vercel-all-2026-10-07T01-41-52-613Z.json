@@ -1,0 +1,465 @@
+{
+  "recordedAt": "2026-10-07T01:41:52.613Z",
+  "provider": "vercel",
+  "suite": "all",
+  "toolchain": {
+    "baseImage": "ubuntu:26.04@sha256:3595d7fc4286a33fad0fd853a4063e654287a9c3787437d7937c94ca3f7a804e",
+    "jdk": {
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_linux_hotspot_21.0.12.1_1.tar.gz",
+      "sha256": "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94",
+      "license": "GPL-2.0-with-classpath-exception",
+      "distribution": "Eclipse Temurin",
+      "release": "jdk-21.0.12.1+1"
+    },
+    "junit": {
+      "url": "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.14.4/junit-platform-console-standalone-1.14.4.jar",
+      "sha256": "7c6968cbcaf4301c729f202b23b7d736c5d88be625fc7d27ad5d746146a8bc28",
+      "license": "EPL-2.0",
+      "artifact": "org.junit.platform:junit-platform-console-standalone",
+      "version": "1.14.4",
+      "jupiterVersion": "5.14.4"
+    }
+  },
+  "limits": {
+    "maxSourceFiles": 20,
+    "maxTotalSourceBytes": 204800,
+    "compileWallSeconds": 30,
+    "testWallSeconds": 10,
+    "heapMb": 256,
+    "maxOutputBytes": 65536,
+    "maxReportBytes": 1048576,
+    "sandboxLifetimeSeconds": 60,
+    "commandGraceSeconds": 5,
+    "cleanupTimeoutSeconds": 15,
+    "vcpus": 1
+  },
+  "liveEnvironmentsAfterRun": 0,
+  "results": [
+    {
+      "name": "multi-file-pass",
+      "suite": "proof",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "succeeded",
+      "detail": "all_tests_passed",
+      "stage": "report",
+      "summary": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": []
+      },
+      "timingsMs": {
+        "provision": 1291,
+        "compile": 1783,
+        "test": 1101,
+        "report": 139,
+        "total": 4314
+      },
+      "outputExcerpt": "\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mPriceCalculatorTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     ├─\u001b[0m \u001b[34mrejectsNonPositiveQuantity()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     ├─\u001b[0m \u001b[34mtotalIncludesLastItem()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     ├─\u001b[0m \u001b[34msingleItemMultipliesQuantity()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[34memptyCartTotalsZero()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nTest run finished after 156 ms\n[         4 containers found      ]\n[         0 containers skipped    ]\n[         4 containers started    ]\n[         0 containers aborted    ]\n[         4 containers successful ]\n[         0 containers failed     ]\n[         4 tests found           ]\n[         0 tests skipped         ]\n[         4 tests started         ]\n[         0 tests aborted         ]\n[         4 tests successful      ]\n[         0 tests failed          ]\n\n"
+    },
+    {
+      "name": "off-by-one",
+      "suite": "proof",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "wrong-answer",
+      "detail": "test_failures",
+      "stage": "report",
+      "summary": {
+        "tests": 4,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": [
+          "shop.PriceCalculatorTest#singleItemMultipliesQuantity()",
+          "shop.PriceCalculatorTest#totalIncludesLastItem()"
+        ]
+      },
+      "timingsMs": {
+        "provision": 887,
+        "compile": 1538,
+        "test": 1001,
+        "report": 181,
+        "total": 3607
+      },
+      "outputExcerpt": "\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mPriceCalculatorTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     ├─\u001b[0m \u001b[34mrejectsNonPositiveQuantity()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     ├─\u001b[0m \u001b[31mtotalIncludesLastItem()\u001b[0m \u001b[31m✘\u001b[0m \u001b[31mexpected: <1150> but was: <750>\u001b[0m\n\u001b[36m│     ├─\u001b[0m \u001b[31msingleItemMultipliesQuantity()\u001b[0m \u001b[31m✘\u001b[0m \u001b[31mexpected: <750> but was: <0>\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[34memptyCartTotalsZero()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nFailures (2):\n  JUnit Jupiter:PriceCalculatorTest:totalIncludesLastItem()\n    MethodSource [className = 'shop.PriceCalculatorTest', methodName = 'totalIncludesLastItem', methodParameterTypes = '']\n    => org.opentest4j.AssertionFailedError: expected: <1150> but was: <750>\n       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)\n       org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)\n       org.junit.jupiter.api.AssertEquals.failNotEqual(AssertEquals.java:197)\n       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:166)\n       org.junit.jupiter.api.AssertEquals.assertEquals(AssertEquals.java:161)\n       org.junit.jupiter.api.Assertions.assertEquals(Assertions.java:632)\n       shop.PriceCalculatorTest.totalIncludesLastItem(PriceCalculatorTest.java:23)\n       java.base/java.lang.reflect.Method.invoke(Method.java:580)\n       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\n       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\n  JUnit Jupiter:PriceCalculatorTest:singleItemMultipliesQuantity()\n    MethodSource [className = 'shop.PriceCalculatorTest', methodName = 'singleItemMultipliesQuantity', methodParameterTypes = '']\n    => org.opentest4j.AssertionFailedError: expected: <750> but was: <0>\n       org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)\n       org.junit.jupiter.api.Ass"
+    },
+    {
+      "name": "compile-error",
+      "suite": "proof",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "compile-error",
+      "detail": "javac_failed",
+      "stage": "compile",
+      "timingsMs": {
+        "provision": 1506,
+        "compile": 1124,
+        "total": 2630
+      },
+      "outputExcerpt": "src/src/main/java/shop/PriceCalculator.java:10: error: ';' expected\n        long total = 0\n                      ^\n1 error\n"
+    },
+    {
+      "name": "contract-pass",
+      "suite": "proof",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "succeeded",
+      "detail": "all_contract_steps_passed",
+      "stage": "report",
+      "summary": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": []
+      },
+      "timingsMs": {
+        "provision": 897,
+        "compile": 1406,
+        "test": 326,
+        "report": 171,
+        "total": 2801
+      },
+      "outputExcerpt": ""
+    },
+    {
+      "name": "contract-off-by-one",
+      "suite": "proof",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "wrong-answer",
+      "detail": "contract_failures",
+      "stage": "report",
+      "summary": {
+        "tests": 5,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": [
+          "single-item#1",
+          "two-items#3"
+        ]
+      },
+      "timingsMs": {
+        "provision": 914,
+        "compile": 1510,
+        "test": 357,
+        "report": 180,
+        "total": 2961
+      },
+      "outputExcerpt": ""
+    },
+    {
+      "name": "infinite-loop",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "timeout",
+      "detail": "test_deadline",
+      "stage": "report",
+      "timingsMs": {
+        "provision": 1431,
+        "compile": 1725,
+        "test": 10272,
+        "report": 323,
+        "total": 13751
+      },
+      "outputExcerpt": ""
+    },
+    {
+      "name": "memory-pressure",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "runtime-error",
+      "detail": "memory_limit",
+      "stage": "report",
+      "timingsMs": {
+        "provision": 1083,
+        "compile": 1489,
+        "test": 1408,
+        "report": 179,
+        "total": 4159
+      },
+      "outputExcerpt": "Terminating due to java.lang.OutOfMemoryError: Java heap space\n"
+    },
+    {
+      "name": "output-flood",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "timeout",
+      "detail": "output_limit",
+      "stage": "report",
+      "timingsMs": {
+        "provision": 910,
+        "compile": 1258,
+        "test": 10201,
+        "report": 191,
+        "total": 12559
+      },
+      "outputExcerpt": "flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood flood \nflood flood flood flood flood flood flood flood flood flood floo"
+    },
+    {
+      "name": "process-limit",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "runtime-error",
+      "detail": "no_test_report",
+      "stage": "report",
+      "timingsMs": {
+        "provision": 1236,
+        "compile": 1620,
+        "test": 1818,
+        "report": 175,
+        "total": 4849
+      },
+      "outputExcerpt": "[1.153s][warning][os,thread] Failed to start thread \"Unknown thread\" - pthread_create failed (EAGAIN) for attributes: stacksize: 136k, guardsize: 0k, detached.\n[1.153s][warning][os,thread] Failed to start the native thread for java.lang.Thread \"process reaper\"\nException in thread \"main\" java.lang.OutOfMemoryError: unable to create native thread: possibly out of memory or process/resource limits reached\n\tat java.base/java.lang.Thread.start0(Native Method)\n\tat java.base/java.lang.Thread.start(Thread.java:1553)\n\tat java.base/java.lang.System$2.start(System.java:2578)\n\tat java.base/jdk.internal.vm.SharedThreadContainer.start(SharedThreadContainer.java:152)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:953)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1375)\n\tat java.base/java.lang.ProcessHandleImpl.completion(ProcessHandleImpl.java:156)\n\tat java.base/java.lang.ProcessImpl.initStreams(ProcessImpl.java:344)\n\tat java.base/java.lang.ProcessImpl.lambda$new$0(ProcessImpl.java:307)\n\tat java.base/java.security.AccessController.doPrivileged(AccessController.java:571)\n\tat java.base/java.lang.ProcessImpl.<init>(ProcessImpl.java:306)\n\tat java.base/java.lang.ProcessImpl.start(ProcessImpl.java:225)\n\tat java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1126)\n\tat java.base/java.lang.ProcessBuilder.start(ProcessBuilder.java:1089)\n\tat smoke.ProcessLimitTest.cannotSpawnUnboundedProcesses(ProcessLimitTest.java:18)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:786)\n\tat org.junit.platform.commons.support.ReflectionSupport.invokeMethod(ReflectionSupport.java:514)\n\tat org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60)\n\tat org.junit.jupiter.engine.execution.Invoca"
+    },
+    {
+      "name": "network-http",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "succeeded",
+      "detail": "all_tests_passed",
+      "stage": "report",
+      "summary": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": []
+      },
+      "timingsMs": {
+        "provision": 1268,
+        "compile": 1706,
+        "test": 1642,
+        "report": 130,
+        "total": 4746
+      },
+      "outputExcerpt": "\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mNetworkHttpTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[34moutboundHttpsIsBlocked()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nTest run finished after 428 ms\n[         4 containers found      ]\n[         0 containers skipped    ]\n[         4 containers started    ]\n[         0 containers aborted    ]\n[         4 containers successful ]\n[         0 containers failed     ]\n[         1 tests found           ]\n[         0 tests skipped         ]\n[         1 tests started         ]\n[         0 tests aborted         ]\n[         1 tests successful      ]\n[         0 tests failed          ]\n\n"
+    },
+    {
+      "name": "dns-lookup",
+      "suite": "smoke",
+      "kind": "informational",
+      "status": "PASS",
+      "note": "records dns=resolved|blocked; outbound connections are covered by network-http",
+      "outcome": "succeeded",
+      "detail": "all_tests_passed",
+      "stage": "report",
+      "summary": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": []
+      },
+      "timingsMs": {
+        "provision": 571,
+        "compile": 1451,
+        "test": 1090,
+        "report": 175,
+        "total": 3286
+      },
+      "outputExcerpt": "dns=blocked\n\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mDnsLookupTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[34mreportsDnsBehaviour()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nTest run finished after 146 ms\n[         4 containers found      ]\n[         0 containers skipped    ]\n[         4 containers started    ]\n[         0 containers aborted    ]\n[         4 containers successful ]\n[         0 containers failed     ]\n[         1 tests found           ]\n[         0 tests skipped         ]\n[         1 tests started         ]\n[         0 tests aborted         ]\n[         1 tests successful      ]\n[         0 tests failed          ]\n\n"
+    },
+    {
+      "name": "privilege",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "succeeded",
+      "detail": "all_tests_passed",
+      "stage": "report",
+      "summary": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": []
+      },
+      "timingsMs": {
+        "provision": 1047,
+        "compile": 1519,
+        "test": 992,
+        "report": 321,
+        "total": 3879
+      },
+      "outputExcerpt": "\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mPrivilegeTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[34mcannotEscalateOrTamperWithHarness()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nTest run finished after 138 ms\n[         4 containers found      ]\n[         0 containers skipped    ]\n[         4 containers started    ]\n[         0 containers aborted    ]\n[         4 containers successful ]\n[         0 containers failed     ]\n[         1 tests found           ]\n[         0 tests skipped         ]\n[         1 tests started         ]\n[         0 tests aborted         ]\n[         1 tests successful      ]\n[         0 tests failed          ]\n\n"
+    },
+    {
+      "name": "forged-stdout",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "wrong-answer",
+      "detail": "test_failures",
+      "stage": "report",
+      "summary": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": [
+          "smoke.ForgedStdoutTest#printsFakeSuccessButFails()"
+        ]
+      },
+      "timingsMs": {
+        "provision": 1064,
+        "compile": 1577,
+        "test": 1167,
+        "report": 180,
+        "total": 3987
+      },
+      "outputExcerpt": "{\"outcome\":\"succeeded\",\"tests\":4,\"failures\":0}\n[         4 tests successful      ]\n\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mForgedStdoutTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[31mprintsFakeSuccessButFails()\u001b[0m \u001b[31m✘\u001b[0m \u001b[31mthe real result is a failure\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nFailures (1):\n  JUnit Jupiter:ForgedStdoutTest:printsFakeSuccessButFails()\n    MethodSource [className = 'smoke.ForgedStdoutTest', methodName = 'printsFakeSuccessButFails', methodParameterTypes = '']\n    => org.opentest4j.AssertionFailedError: the real result is a failure\n       org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:38)\n       org.junit.jupiter.api.Assertions.fail(Assertions.java:138)\n       smoke.ForgedStdoutTest.printsFakeSuccessButFails(ForgedStdoutTest.java:12)\n       java.base/java.lang.reflect.Method.invoke(Method.java:580)\n       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\n       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\n\nTest run finished after 198 ms\n[         4 containers found      ]\n[         0 containers skipped    ]\n[         4 containers started    ]\n[         0 containers aborted    ]\n[         4 containers successful ]\n[         0 containers failed     ]\n[         1 tests found           ]\n[         0 tests skipped         ]\n[         1 tests started         ]\n[         0 tests aborted         ]\n[         0 tests successful      ]\n[         1 tests failed          ]\n\n"
+    },
+    {
+      "name": "system-exit",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "outcome": "runtime-error",
+      "detail": "no_test_report",
+      "stage": "report",
+      "timingsMs": {
+        "provision": 1026,
+        "compile": 1348,
+        "test": 1063,
+        "report": 115,
+        "total": 3553
+      },
+      "outputExcerpt": ""
+    },
+    {
+      "name": "report-forgery",
+      "suite": "smoke",
+      "kind": "informational",
+      "status": "NOTE",
+      "failure": "expected wrong-answer, got succeeded/all_tests_passed",
+      "note": "JUnit-mode limitation: in-JVM code can rewrite the report — hidden grading uses contract mode instead (docs/SECURITY.md)",
+      "outcome": "succeeded",
+      "detail": "all_tests_passed",
+      "stage": "report",
+      "summary": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": []
+      },
+      "timingsMs": {
+        "provision": 906,
+        "compile": 1502,
+        "test": 1058,
+        "report": 119,
+        "total": 3584
+      },
+      "outputExcerpt": "\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mReportForgeryTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[31mrewritesReportOnShutdown()\u001b[0m \u001b[31m✘\u001b[0m \u001b[31mgenuinely failing\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nFailures (1):\n  JUnit Jupiter:ReportForgeryTest:rewritesReportOnShutdown()\n    MethodSource [className = 'smoke.ReportForgeryTest', methodName = 'rewritesReportOnShutdown', methodParameterTypes = '']\n    => org.opentest4j.AssertionFailedError: genuinely failing\n       org.junit.jupiter.api.AssertionUtils.fail(AssertionUtils.java:38)\n       org.junit.jupiter.api.Assertions.fail(Assertions.java:138)\n       smoke.ReportForgeryTest.rewritesReportOnShutdown(ReportForgeryTest.java:27)\n       java.base/java.lang.reflect.Method.invoke(Method.java:580)\n       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\n       java.base/java.util.ArrayList.forEach(ArrayList.java:1596)\n\nTest run finished after 167 ms\n[         4 containers found      ]\n[         0 containers skipped    ]\n[         4 containers started    ]\n[         0 containers aborted    ]\n[         4 containers successful ]\n[         0 containers failed     ]\n[         1 tests found           ]\n[         0 tests skipped         ]\n[         1 tests started         ]\n[         0 tests aborted         ]\n[         0 tests successful      ]\n[         1 tests failed          ]\n\n"
+    },
+    {
+      "name": "contract-forgery",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "note": "rewrites the contract results file and halts 0; must not pass without the hidden answers",
+      "outcome": "wrong-answer",
+      "detail": "contract_failures",
+      "stage": "report",
+      "summary": {
+        "tests": 5,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": [
+          "empty-cart#0",
+          "single-item#1",
+          "two-items#2",
+          "two-items#3",
+          "rejects-zero-quantity#0"
+        ]
+      },
+      "timingsMs": {
+        "provision": 1043,
+        "compile": 1937,
+        "test": 279,
+        "report": 178,
+        "total": 3438
+      },
+      "outputExcerpt": ""
+    },
+    {
+      "name": "reserved-exit",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "note": "System.exit(64) must not be mistaken for the harness's own usage error",
+      "outcome": "runtime-error",
+      "detail": "no_test_report",
+      "stage": "report",
+      "timingsMs": {
+        "provision": 1241,
+        "compile": 1223,
+        "test": 1153,
+        "report": 181,
+        "total": 3798
+      },
+      "outputExcerpt": ""
+    },
+    {
+      "name": "kill-init",
+      "suite": "smoke",
+      "kind": "informational",
+      "status": "PASS",
+      "note": "records whether learner code can end its own sandbox; see docs/SECURITY.md",
+      "outcome": "succeeded",
+      "detail": "all_tests_passed",
+      "stage": "report",
+      "summary": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": []
+      },
+      "timingsMs": {
+        "provision": 536,
+        "compile": 1299,
+        "test": 3004,
+        "report": 131,
+        "total": 4970
+      },
+      "outputExcerpt": "kill-init-status=0\n\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mKillInitTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[34msignalsInit()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nTest run finished after 2147 ms\n[         4 containers found      ]\n[         0 containers skipped    ]\n[         4 containers started    ]\n[         0 containers aborted    ]\n[         4 containers successful ]\n[         0 containers failed     ]\n[         1 tests found           ]\n[         0 tests skipped         ]\n[         1 tests started         ]\n[         0 tests aborted         ]\n[         1 tests successful      ]\n[         0 tests failed          ]\n\n"
+    },
+    {
+      "name": "background-process",
+      "suite": "smoke",
+      "kind": "required",
+      "status": "PASS",
+      "note": "followed by a check that no execution environments are left running",
+      "outcome": "succeeded",
+      "detail": "all_tests_passed",
+      "stage": "report",
+      "summary": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "failedTests": []
+      },
+      "timingsMs": {
+        "provision": 871,
+        "compile": 1350,
+        "test": 1445,
+        "report": 151,
+        "total": 3816
+      },
+      "outputExcerpt": "\u001b[36m╷\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Platform Suite\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m├─\u001b[0m \u001b[36mJUnit Jupiter\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│  └─\u001b[0m \u001b[36mBackgroundProcessTest\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m│     └─\u001b[0m \u001b[34mleavesProcessBehind()\u001b[0m \u001b[32m✔\u001b[0m\n\u001b[36m└─\u001b[0m \u001b[36mJUnit Vintage\u001b[0m \u001b[32m✔\u001b[0m\n\nTest run finished after 166 ms\n[         4 containers found      ]\n[         0 containers skipped    ]\n[         4 containers started    ]\n[         0 containers aborted    ]\n[         4 containers successful ]\n[         0 containers failed     ]\n[         1 tests found           ]\n[         0 tests skipped         ]\n[         1 tests started         ]\n[         0 tests aborted         ]\n[         1 tests successful      ]\n[         0 tests failed          ]\n\n"
+    }
+  ]
+}

@@ -1,0 +1,690 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "regular-small-cart-pays-shipping",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "call": "totalCents",
+            "target": "regular",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1249
+            }
+          }
+        ]
+      },
+      {
+        "id": "regular-free-shipping-at-threshold",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              13
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "call": "totalCents",
+            "target": "regular",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 5200
+            }
+          }
+        ]
+      },
+      {
+        "id": "regular-empty-cart",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "call": "totalCents",
+            "target": "regular",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "percent-off-10",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off10"
+          },
+          {
+            "call": "totalCents",
+            "target": "off10",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1534
+            }
+          }
+        ]
+      },
+      {
+        "id": "percent-off-rounds-discount-down",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "ODD-1",
+              "Odd-priced jam",
+              "pantry",
+              333
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "odd"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "odd"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off10"
+          },
+          {
+            "call": "totalCents",
+            "target": "off10",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1399
+            }
+          }
+        ]
+      },
+      {
+        "id": "percent-off-can-lose-free-shipping",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              13
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off10"
+          },
+          {
+            "call": "totalCents",
+            "target": "off10",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 5179
+            }
+          }
+        ]
+      },
+      {
+        "id": "percent-off-90",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              90
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off90"
+          },
+          {
+            "call": "totalCents",
+            "target": "off90",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 619
+            }
+          }
+        ]
+      },
+      {
+        "id": "percent-off-1",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "ODD-1",
+              "Odd-priced jam",
+              "pantry",
+              333
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "odd"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "odd"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              1
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off1"
+          },
+          {
+            "call": "totalCents",
+            "target": "off1",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 829
+            }
+          }
+        ]
+      },
+      {
+        "id": "percent-off-rejects-0",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "percent-off-rejects-91",
+        "steps": [
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              91
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cart-total-uses-given-strategy",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off10"
+          },
+          {
+            "call": "totalCents",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "regular"
+              }
+            ],
+            "paramTypes": [
+              "shop.PricingStrategy"
+            ],
+            "expect": {
+              "value": 1249
+            }
+          },
+          {
+            "call": "totalCents",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "off10"
+              }
+            ],
+            "paramTypes": [
+              "shop.PricingStrategy"
+            ],
+            "expect": {
+              "value": 1174
+            }
+          }
+        ]
+      },
+      {
+        "id": "cart-total-rejects-missing-strategy",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "totalCents",
+            "target": "cart",
+            "args": [
+              null
+            ],
+            "paramTypes": [
+              "shop.PricingStrategy"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Copy the shape of RegularPricing: implement totalCents, ask the cart for its subtotal, then apply your rule."
+    },
+    {
+      "tier": "pattern",
+      "text": "Validate the percent in the constructor so a PercentOffPricing object can never exist with an invalid percent."
+    },
+    {
+      "tier": "key_insight",
+      "text": "Shipping is decided by the amount the customer actually pays, so call Checkout.shippingCents on the discounted amount, not the original subtotal."
+    },
+    {
+      "tier": "pseudocode",
+      "text": "discount = multiplyExact(subtotal, percent) / 100; discounted = subtotal - discount; return discounted + shippingCents(discounted). Cart: if pricing == null -> throw; return pricing.totalCents(this)."
+    }
+  ],
+  "referenceDir": "reference"
+}

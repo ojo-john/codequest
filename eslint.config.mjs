@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated / third-party assets.
+    "public/monaco/**",
+    "test-results/**",
+    "playwright-report/**",
   ]),
 ]);
 

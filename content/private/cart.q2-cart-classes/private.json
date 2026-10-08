@@ -1,0 +1,504 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "product-holds-its-values",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "call": "sku",
+            "target": "tea",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "TEA-1"
+            }
+          },
+          {
+            "call": "category",
+            "target": "tea",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "drinks"
+            }
+          },
+          {
+            "call": "priceCents",
+            "target": "tea",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 250
+            }
+          }
+        ]
+      },
+      {
+        "id": "cart-item-line-total",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.CartItem",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ],
+            "as": "line"
+          },
+          {
+            "call": "lineTotalCents",
+            "target": "line",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 750
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty-cart",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "subtotalCents",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "itemCount",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "items",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "as": "lines"
+          },
+          {
+            "call": "size",
+            "target": "lines",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "two-products",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "subtotalCents",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1150
+            }
+          },
+          {
+            "call": "itemCount",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 4
+            }
+          },
+          {
+            "call": "quantityOf",
+            "target": "cart",
+            "args": [
+              "TEA-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "same-sku-merges",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              2
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "quantityOf",
+            "target": "cart",
+            "args": [
+              "TEA-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 3
+            }
+          },
+          {
+            "call": "items",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "as": "lines"
+          },
+          {
+            "call": "size",
+            "target": "lines",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "missing-sku-has-zero",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "quantityOf",
+            "target": "cart",
+            "args": [
+              "NOPE-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "items-in-order-added",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              2
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "items",
+            "target": "cart",
+            "args": [],
+            "paramTypes": [],
+            "as": "lines"
+          },
+          {
+            "call": "get",
+            "target": "lines",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "first"
+          },
+          {
+            "call": "quantity",
+            "target": "first",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 2
+            }
+          },
+          {
+            "call": "product",
+            "target": "first",
+            "args": [],
+            "paramTypes": [],
+            "as": "p"
+          },
+          {
+            "call": "sku",
+            "target": "p",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "CAKE-1"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Start with CartItem.lineTotalCents \u2014 it's one line that calls a method you already have."
+    },
+    {
+      "tier": "pattern",
+      "text": "For add(): look the SKU up in the map first. Absent means a new line; present means a replacement line with the summed quantity."
+    },
+    {
+      "tier": "key_insight",
+      "text": "Because CartItem is immutable you never change a line in place \u2014 you put a new CartItem under the same SKU key, which also keeps the line in its original position in a LinkedHashMap."
+    },
+    {
+      "tier": "pseudocode",
+      "text": "add: existing = map.get(sku); qty = existing == null ? quantity : existing.quantity() + quantity; map.put(sku, new CartItem(product, qty)). subtotal: loop over map.values() adding lineTotalCents(). items: new ArrayList<>(map.values())."
+    }
+  ],
+  "referenceDir": "reference"
+}

@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "cart.q8-order-line-parser",
+  "version": 1,
+  "title": "Order line parser",
+  "summary": "Invalid inputs: parse staff-typed order lines, rejecting every malformed one with a clear message \u2014 and test it yourself.",
+  "campaign": {
+    "id": "campaign.shopping-cart",
+    "order": 8
+  },
+  "stage": "independent",
+  "estimatedMinutes": 35,
+  "skills": [
+    {
+      "skill": "java.input-validation",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.unit-testing",
+      "dimension": "testing"
+    },
+    {
+      "skill": "java.methods",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

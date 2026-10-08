@@ -1,0 +1,779 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "bulk-discounts-qualifying-lines-only",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "totalCents",
+            "target": "bulk",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1574
+            }
+          }
+        ]
+      },
+      {
+        "id": "bulk-below-minimum-pays-full-price",
+        "visible": true,
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              2
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "totalCents",
+            "target": "bulk",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 999
+            }
+          }
+        ]
+      },
+      {
+        "id": "bulk-rounds-discount-down",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "ODD-1",
+              "Odd-priced jam",
+              "pantry",
+              333
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "odd"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "odd"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "totalCents",
+            "target": "bulk",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1399
+            }
+          }
+        ]
+      },
+      {
+        "id": "bulk-shipping-on-discounted-amount",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              13
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "totalCents",
+            "target": "bulk",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 5179
+            }
+          }
+        ]
+      },
+      {
+        "id": "bulk-free-shipping-after-discount",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              14
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "totalCents",
+            "target": "bulk",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 5040
+            }
+          }
+        ]
+      },
+      {
+        "id": "bulk-digital-only-ships-free",
+        "steps": [
+          {
+            "new": "shop.DigitalProduct",
+            "args": [
+              "EBOOK-1",
+              "Java guide",
+              "books",
+              1500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "ebook"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "ebook"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "totalCents",
+            "target": "bulk",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 4050
+            }
+          }
+        ]
+      },
+      {
+        "id": "bulk-empty-cart",
+        "steps": [
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "totalCents",
+            "target": "bulk",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "bulk-name",
+        "steps": [
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "name",
+            "target": "bulk",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "BulkDiscountPricing"
+            }
+          }
+        ]
+      },
+      {
+        "id": "comparison-finds-new-strategy-without-changes",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.Product",
+            "args": [
+              "CAKE-1",
+              "Lemon cake",
+              "bakery",
+              400
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "cake"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              10
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "cake"
+              },
+              1
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off5"
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "cheapest",
+            "static": "shop.PriceComparison",
+            "args": [
+              {
+                "$ref": "cart"
+              },
+              [
+                {
+                  "$ref": "regular"
+                },
+                {
+                  "$ref": "off5"
+                },
+                {
+                  "$ref": "bulk"
+                }
+              ]
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart",
+              "java.util.List"
+            ],
+            "as": "best"
+          },
+          {
+            "call": "name",
+            "target": "best",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "BulkDiscountPricing"
+            }
+          }
+        ]
+      },
+      {
+        "id": "cart-total-accepts-new-strategy",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.BulkDiscountPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "bulk"
+          },
+          {
+            "call": "totalCents",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "bulk"
+              }
+            ],
+            "paramTypes": [
+              "shop.PricingStrategy"
+            ],
+            "expect": {
+              "value": 1174
+            }
+          }
+        ]
+      },
+      {
+        "id": "existing-strategies-unchanged",
+        "steps": [
+          {
+            "new": "shop.Product",
+            "args": [
+              "TEA-1",
+              "Green tea",
+              "drinks",
+              250
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ],
+            "as": "tea"
+          },
+          {
+            "new": "shop.ShoppingCart",
+            "args": [],
+            "paramTypes": [],
+            "as": "cart"
+          },
+          {
+            "call": "add",
+            "target": "cart",
+            "args": [
+              {
+                "$ref": "tea"
+              },
+              3
+            ],
+            "paramTypes": [
+              "shop.Product",
+              "int"
+            ]
+          },
+          {
+            "new": "shop.RegularPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "regular"
+          },
+          {
+            "new": "shop.PercentOffPricing",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "off10"
+          },
+          {
+            "new": "shop.MemberPricing",
+            "args": [],
+            "paramTypes": [],
+            "as": "member"
+          },
+          {
+            "call": "totalCents",
+            "target": "regular",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1249
+            }
+          },
+          {
+            "call": "totalCents",
+            "target": "off10",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 1174
+            }
+          },
+          {
+            "call": "totalCents",
+            "target": "member",
+            "args": [
+              {
+                "$ref": "cart"
+              }
+            ],
+            "paramTypes": [
+              "shop.ShoppingCart"
+            ],
+            "expect": {
+              "value": 750
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "You only need one new class. Loop over cart.items() and work out each line's price."
+    },
+    {
+      "tier": "pattern",
+      "text": "Accumulate a discounted subtotal line by line, then add shipping once at the end on that discounted amount."
+    },
+    {
+      "tier": "key_insight",
+      "text": "The discount is per line, rounded down per line: lineTotal - multiplyExact(lineTotal, 10) / 100 \u2014 not 10% of the whole subtotal."
+    },
+    {
+      "tier": "pseudocode",
+      "text": "sum = 0; for item in cart.items(): line = item.lineTotalCents(); if item.quantity() >= 3: line -= multiplyExact(line, 10) / 100; sum = addExact(sum, line). return sum + cart.shippingCentsFor(sum)."
+    }
+  ],
+  "referenceDir": "reference"
+}

@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "cart.q3-protect-the-cart",
+  "version": 1,
+  "title": "Protect the cart",
+  "summary": "Encapsulation: make invalid products, lines and carts impossible, and stop callers from changing the cart behind its back.",
+  "campaign": {
+    "id": "campaign.shopping-cart",
+    "order": 3
+  },
+  "stage": "guided",
+  "estimatedMinutes": 30,
+  "skills": [
+    {
+      "skill": "java.encapsulation",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.input-validation",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.classes",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
