@@ -6,6 +6,8 @@ import { DuplicateJobError } from "@/lib/execution/usage-ledger";
 import type { SkillState } from "@/lib/learning/mastery";
 import { silentLogger } from "@/lib/observability/log";
 import { ApiError } from "@/lib/server/http";
+import type { RubricResult } from "@/lib/grading/rubric";
+import { FollowUpsAlreadyAnsweredError, type FollowUpAnswersInput, type FollowUpContext } from "@/lib/server/learning-store";
 import type { ActiveSession, GradedAttemptInput, JobState, LearningStore, QuestGrading, QuestRecord } from "@/lib/server/learning-store";
 import { LearningService, type ExecuteRequest, type MeteredExecutor } from "@/lib/server/learning-service";
 
@@ -73,6 +75,20 @@ class FakeStore implements LearningStore {
     return { attemptId: "attempt-1", awardedXp: fresh.reduce((sum, award) => sum + award.delta, 0), sessionCompleted: this.sessionCompletes };
   }
   async activeSession(_user: string, startedAfter: Date) { this.activeSince = startedAfter; return this.active; }
+  followUps: FollowUpContext | undefined;
+  recordedFollowUps: FollowUpAnswersInput[] = [];
+  rubrics: RubricResult[] = [];
+  /** Simulates another request answering between our read and our write. */
+  answeredConcurrently: FollowUpContext["answered"] | undefined;
+  async followUpContext() { return this.followUps; }
+  async recordFollowUpAnswers(input: FollowUpAnswersInput) {
+    if (this.answeredConcurrently && this.followUps) {
+      this.followUps = { ...this.followUps, answered: this.answeredConcurrently };
+      throw new FollowUpsAlreadyAnsweredError();
+    }
+    this.recordedFollowUps.push(input);
+  }
+  async updateJobRubric(_u: string, _j: string, rubric: RubricResult) { this.rubrics.push(rubric); }
 }
 
 function result(outcome: ExecutionResult["outcome"] = "succeeded"): ExecutionResult {
@@ -300,6 +316,117 @@ describe("LearningService.execute with test-quality grading", () => {
     await service(store, executor).execute(USER, request(), "r", silentLogger);
 
     expect(store.attempts[0].xp.map((award) => award.event_key)).toContain("quest-tests:cart.q1-checkout-totals");
+  });
+});
+
+describe("LearningService rubric and follow-ups", () => {
+  const FOLLOW_UPS = [
+    { id: "why", criterion: "explanation" as const, skill: "java.loops", prompt: "Why loop?", options: ["a", "b", "c"], answer: 1, why: "Because." },
+    { id: "time", criterion: "time_complexity" as const, skill: "java.loops", prompt: "How fast?", options: ["O(1)", "O(n)"], answer: 1, why: "One pass." },
+  ];
+  const JOB = "44444444-4444-4444-8444-444444444444";
+  const PASSED_RESULT = { mode: "submit" as const, outcome: "succeeded", detail: "d", cases: [{ id: "sample", visible: true, passed: true }, { id: "hidden", visible: false, passed: true }] };
+
+  function storeWithRubric(context?: Partial<FollowUpContext>): FakeStore {
+    const store = new FakeStore();
+    store.getGrading = async () => ({ ...GRADING, rubric: { edgeCases: ["hidden"], followUps: FOLLOW_UPS } });
+    store.followUps = { attemptId: "attempt-1", contentVersionId: QUEST_ID, hintLevel: 0, result: PASSED_RESULT, answered: new Map(), ...context };
+    return store;
+  }
+
+  it("execute_passedSubmit_returnsRubricAndQuestionsWithoutAnswers", async () => {
+    const store = storeWithRubric();
+    const executor = new ScriptedExecutor({ admitted: true, result: { ...result(), caseResults: [{ id: "sample", visible: true, passed: true }, { id: "hidden", visible: false, passed: true }] } });
+
+    const response = await service(store, executor).execute(USER, request(), "r", silentLogger);
+
+    expect([response.result.rubric?.score, response.result.followUps?.map((question) => question.id), JSON.stringify(response.result.followUps).includes("Because")]).toEqual([100, ["why", "time"], false]);
+  });
+
+  it("execute_failedSubmit_hasARubricButNoQuestions", async () => {
+    const store = storeWithRubric();
+    const executor = new ScriptedExecutor({ admitted: true, result: { ...result("wrong-answer"), caseResults: [{ id: "hidden", visible: false, passed: false }] } });
+
+    const response = await service(store, executor).execute(USER, request(), "r", silentLogger);
+
+    expect([response.result.rubric?.score, response.result.followUps]).toEqual([0, undefined]);
+  });
+
+  it("execute_run_hasNoRubric", async () => {
+    const response = await service(storeWithRubric()).execute(USER, request({ mode: "run" }), "r", silentLogger);
+
+    expect(response.result.rubric).toBeUndefined();
+  });
+
+  it("execute_submit_recordsTheRubricVersionOnTheAttempt", async () => {
+    const store = storeWithRubric();
+
+    await service(store).execute(USER, request(), "r", silentLogger);
+
+    expect(store.attempts[0].rubricVersion).toBe("rubric-v1");
+  });
+
+  it("answerFollowUps_firstAnswers_areGradedAndRecordedAsExplanationAndComplexityEvidence", async () => {
+    const store = storeWithRubric();
+
+    const outcome = await service(store).answerFollowUps(USER, { jobId: JOB, answers: { why: 1, time: 0 } });
+
+    expect(outcome.results.map((entry) => [entry.id, entry.correct, entry.why])).toEqual([["why", true, "Because."], ["time", false, "One pass."]]);
+    expect(store.recordedFollowUps[0].evidence.map((row) => [row.dimension, row.outcome])).toEqual([["explanation", "pass"], ["complexity", "fail"]]);
+    expect(store.rubrics[0].criteria.find((entry) => entry.criterion === "explanation")).toMatchObject({ assessed: true, score: 1 });
+  });
+
+  it("answerFollowUps_alreadyAnswered_returnsTheFirstAnswersWithoutRecording", async () => {
+    const store = storeWithRubric({ answered: new Map([["why", { choice: 0, correct: false }], ["time", { choice: 1, correct: true }]]) });
+
+    const outcome = await service(store).answerFollowUps(USER, { jobId: JOB, answers: { why: 1, time: 1 } });
+
+    expect([outcome.results.map((entry) => entry.choice), store.recordedFollowUps.length]).toEqual([[0, 1], 0]);
+  });
+
+  it("answerFollowUps_concurrentRequestWonTheRace_returnsItsAnswers", async () => {
+    const store = storeWithRubric();
+    store.answeredConcurrently = new Map([["why", { choice: 2, correct: false }], ["time", { choice: 1, correct: true }]]);
+
+    const outcome = await service(store).answerFollowUps(USER, { jobId: JOB, answers: { why: 1, time: 1 } });
+
+    expect(outcome.results.map((entry) => entry.choice)).toEqual([2, 1]);
+  });
+
+  it("answerFollowUps_missingAnAnswer_is400AndRecordsNothing", async () => {
+    const store = storeWithRubric();
+
+    const error = await apiError(service(store).answerFollowUps(USER, { jobId: JOB, answers: { why: 1 } }));
+
+    expect([error.status, error.code, store.recordedFollowUps.length]).toEqual([400, "answer_every_question", 0]);
+  });
+
+  it("answerFollowUps_choiceOutOfRange_is400", async () => {
+    const error = await apiError(service(storeWithRubric()).answerFollowUps(USER, { jobId: JOB, answers: { why: 1, time: 5 } }));
+
+    expect(error.code).toBe("invalid_choice");
+  });
+
+  it("answerFollowUps_unknownJob_is404", async () => {
+    const store = storeWithRubric();
+    store.followUps = undefined;
+
+    expect((await apiError(service(store).answerFollowUps(USER, { jobId: JOB, answers: {} }))).status).toBe(404);
+  });
+
+  it("answerFollowUps_failedSubmission_is409", async () => {
+    const store = storeWithRubric({ result: { ...PASSED_RESULT, outcome: "wrong-answer" } });
+
+    expect((await apiError(service(store).answerFollowUps(USER, { jobId: JOB, answers: { why: 1, time: 1 } }))).code).toBe("no_follow_ups");
+  });
+
+  it("answerFollowUps_twoAnswersForOneSkillDimension_combineIntoOnePartialEvidenceRow", async () => {
+    const store = storeWithRubric();
+    store.getGrading = async () => ({ ...GRADING, rubric: { edgeCases: [], followUps: [FOLLOW_UPS[1], { ...FOLLOW_UPS[1], id: "space", criterion: "space_complexity" as const }] } });
+
+    await service(store).answerFollowUps(USER, { jobId: JOB, answers: { time: 1, space: 0 } });
+
+    expect([store.recordedFollowUps[0].evidence.map((row) => [row.dimension, row.outcome]), store.recordedFollowUps[0].skillStates.length]).toEqual([[["complexity", "partial"]], 1]);
   });
 });
 

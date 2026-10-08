@@ -87,6 +87,8 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
   const [running, setRunning] = useState<"run" | "submit" | undefined>();
   const [result, setResult] = useState<ExecutionView | undefined>();
   const [extras, setExtras] = useState<SubmissionExtras | undefined>();
+  /** The job the shown result belongs to (for follow-up questions). */
+  const [resultJobId, setResultJobId] = useState<string | undefined>();
   /** The job id of a passing submission, offered for the reflection card. */
   const [reflectOn, setReflectOn] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
@@ -104,7 +106,11 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
     const jobId = sessionStorage.getItem(lastJobKey(quest.contentVersionId));
     if (!jobId) return;
     apiCall<{ result: ExecutionView | null }>(`/api/v1/executions/${jobId}`)
-      .then((job) => job.result && setResult(job.result))
+      .then((job) => {
+        if (!job.result) return;
+        setResult(job.result);
+        setResultJobId(jobId);
+      })
       .catch(() => sessionStorage.removeItem(lastJobKey(quest.contentVersionId)));
   }, [quest.contentVersionId]);
 
@@ -130,6 +136,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
           },
         });
         setResult(response.result);
+        setResultJobId(response.jobId);
         if (mode === "submit") {
           setExtras({ awardedXp: response.awardedXp, sessionCompleted: response.sessionCompleted, skills: response.skills });
           if (response.result.outcome === "succeeded") setReflectOn(response.jobId);
@@ -315,7 +322,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
               {error}
             </p>
           )}
-          {!running && result && <ResultsPanel result={result} extras={extras} sessionHref={sessionHref} />}
+          {!running && result && <ResultsPanel key={resultJobId} result={result} extras={extras} sessionHref={sessionHref} jobId={resultJobId} />}
           {!running && !result && !error && <p className="text-sm text-neutral-500">Run the samples to check your progress, then Submit when you&apos;re ready.</p>}
         </div>
       </section>

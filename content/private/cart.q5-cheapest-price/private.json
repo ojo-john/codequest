@@ -588,7 +588,7 @@
     },
     {
       "tier": "pattern",
-      "text": "Track the best strategy so far and its total. Only replace it when a later total is strictly lower \u2014 that's what keeps the first one on a tie."
+      "text": "Track the best strategy so far and its total. Only replace it when a later total is strictly lower — that's what keeps the first one on a tie."
     },
     {
       "tier": "key_insight",
@@ -599,5 +599,58 @@
       "text": "if list null or empty -> throw; best = null; bestTotal = Long.MAX_VALUE; for s in list: t = s.totalCents(cart); if t < bestTotal: best = s; bestTotal = t. return best."
     }
   ],
-  "referenceDir": "reference"
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "cheapest-tie-keeps-first",
+      "cheapest-tie-order-matters",
+      "cheapest-single-strategy",
+      "cheapest-rejects-empty-list",
+      "cheapest-rejects-missing-list"
+    ],
+    "followUps": [
+      {
+        "id": "which-total-runs",
+        "criterion": "explanation",
+        "skill": "java.polymorphism",
+        "prompt": "In strategy.totalCents(cart), which totalCents method runs, and when is that decided?",
+        "options": [
+          "PricingStrategy's own, decided at compile time.",
+          "The one in the object's actual class (e.g. MemberPricing), decided at run time.",
+          "Whichever implementation the compiler finds first.",
+          "The variable's declared type decides."
+        ],
+        "answer": 1,
+        "why": "This is dynamic dispatch: the JVM looks at the object's real class when the call happens. The declared type (PricingStrategy) only decides which methods you're allowed to call."
+      },
+      {
+        "id": "new-promotion-change",
+        "criterion": "explanation",
+        "skill": "java.polymorphism",
+        "prompt": "What must change in cheapest() to support a new promotion next month?",
+        "options": [
+          "Nothing: a new class implementing PricingStrategy is enough.",
+          "Add an instanceof branch for the new class.",
+          "Add the new class name to a list inside cheapest.",
+          "Add a method to PricingStrategy."
+        ],
+        "answer": 0,
+        "why": "cheapest only talks to the interface, so it works for implementations that don't exist yet. An instanceof chain would have to be edited for every new promotion."
+      },
+      {
+        "id": "cheapest-time",
+        "criterion": "time_complexity",
+        "skill": "java.loops",
+        "prompt": "cheapest compares k strategies on a cart of n lines, and each strategy computes its total in one pass over the lines. How does the work grow?",
+        "options": [
+          "O(k)",
+          "O(n)",
+          "O(k × n)",
+          "O(k + n)"
+        ],
+        "answer": 2,
+        "why": "Each of the k strategies does O(n) work to price the cart, so the total is k times n."
+      }
+    ]
+  }
 }

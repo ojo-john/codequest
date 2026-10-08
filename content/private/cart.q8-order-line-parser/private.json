@@ -434,5 +434,52 @@
         "file": "mutants/keeps-quantity-spaces.java"
       }
     ]
+  },
+  "rubric": {
+    "edgeCases": [
+      "max-quantity",
+      "rejects-missing-line",
+      "rejects-empty-line",
+      "rejects-blank-line",
+      "rejects-two-commas",
+      "rejects-empty-sku",
+      "rejects-overlong-sku",
+      "rejects-zero-quantity",
+      "rejects-quantity-over-max",
+      "rejects-plus-sign",
+      "rejects-decimal",
+      "rejects-huge-number",
+      "rejects-missing-quantity"
+    ],
+    "followUps": [
+      {
+        "id": "why-digits-before-parse",
+        "criterion": "explanation",
+        "skill": "java.input-validation",
+        "prompt": "Why check the quantity text against a digits-only rule before calling Integer.parseInt?",
+        "options": [
+          "Integer.parseInt is slow.",
+          "parseInt accepts inputs the rules reject, such as \"+3\" and \"-1\", so the rules must be checked explicitly.",
+          "parseInt can't parse two-digit numbers.",
+          "Java requires a pattern check before parsing."
+        ],
+        "answer": 1,
+        "why": "Integer.parseInt(\"+3\") returns 3 and parseInt(\"-1\") returns -1. Relying on it alone would accept input the order format forbids."
+      },
+      {
+        "id": "why-boundary-tests",
+        "criterion": "explanation",
+        "skill": "java.unit-testing",
+        "prompt": "Why test the quantities 1, 99 and 100 rather than just a typical value like 50?",
+        "options": [
+          "Small numbers run faster.",
+          "Bugs cluster at boundaries: mixing up < and <= only shows at the edges of the valid range.",
+          "JUnit requires three test values.",
+          "50 might overflow an int."
+        ],
+        "answer": 1,
+        "why": "An off-by-one mistake passes every test in the middle of the range. Testing the last valid and first invalid values is what catches it."
+      }
+    ]
   }
 }

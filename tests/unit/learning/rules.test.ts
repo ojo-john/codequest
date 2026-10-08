@@ -56,6 +56,12 @@ describe("evidenceFor", () => {
     expect(evidenceFor("wrong-answer", WITH_TESTING, "independent").map((row) => row.outcome)).toEqual(["fail", "fail"]);
   });
 
+  it("evidenceFor_explanationAndComplexityTags_getNoEvidenceFromPassingCode", () => {
+    const tags = [...TAGS, { skill: "java.streams", dimension: "explanation" as const }, { skill: "java.loops", dimension: "complexity" as const }];
+
+    expect(evidenceFor("succeeded", tags, "independent").map((row) => row.dimension)).toEqual(["implementation"]);
+  });
+
   it("evidenceFor_infrastructureErrorWithTestQuality_producesNoEvidence", () => {
     expect(evidenceFor("infrastructure-error", WITH_TESTING, "independent", { outcome: "pass" })).toEqual([]);
   });

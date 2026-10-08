@@ -2,7 +2,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { loadContent } from "@/lib/content/repository";
 import { syncContent } from "@/lib/content/sync";
-import { SupabaseLearningStore, type GradedAttemptInput } from "@/lib/server/learning-store";
+import { FollowUpsAlreadyAnsweredError, SupabaseLearningStore, type GradedAttemptInput } from "@/lib/server/learning-store";
 import { closeSql, createTestUser, deleteTestUser, serviceClient, sql, type TestUser } from "./support/local-supabase";
 
 const CONTENT = join(import.meta.dirname, "..", "..", "content");
@@ -266,5 +266,73 @@ describe("session completion", () => {
     } finally {
       await deleteTestUser(erin);
     }
+  });
+});
+
+describe("follow-up answers", () => {
+  const RUBRIC = { version: "rubric-v1" as const, criteria: [], assessedWeight: 40, score: 100 };
+
+  async function gradedJob(user: TestUser): Promise<{ jobId: string; attemptId: string }> {
+    const jobId = await newJob(user);
+    await store.updateJob(jobId, { state: "succeeded", result: { mode: "submit", outcome: "succeeded", detail: "d", cases: [] } });
+    const recorded = await store.recordGradedAttempt(attempt(user, jobId, { xp: [], evidence: [], skillStates: [] }));
+    return { jobId, attemptId: recorded.attemptId };
+  }
+
+  function answers(user: TestUser, attemptId: string) {
+    return {
+      userId: user.id,
+      attemptId,
+      answers: [{ followup_id: "why", choice: 1, correct: true }],
+      evidence: [{ skill_id: "java.loops", dimension: "explanation", outcome: "pass", independence: "independent", model_version: "rules-v1" }],
+      skillStates: [{ skill_id: "java.loops", dimension: "explanation", estimate: 0.25, evidence_count: 1, review_due_at: "2026-10-10T00:00:00Z", scheduler_version: "ladder-v1", model_version: "rules-v1" }],
+    };
+  }
+
+  it("recordFollowUpAnswers_secondTime_throwsAndRecordsNothingMore", async () => {
+    const { jobId, attemptId } = await gradedJob(alice);
+    await store.recordFollowUpAnswers(answers(alice, attemptId));
+
+    await expect(store.recordFollowUpAnswers(answers(alice, attemptId))).rejects.toBeInstanceOf(FollowUpsAlreadyAnsweredError);
+
+    const [row] = await sql()`select (select count(*)::int from public.followup_answers where attempt_id = ${attemptId}) as answers,
+      (select count(*)::int from public.mastery_evidence where attempt_id = ${attemptId} and dimension = 'explanation') as evidence`;
+    expect([row, (await store.followUpContext(alice.id, jobId))?.answered.get("why")]).toEqual([{ answers: 1, evidence: 1 }, { choice: 1, correct: true }]);
+  });
+
+  it("recordFollowUpAnswers_someoneElsesAttempt_isRefused", async () => {
+    const { attemptId } = await gradedJob(alice);
+
+    await expect(store.recordFollowUpAnswers(answers(bob, attemptId))).rejects.toBeInstanceOf(FollowUpsAlreadyAnsweredError);
+  });
+
+  it("followUpContext_otherUsersJob_isUndefined", async () => {
+    const { jobId } = await gradedJob(alice);
+
+    expect(await store.followUpContext(bob.id, jobId)).toBeUndefined();
+  });
+
+  it("updateJobRubric_keepsTheRestOfTheResult", async () => {
+    const { jobId } = await gradedJob(alice);
+
+    await store.updateJobRubric(alice.id, jobId, RUBRIC);
+
+    expect((await store.getJob(alice.id, jobId))?.result).toMatchObject({ outcome: "succeeded", rubric: { score: 100 } });
+  });
+
+  it("recordFollowUpAnswers_asSignedInLearner_isDenied", async () => {
+    const { attemptId } = await gradedJob(alice);
+
+    const { error } = await alice.client.rpc("record_followup_answers", { p_user_id: alice.id, p_attempt_id: attemptId, p_answers: [], p_evidence: [], p_skill_states: [] });
+
+    expect(error?.code).toBe("42501");
+  });
+
+  it("followupAnswers_learnerCannotInsertDirectly", async () => {
+    const { attemptId } = await gradedJob(alice);
+
+    const { error } = await alice.client.from("followup_answers").insert({ user_id: alice.id, attempt_id: attemptId, followup_id: "x", choice: 0, correct: true });
+
+    expect(error?.code).toBe("42501");
   });
 });

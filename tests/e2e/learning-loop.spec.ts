@@ -50,6 +50,16 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   await page.getByRole("button", { name: "Submit" }).click();
   await expect(page.getByTestId("results")).toContainText("No new XP", { timeout: 180_000 });
 
+  // The rubric covers what was assessed; follow-up questions add explanation and complexity.
+  await expect(page.getByRole("region", { name: "Rubric" })).toContainText("covers 45% of the rubric so far");
+  await page.getByRole("group", { name: /Why does lineTotalCents use Math.multiplyExact/ }).getByLabel(/silently wraps around/).check();
+  await page.getByRole("group", { name: /how does the work done by subtotalCents grow/ }).getByLabel(/O\(n\): one pass/).check();
+  await page.getByRole("group", { name: /How much extra memory/ }).getByLabel(/O\(n\): a copy/).check();
+  await page.getByRole("button", { name: "Check answers" }).click();
+  await expect(page.getByText("✓ Correct.")).toHaveCount(2);
+  await expect(page.getByText("✗ Not quite.")).toHaveCount(1);
+  await expect(page.getByRole("region", { name: "Rubric" })).toContainText("covers 75% of the rubric so far");
+
   // A passing submission offers the reflection card; notes save as you type.
   await page.getByLabel("What in the requirements told you what to do?").fill("The word exact: use multiplyExact.");
   await page.getByRole("button", { name: "Save reflection" }).click();
@@ -77,5 +87,7 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   await expect(page.getByText("Pick up where you left off")).toHaveCount(0);
   await expect(page.getByTestId("xp-total")).toHaveText("30");
   await page.goto("/progress");
-  await expect(page.getByRole("cell", { name: "Loops" })).toBeVisible(FIRST_LOAD);
+  // Code evidence (implementation) and answer evidence (complexity) are tracked separately.
+  await expect(page.getByRole("row", { name: /^Loops implementation/ })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("row", { name: /^Loops complexity/ })).toBeVisible();
 });

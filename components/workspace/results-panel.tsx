@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui";
+import { useState } from "react";
+import type { RubricResult } from "@/lib/grading/rubric";
+import { FollowUpCard, type FollowUpView } from "./follow-up-card";
 import { LearnerTestResults, TestQualityResults, type LearnerTestsView, type TestQualityView } from "./learner-test-results";
+import { RubricPanel } from "./rubric-panel";
 
 export interface CaseView {
   readonly id: string;
@@ -21,6 +25,8 @@ export interface ExecutionView {
   readonly totalMs?: number;
   readonly learnerTests?: LearnerTestsView;
   readonly testQuality?: TestQualityView;
+  readonly rubric?: RubricResult;
+  readonly followUps?: readonly FollowUpView[];
 }
 
 export interface SubmissionExtras {
@@ -59,7 +65,15 @@ export function xpMessage(outcome: string, awardedXp: number): string | undefine
   return undefined;
 }
 
-export function ResultsPanel({ result, extras, sessionHref }: { result: ExecutionView; extras?: SubmissionExtras; sessionHref?: string }) {
+/** Questions still waiting for answers (a reload after answering shows only the rubric). */
+export function pendingFollowUps(result: Pick<ExecutionView, "rubric" | "followUps">): readonly FollowUpView[] {
+  const unanswered = result.rubric?.criteria.some((entry) => !entry.assessed && entry.reason === "unanswered") ?? false;
+  return unanswered ? (result.followUps ?? []) : [];
+}
+
+export function ResultsPanel({ result, extras, sessionHref, jobId }: { result: ExecutionView; extras?: SubmissionExtras; sessionHref?: string; jobId?: string }) {
+  const [rubric, setRubric] = useState<RubricResult | undefined>(result.rubric);
+  const [questions] = useState(() => pendingFollowUps(result));
   const headline = HEADLINES[result.outcome] ?? { tone: "info" as const, icon: "?", text: result.outcome };
   const visible = result.cases?.filter((testCase) => testCase.visible) ?? [];
   const hidden = result.cases?.filter((testCase) => !testCase.visible) ?? [];
@@ -117,6 +131,8 @@ export function ResultsPanel({ result, extras, sessionHref }: { result: Executio
         </div>
       )}
 
+      {rubric && <RubricPanel rubric={rubric} />}
+      {jobId && questions.length > 0 && <FollowUpCard jobId={jobId} questions={questions} onRubric={setRubric} />}
       {result.learnerTests && <LearnerTestResults view={result.learnerTests} />}
       {result.testQuality && <TestQualityResults view={result.testQuality} />}
 

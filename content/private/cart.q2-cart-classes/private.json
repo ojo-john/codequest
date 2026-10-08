@@ -485,7 +485,7 @@
   "hints": [
     {
       "tier": "direction",
-      "text": "Start with CartItem.lineTotalCents \u2014 it's one line that calls a method you already have."
+      "text": "Start with CartItem.lineTotalCents — it's one line that calls a method you already have."
     },
     {
       "tier": "pattern",
@@ -493,12 +493,64 @@
     },
     {
       "tier": "key_insight",
-      "text": "Because CartItem is immutable you never change a line in place \u2014 you put a new CartItem under the same SKU key, which also keeps the line in its original position in a LinkedHashMap."
+      "text": "Because CartItem is immutable you never change a line in place — you put a new CartItem under the same SKU key, which also keeps the line in its original position in a LinkedHashMap."
     },
     {
       "tier": "pseudocode",
       "text": "add: existing = map.get(sku); qty = existing == null ? quantity : existing.quantity() + quantity; map.put(sku, new CartItem(product, qty)). subtotal: loop over map.values() adding lineTotalCents(). items: new ArrayList<>(map.values())."
     }
   ],
-  "referenceDir": "reference"
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "empty-cart",
+      "same-sku-merges",
+      "missing-sku-has-zero",
+      "items-in-order-added"
+    ],
+    "followUps": [
+      {
+        "id": "why-linked-hash-map",
+        "criterion": "explanation",
+        "skill": "java.collections",
+        "prompt": "Why does ShoppingCart keep its lines in a LinkedHashMap keyed by SKU rather than in a List?",
+        "options": [
+          "A map always uses less memory than a list.",
+          "A SKU can be found (and merged) by a direct key lookup, and LinkedHashMap still remembers the order lines were first added.",
+          "A List can't hold CartItem objects.",
+          "HashMap sorts SKUs alphabetically, which the cart needs."
+        ],
+        "answer": 1,
+        "why": "Keying by SKU makes 'is this product already in the cart?' a single lookup, so adding the same product merges lines. A plain HashMap would lose the insertion order that items() promises; LinkedHashMap keeps it."
+      },
+      {
+        "id": "quantity-of-time",
+        "criterion": "time_complexity",
+        "skill": "java.collections",
+        "prompt": "What is the typical cost of quantityOf(sku) when lines are stored in the map?",
+        "options": [
+          "O(1) on average: one hash lookup.",
+          "O(n): it scans every line.",
+          "O(log n): it binary-searches the SKUs.",
+          "O(n log n): it sorts first."
+        ],
+        "answer": 0,
+        "why": "A hash map finds a key in constant time on average, however many lines the cart has. Scanning a List would be O(n)."
+      },
+      {
+        "id": "why-reuse-checkout",
+        "criterion": "explanation",
+        "skill": "java.classes",
+        "prompt": "Why does CartItem.lineTotalCents call Checkout.lineTotalCents instead of multiplying price × quantity itself?",
+        "options": [
+          "CartItem can't multiply numbers.",
+          "So one tested implementation, including its validation and overflow check, is the single place the rule lives.",
+          "Java requires static methods to be reused.",
+          "It makes the calculation faster."
+        ],
+        "answer": 1,
+        "why": "Duplicated rules drift apart. Reusing the method means a fix or a new check (like overflow detection) applies everywhere at once."
+      }
+    ]
+  }
 }
