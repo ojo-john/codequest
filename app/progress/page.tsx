@@ -30,17 +30,17 @@ export default async function ProgressPage() {
         <Card>
           <dl className="flex flex-wrap gap-8 text-sm">
             <div>
-              <dt className="text-neutral-500">XP</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">XP</dt>
               <dd className="text-lg font-semibold">{progress.xp}</dd>
             </div>
             <div>
-              <dt className="text-neutral-500">Quests completed</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Quests completed</dt>
               <dd className="text-lg font-semibold">
                 {progress.campaign.filter((quest) => quest.completed).length} / {progress.campaign.length}
               </dd>
             </div>
             <div>
-              <dt className="text-neutral-500">Skills with evidence</dt>
+              <dt className="text-neutral-500 dark:text-neutral-400">Skills with evidence</dt>
               <dd className="text-lg font-semibold">{progress.skills.length}</dd>
             </div>
           </dl>
@@ -75,7 +75,7 @@ export default async function ProgressPage() {
                         <td className="py-2 pr-4">{Math.round(skill.estimate * 100)}%</td>
                         <td className="py-2 pr-4">
                           {skill.evidenceCount}
-                          {skill.evidenceCount < MIN_EVIDENCE_FOR_MASTERY && <span className="text-neutral-500"> (not enough yet)</span>}
+                          {skill.evidenceCount < MIN_EVIDENCE_FOR_MASTERY && <span className="text-neutral-500 dark:text-neutral-400"> (not enough yet)</span>}
                         </td>
                         <td className="py-2">{due <= now ? <Badge tone="warning">due now</Badge> : dateFormat.format(due)}</td>
                       </tr>

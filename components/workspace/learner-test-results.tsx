@@ -1,5 +1,7 @@
 "use client";
 
+import { OutputBlock } from "@/components/ui";
+
 /** Results of the learner's own tests (Run) and of grading them against planted bugs (Submit). */
 
 export interface LearnerTestsView {
@@ -47,7 +49,7 @@ export function LearnerTestResults({ view }: { view: LearnerTestsView }) {
       {view.output && (
         <details className="mt-1">
           <summary className="cursor-pointer text-neutral-600 dark:text-neutral-400">Test output</summary>
-          <pre className="mt-1 max-h-64 overflow-auto rounded-md bg-neutral-100 p-3 font-mono text-xs dark:bg-neutral-800">{view.output}</pre>
+          <OutputBlock label="Test output" className="mt-1 max-h-64">{view.output}</OutputBlock>
         </details>
       )}
     </section>

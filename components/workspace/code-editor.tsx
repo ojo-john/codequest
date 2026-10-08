@@ -45,7 +45,7 @@ export function CodeEditor({ path, value, fontSize, onChange, onRun, onSubmit }:
       theme={dark ? "vs-dark" : "light"}
       onChange={(next) => onChange(next ?? "")}
       onMount={handleMount}
-      loading={<p className="p-4 text-sm text-neutral-500">Loading editor…</p>}
+      loading={<p className="p-4 text-sm text-neutral-500 dark:text-neutral-400">Loading editor…</p>}
       options={{
         fontSize,
         minimap: { enabled: false },

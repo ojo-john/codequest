@@ -19,10 +19,11 @@ export function Markdown({ children }: { children: string }) {
             ) : (
               <code className="rounded bg-neutral-100 px-1 py-0.5 font-mono text-[13px] dark:bg-neutral-800" {...props} />
             ),
-          pre: (props) => <pre className="overflow-x-auto" {...props} />,
+          // Focusable so keyboard users can scroll wide code (axe scrollable-region-focusable).
+          pre: (props) => <pre tabIndex={0} className="overflow-x-auto" {...props} />,
           blockquote: (props) => <blockquote className="border-l-4 border-indigo-300 pl-3 text-neutral-700 dark:border-indigo-700 dark:text-neutral-300" {...props} />,
           table: (props) => (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Table">
               <table className="w-full border-collapse text-sm" {...props} />
             </div>
           ),
