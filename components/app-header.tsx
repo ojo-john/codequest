@@ -11,6 +11,9 @@ export function AppHeader({ email, wide = false }: { email: string | undefined; 
         <Link href="/" className="text-sm text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
           Home
         </Link>
+        <Link href="/practice" className="text-sm text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
+          Practice
+        </Link>
         <Link href="/progress" className="text-sm text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
           Progress
         </Link>

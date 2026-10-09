@@ -16,7 +16,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 7 | Big-O world | P2 | question types | Assumptions stated per item | Not started |
 | 8 | Data structures | P2 | content | Per-structure checklist complete | Not started |
 | 9 | Algorithms & patterns | P2 | content | Per-pattern minimums (§71) | Not started |
-| 10 | Pattern Hunter | P2 | recognition items | Tags hidden in assessment mode | Not started |
+| 10 | Pattern Hunter | P2 | recognition items | Tags hidden in assessment mode | **In progress** — pattern-recognition item type graded optimal/valid/incorrect, skill tags kept server-side; mixed mode and typed reasoning in 2.5/2.6 |
 | 11 | Template memory | P2 | blank editor | No snippets; graded on execution | Not started |
 | 12 | Monaco editor | P1 | `components/workspace/*` | Run/submit/tests/reset-with-warning; AI off | **In progress** — multi-file Monaco (self-hosted assets), Run/Submit + shortcuts, confirmed reset, font size; custom tests (learner JUnit files, run alongside samples); Vim mode pending |
 | 13 | Secure Java execution | P0→P1 | `lib/execution`, `runner/` | Proof + smoke suites pass on Vercel | **In progress** — gate passed on Docker + Vercel incl. capability drop and contract grading ([evidence](evidence/)); run/submit UI is P1 |
@@ -24,7 +24,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 15 | Hints (superseded by §70 for XP) | P1 | `hint_requests`, `/api/v1/quests/:id/hints` | Hint level recorded; no XP deduction | **Done (server)** — curated tiers served one at a time, recorded server-side, change independence only |
 | 16 | Socratic AI tutor | P4 | optional | Server-side reveal policy | Not started |
 | 17 | Debug Dungeon | P2 | content | Diagnosis + minimal fix + failing test | Not started |
-| 18 | Code reading mode | P2 | question types | Predict-output items graded deterministically | Not started |
+| 18 | Code reading mode | P2 | question types | Predict-output items graded deterministically | **In progress** — predict-output items graded deterministically, canonical outputs proven by execution in the content gate; more reading items with 2.3 content |
 | 19 | Edge-case trainer | P2 | test-authoring UI | Learner tests executed | **In progress** — learners add JUnit test files (＋ Test file); Run shows their results; Submit grades them against the reference and planted-bug variants (quest 8: 6 mutants, all caught by reference tests in the content gate); testing-dimension evidence + XP from test quality. Checklist/selection mode P2 |
 | 20 | Solution comparison | P2 | content | Claims account for copying/sorting impl | Not started |
 | 21 | Mastery states per dimension | P1 | `mastery_evidence`, `user_skill_state` | Dimensions tracked separately | **In progress** — rules-v1 estimates per skill × dimension, insufficient evidence never "mastered" |
@@ -45,7 +45,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 40 | Dashboard | P2 | progress page | Sample sizes shown | Not started |
 | 41 | Readiness ≠ XP | P2 | readiness model | Easy grinding can't inflate readiness | Not started |
 | 42 | Knowledge-graph data model | P0→P1 | migrations | Attempts reference immutable versions | **In progress** — schema + immutability triggers tested locally |
-| 43 | Question types | P1→P2 | grading per type | Accessible interaction per type | **In progress** — multiple-choice follow-ups (radio groups with legends, keyboard-usable) graded deterministically; other types P2 |
+| 43 | Question types | P1→P2 | grading per type | Accessible interaction per type | **In progress** — exercise engine: single/multi choice, true/false, predict output (answers verified by running the code in the gate), Big-O, pattern recognition (optimal/valid/incorrect), order steps (button-reorderable), fill-in-the-blank, plus follow-up multiple choice; each with a pure grader, malformed answers rejected (400), accessible inputs (axe-clean). Short answer/explanation/design types need review: P4 |
 | 44 | Content accuracy | P1 | content gate | Every example compiles on pinned JDK | **In progress** — `content:check` runs every reference and starter in the real runner (CI + Vercel); 9 quests |
 | 45 | Content versioning | P0→P1 | `content_versions.status` | Scored versions never mutated | **In progress** — published versions immutable (trigger, tested); truthful review date enforced |
 | 46 | Answer validation | P1 | `lib/grading` | AI cannot override failing tests | **Done (no AI yet)** — objective answers and executable tests graded deterministically; explanation/complexity evidence only from answers, never from code passing; no AI path exists to override tests. Disputes: n/a until subjective feedback (P4) |
