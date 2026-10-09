@@ -1,0 +1,77 @@
+{
+  "kind": "exercise-set",
+  "id": "complexity.recursion-and-space",
+  "version": 1,
+  "title": "Recursion and space",
+  "summary": "Call trees, the call stack, output size and amortized growth.",
+  "world": {
+    "id": "world.complexity-caverns",
+    "order": 2
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "count-up",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    static void count(int n) {\n        if (n == 0) {\n            return;\n        }\n        count(n - 1);\n        System.out.print(n + \" \");\n    }\n\n    public static void main(String[] args) {\n        count(3);\n        System.out.println();\n    }\n}\n"
+    },
+    {
+      "id": "naive-fibonacci",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this method in terms of n?",
+      "code": "static long fib(int n) {\n    if (n < 2) {\n        return n;\n    }\n    return fib(n - 1) + fib(n - 2);\n}",
+      "ask": "time"
+    },
+    {
+      "id": "recursive-sum-space",
+      "type": "big_o",
+      "prompt": "What is the auxiliary space complexity of this method for an array of length n (count the call stack)?",
+      "code": "static int sum(int[] a, int i) {\n    if (i == a.length) {\n        return 0;\n    }\n    return a[i] + sum(a, i + 1);\n}",
+      "ask": "space"
+    },
+    {
+      "id": "binary-search-space",
+      "type": "big_o",
+      "prompt": "What is the auxiliary space complexity of this recursive binary search (count the call stack)?",
+      "code": "static int find(int[] a, int target, int lo, int hi) {\n    if (lo > hi) {\n        return -1;\n    }\n    int mid = lo + (hi - lo) / 2;\n    if (a[mid] == target) {\n        return mid;\n    }\n    return a[mid] < target ? find(a, target, mid + 1, hi) : find(a, target, lo, mid - 1);\n}",
+      "ask": "space"
+    },
+    {
+      "id": "merge-sort",
+      "type": "big_o",
+      "prompt": "Merge sort splits the array in half, sorts each half recursively and merges them in linear time. What is its time complexity?",
+      "ask": "time"
+    },
+    {
+      "id": "all-subsets",
+      "type": "single_choice",
+      "prompt": "Why can no algorithm list every subset of n items faster than exponential time?",
+      "options": [
+        "There are 2ⁿ subsets, and just writing them all out takes at least that long",
+        "Because recursion is always exponential",
+        "Because subsets must be sorted first",
+        "It can: hashing makes it O(n)"
+      ]
+    },
+    {
+      "id": "amortized-append",
+      "type": "big_o",
+      "prompt": "What is the total time to add n items one at a time to an initially empty ArrayList?",
+      "ask": "time"
+    },
+    {
+      "id": "aux-copy",
+      "type": "true_false",
+      "prompt": "True or false: a method that copies its input array into a new array of size n uses O(n) auxiliary space, even if it then finishes in constant time."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

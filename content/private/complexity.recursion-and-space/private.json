@@ -1,0 +1,60 @@
+{
+  "answers": {
+    "count-up": {
+      "type": "predict_output",
+      "answer": "1 2 3",
+      "why": "Each call recurses first and prints afterwards, so the deepest call (n = 1) prints first as the calls unwind.",
+      "skill": "bigo.recursion",
+      "dimension": "concept"
+    },
+    "naive-fibonacci": {
+      "type": "big_o",
+      "answer": "O(2^n)",
+      "why": "Each call makes two more, so the call tree roughly doubles at every level, n levels deep: exponential. (It's more precisely about 1.618ⁿ, which is still exponential.) Memoisation brings it down to O(n).",
+      "skill": "bigo.recursion",
+      "dimension": "complexity"
+    },
+    "recursive-sum-space": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "The method uses no extra arrays, but the recursion goes n calls deep before any call returns, and each frame lives on the call stack at once.",
+      "skill": "bigo.space",
+      "dimension": "complexity"
+    },
+    "binary-search-space": {
+      "type": "big_o",
+      "answer": "O(log n)",
+      "why": "Each call halves the range, so the recursion is at most about log₂ n calls deep. An iterative version needs only O(1).",
+      "skill": "bigo.space",
+      "dimension": "complexity"
+    },
+    "merge-sort": {
+      "type": "big_o",
+      "answer": "O(n log n)",
+      "why": "There are about log₂ n levels of halving, and the merges on each level touch all n elements once.",
+      "skill": "bigo.recursion",
+      "dimension": "complexity"
+    },
+    "all-subsets": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "This is an output-sensitive bound: the output itself has 2ⁿ entries (and up to n items each), so producing it costs at least that much, however clever the algorithm.",
+      "skill": "bigo.recursion",
+      "dimension": "explanation"
+    },
+    "amortized-append": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "Most adds are O(1). When the backing array is full it grows by a constant factor and copies everything, but those copies add up to less than a constant times n overall, so each add is O(1) amortized.",
+      "skill": "bigo.space",
+      "dimension": "complexity"
+    },
+    "aux-copy": {
+      "type": "true_false",
+      "answer": true,
+      "why": "Auxiliary space counts extra memory the algorithm allocates beyond its input. A full copy is n extra slots, whatever the running time.",
+      "skill": "bigo.space",
+      "dimension": "concept"
+    }
+  }
+}

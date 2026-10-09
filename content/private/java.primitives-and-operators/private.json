@@ -1,0 +1,64 @@
+{
+  "answers": {
+    "division-and-remainder": {
+      "type": "predict_output",
+      "answer": "3\n3.5\n1\n-1",
+      "why": "int / int is integer division and drops the fraction; one double operand makes it floating-point. In Java the remainder takes the sign of the left operand, so -7 % 3 is -1, not 2.",
+      "skill": "java.primitives",
+      "dimension": "concept"
+    },
+    "overflow": {
+      "type": "predict_output",
+      "answer": "-2147483648\n2147483648",
+      "why": "big + 1 is int arithmetic and wraps around to Integer.MIN_VALUE without any error. Adding 1L makes the whole expression long, which has room for the result.",
+      "skill": "java.integer-arithmetic",
+      "dimension": "concept"
+    },
+    "cast-truncates": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Casting a double to int truncates toward zero: the fraction is simply dropped, so -3.99 becomes -3 (not -4, which rounding down would give). Use Math.floor or Math.round when you mean those.",
+      "skill": "java.primitives",
+      "dimension": "concept"
+    },
+    "char-arithmetic": {
+      "type": "predict_output",
+      "answer": "C\n67",
+      "why": "char is a 16-bit number. c += 2 stores the result back as a char ('C'), but 'A' + 2 on its own is int arithmetic, so println gets the int 67.",
+      "skill": "java.primitives",
+      "dimension": "concept"
+    },
+    "integer-equality": {
+      "type": "single_choice",
+      "answer": 1,
+      "why": "== on objects compares references. It happens to work for small values (-128 to 127 are cached) and then fails for larger ones, which makes it a nasty bug. equals compares the values.",
+      "skill": "java.primitives",
+      "dimension": "concept"
+    },
+    "safe-midpoint": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "lo"
+        ]
+      ],
+      "why": "(lo + hi) / 2 can overflow when the sum passes Integer.MAX_VALUE. lo + (hi - lo) / 2 never computes anything larger than hi.",
+      "skill": "java.integer-arithmetic",
+      "dimension": "implementation"
+    },
+    "floating-point": {
+      "type": "predict_output",
+      "answer": "false\ntrue",
+      "why": "0.1, 0.2 and 0.3 have no exact binary representation, so the sum is 0.30000000000000004. Compare doubles within a tolerance, and keep money in integer cents.",
+      "skill": "java.primitives",
+      "dimension": "concept"
+    },
+    "char-unsigned": {
+      "type": "true_false",
+      "answer": true,
+      "why": "'A' is 65; adding an int promotes the char to int, giving 66. Cast back with (char) to get 'B'.",
+      "skill": "java.primitives",
+      "dimension": "concept"
+    }
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "answers": {
+    "two-sizes-sequential": {
+      "type": "big_o",
+      "answer": "O(n + m)",
+      "why": "Two loops one after the other add their costs. n and m are independent input sizes, so neither can be dropped.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "two-sizes-nested": {
+      "type": "big_o",
+      "answer": "O(n * m)",
+      "why": "The inner loop runs m times for each of the n outer iterations. Calling it O(n²) would wrongly assume m = n.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "halving": {
+      "type": "big_o",
+      "answer": "O(log n)",
+      "why": "Each step halves n, so it reaches 1 after about log₂ n steps.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "pointer-never-resets": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "It looks nested, but j only ever moves forward and never resets, so the while loop runs at most n times in total across all outer iterations: O(n) + O(n). This is the shape of two-pointer and sliding-window code.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "doubling-outer": {
+      "type": "big_o",
+      "answer": "O(n log n)",
+      "why": "The outer loop runs about log₂ n times (i doubles), and each pass does n inner iterations.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "harmonic": {
+      "type": "big_o",
+      "answer": "O(n log n)",
+      "why": "For each i the inner loop runs about n / i times. n/1 + n/2 + … + n/n = n × (1 + 1/2 + … + 1/n), and that harmonic sum grows like log n.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "constant-inner": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "The inner loop always runs 1000 times regardless of n: a constant factor, which Big-O ignores.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "why-drop-constants": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "n(n − 1)/2 = n²/2 − n/2. The n²/2 term dominates as n grows, and the factor 1/2 doesn't change how it grows.",
+      "skill": "bigo.loops",
+      "dimension": "explanation"
+    },
+    "faster-always": {
+      "type": "true_false",
+      "answer": false,
+      "why": "Big-O describes growth, not actual speed. A could have a huge constant factor, and B can be faster for small n. A wins once n is large enough.",
+      "skill": "bigo.loops",
+      "dimension": "explanation"
+    }
+  }
+}

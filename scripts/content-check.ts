@@ -120,7 +120,8 @@ async function main(): Promise<void> {
       if (quality !== undefined) issues.push({ item, message: quality });
     }
     for (const set of content.exerciseSets) {
-      const problem = await checkPredictOutputs(executor, set);
+      // Gate-only programs: the long lifetime keeps slow (emulated) hosts from timing out.
+      const problem = await checkPredictOutputs(gateExecutor, set);
       if (problem !== undefined) issues.push({ item: set.manifest.id, message: problem });
     }
   }

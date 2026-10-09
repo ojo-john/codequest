@@ -69,7 +69,7 @@ describe("exercise sets", () => {
   it("listVisibleSets_afterOptIn_listsTheSetWithoutAnswers", async () => {
     const sets = await store.listVisibleSets(alice.id);
 
-    expect([sets.map((set) => set.contentId), JSON.stringify(sets).includes("why")]).toEqual([[SET], false]);
+    expect([sets.map((set) => set.contentId).includes(SET), JSON.stringify(sets).includes("\"why\"")]).toEqual([true, false]);
   });
 
   it("listVisibleQuests_neverIncludesExerciseSets", async () => {

@@ -1,0 +1,57 @@
+{
+  "answers": {
+    "immutable": {
+      "type": "predict_output",
+      "answer": "hello\nHELLO",
+      "why": "Strings are immutable: toUpperCase returns a new String and leaves s unchanged. The first call's result is thrown away; the second is assigned back to s.",
+      "skill": "java.strings",
+      "dimension": "concept"
+    },
+    "slicing": {
+      "type": "predict_output",
+      "answer": "ter\n3\nw",
+      "why": "substring(2, 5) takes indices 2, 3 and 4 (the end index is exclusive): t, e, r. indexOf returns the first match, at index 3. The last character is at length() - 1.",
+      "skill": "java.strings",
+      "dimension": "concept"
+    },
+    "split-empty": {
+      "type": "predict_output",
+      "answer": "4\na|b||c",
+      "why": "split keeps empty strings between separators (the one between the two commas) and only drops trailing empty strings.",
+      "skill": "java.strings",
+      "dimension": "concept"
+    },
+    "equals-vs-identity": {
+      "type": "true_false",
+      "answer": true,
+      "why": "That's exactly the difference. Two Strings built separately can have equal characters but be different objects, so always compare String contents with equals.",
+      "skill": "java.strings",
+      "dimension": "concept"
+    },
+    "concat-loop": {
+      "type": "big_o",
+      "answer": "O(n^2)",
+      "why": "Each += creates a new String and copies everything built so far: 1 + 2 + … + n characters in total, which is quadratic. StringBuilder appends in amortized constant time, making the loop O(n).",
+      "skill": "java.strings",
+      "dimension": "complexity"
+    },
+    "reverse": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "reverse"
+        ]
+      ],
+      "why": "StringBuilder.reverse() reverses the builder's characters in place and returns the builder, so toString() gives the reversed text.",
+      "skill": "java.strings",
+      "dimension": "implementation"
+    },
+    "builder-why": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Every += allocates a new String and copies the old contents. StringBuilder keeps one buffer that grows occasionally. (It's StringBuffer that's synchronized, and nobody needs that here.)",
+      "skill": "java.strings",
+      "dimension": "explanation"
+    }
+  }
+}

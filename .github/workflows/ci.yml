@@ -42,13 +42,28 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # Docker Hub rate-limits anonymous pulls from shared runners: pull through Google's public
+      # mirror instead (images are pinned by digest, so the content is identical). Runs first,
+      # because restarting Docker later would stop the local Supabase containers.
+      - name: Use a Docker Hub pull-through mirror
+        run: |
+          echo '{"registry-mirrors": ["https://mirror.gcr.io"]}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
       - run: npm run db:start
       - run: npm run db:lint
       - run: npm run test:integration
       - run: npm run db:verify-backup
       - run: npm run db:env
       # Browser tests run real Java through the local Docker runner.
-      - run: npm run runner:docker-build
+      # Retry transient registry failures with backoff.
+      - name: Build the runner image
+        run: |
+          for attempt in 1 2 3; do
+            npm run runner:docker-build && exit 0
+            echo "runner image build failed (attempt $attempt); retrying in $((attempt * 30)) s"
+            sleep $((attempt * 30))
+          done
+          exit 1
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - name: Upload browser-test traces on failure
@@ -70,8 +85,23 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # Docker Hub rate-limits anonymous pulls from shared runners: pull through Google's public
+      # mirror instead (images are pinned by digest, so the content is identical). Runs first,
+      # because restarting Docker later would stop the local Supabase containers.
+      - name: Use a Docker Hub pull-through mirror
+        run: |
+          echo '{"registry-mirrors": ["https://mirror.gcr.io"]}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
       # Builds from checksum-verified artifacts and runs the contract runner's JUnit tests.
-      - run: npm run runner:docker-build
+      # Retry transient registry failures with backoff.
+      - name: Build the runner image
+        run: |
+          for attempt in 1 2 3; do
+            npm run runner:docker-build && exit 0
+            echo "runner image build failed (attempt $attempt); retrying in $((attempt * 30)) s"
+            sleep $((attempt * 30))
+          done
+          exit 1
       - run: npm run runner:local
       # Every reference solution passes its contract; every starter compiles but doesn't pass.
       - run: npm run content:check

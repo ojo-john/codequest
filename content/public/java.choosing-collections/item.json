@@ -1,0 +1,78 @@
+{
+  "kind": "exercise-set",
+  "id": "java.choosing-collections",
+  "version": 1,
+  "title": "Choosing collections",
+  "summary": "Pick the right List, Set, Map or Deque for the job, and avoid the classic collection gotchas.",
+  "world": {
+    "id": "world.java-awakening",
+    "order": 5
+  },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "recent-searches",
+      "type": "pattern",
+      "prompt": "Keep the 5 most recent searches: add each new one at the end and drop the oldest from the front. Which structure fits best?",
+      "options": [
+        "ArrayDeque",
+        "LinkedList",
+        "ArrayList with remove(0)",
+        "HashMap from position to search"
+      ]
+    },
+    {
+      "id": "lookup-by-sku",
+      "type": "pattern",
+      "prompt": "A shop looks up products by SKU thousands of times per second and never needs them in order. Which structure?",
+      "options": [
+        "HashMap<String, Product>",
+        "TreeMap<String, Product>",
+        "ArrayList<Product>, scanning for the SKU",
+        "LinkedList<Product>"
+      ]
+    },
+    {
+      "id": "remove-overloads",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Main {\n    public static void main(String[] args) {\n        List<Integer> nums = new ArrayList<>(List.of(5, 3, 8));\n        nums.remove(Integer.valueOf(3));\n        nums.remove(0);\n        System.out.println(nums);\n    }\n}\n"
+    },
+    {
+      "id": "map-orders",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.LinkedHashMap;\nimport java.util.Map;\nimport java.util.TreeMap;\n\npublic class Main {\n    public static void main(String[] args) {\n        Map<String, Integer> linked = new LinkedHashMap<>();\n        linked.put(\"pear\", 1);\n        linked.put(\"apple\", 2);\n        linked.put(\"fig\", 3);\n        Map<String, Integer> sorted = new TreeMap<>(linked);\n        System.out.println(linked.keySet());\n        System.out.println(sorted.keySet());\n    }\n}\n"
+    },
+    {
+      "id": "remove-while-iterating",
+      "type": "single_choice",
+      "prompt": "What usually happens if you call list.remove(item) inside a for-each loop over that same ArrayList?",
+      "options": [
+        "A ConcurrentModificationException on the next iteration",
+        "The removed item is skipped and everything works",
+        "The loop silently restarts from the beginning",
+        "It doesn't compile"
+      ]
+    },
+    {
+      "id": "remove-if",
+      "type": "fill_blank",
+      "prompt": "Complete the line so every blank name is removed from the list.",
+      "code": "names.____(name -> name.isBlank());"
+    },
+    {
+      "id": "contains-cost",
+      "type": "true_false",
+      "prompt": "True or false: list.contains(x) on an ArrayList with n items takes O(1) time."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

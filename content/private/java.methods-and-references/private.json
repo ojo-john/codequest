@@ -1,0 +1,51 @@
+{
+  "answers": {
+    "pass-by-value": {
+      "type": "predict_output",
+      "answer": "1 2",
+      "why": "Java passes copies. bump(int) changes its own copy of a. bump(int[]) gets a copy of the reference, which still points at the same array, so the change shows. replace only points its own copy somewhere else, so the caller's array is untouched.",
+      "skill": "java.methods",
+      "dimension": "concept"
+    },
+    "how-java-passes": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Everything is passed by value. For an object, the value is a reference, so the method can change the object it points to but can't make the caller's variable point at a different object.",
+      "skill": "java.methods",
+      "dimension": "concept"
+    },
+    "overload-static-type": {
+      "type": "predict_output",
+      "answer": "object\nstring",
+      "why": "Overloads are chosen at compile time from the declared (static) type of the argument. o is declared Object, so describe(Object) is chosen even though it holds a String. (Overriding, by contrast, is decided at run time.)",
+      "skill": "java.methods",
+      "dimension": "concept"
+    },
+    "builder-through-method": {
+      "type": "predict_output",
+      "answer": "hi!",
+      "why": "add changes the object both references point at. swap only reassigns its own parameter, which the caller never sees.",
+      "skill": "java.methods",
+      "dimension": "concept"
+    },
+    "loop-scope": {
+      "type": "true_false",
+      "answer": false,
+      "why": "A local variable's scope ends at the closing brace of the block that declares it. Declare it before the loop if you need it afterwards.",
+      "skill": "java.methods",
+      "dimension": "concept"
+    },
+    "return-early": {
+      "type": "order",
+      "answer": [
+        3,
+        1,
+        2,
+        0
+      ],
+      "why": "Parameters first; then the loop; the check returns as soon as it finds the target; -1 is returned only after every index has been checked.",
+      "skill": "java.methods",
+      "dimension": "implementation"
+    }
+  }
+}
