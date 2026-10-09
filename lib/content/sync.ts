@@ -82,7 +82,16 @@ interface SyncProgress {
 
 function exerciseSetPayload(set: LoadedExerciseSet): ExerciseSetPayload {
   const { manifest } = set;
-  return { kind: "exercise-set", title: manifest.title, summary: manifest.summary, world: manifest.world, estimatedMinutes: manifest.estimatedMinutes, questions: manifest.questions };
+  return {
+    kind: "exercise-set",
+    title: manifest.title,
+    summary: manifest.summary,
+    world: manifest.world,
+    estimatedMinutes: manifest.estimatedMinutes,
+    questions: manifest.questions,
+    // Omitted when absent, so sets without sections keep the payload they were synced with.
+    ...(manifest.sections && { sections: manifest.sections }),
+  };
 }
 
 /** A set is tagged with every (skill, dimension) its questions assess. */

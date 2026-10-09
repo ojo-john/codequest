@@ -1,0 +1,253 @@
+{
+  "kind": "exercise-set",
+  "id": "diagnostic.base-camp",
+  "version": 1,
+  "title": "Base Camp check",
+  "summary": "A short adaptive check across Java, Big-O, data structures and patterns that suggests where to start. It places you; it doesn't grade you.",
+  "world": {
+    "id": "world.base-camp",
+    "order": 1
+  },
+  "estimatedMinutes": 12,
+  "questions": [
+    {
+      "id": "string-equality",
+      "type": "true_false",
+      "prompt": "True or false: in Java, == compares the characters of two Strings."
+    },
+    {
+      "id": "get-or-default",
+      "type": "single_choice",
+      "prompt": "What does map.getOrDefault(key, 0) do when key isn't in the map?",
+      "options": [
+        "Returns 0",
+        "Returns null",
+        "Throws an exception",
+        "Adds key with the value 0 and returns 0"
+      ]
+    },
+    {
+      "id": "int-division",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(5 / 2 + \" \" + 5 % 2);\n    }\n}\n"
+    },
+    {
+      "id": "references",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    static void change(int[] a, int b) {\n        a[0] = 9;\n        b = 9;\n    }\n\n    public static void main(String[] args) {\n        int[] a = {1};\n        int b = 1;\n        change(a, b);\n        System.out.println(a[0] + \" \" + b);\n    }\n}\n"
+    },
+    {
+      "id": "char-loop",
+      "type": "fill_blank",
+      "prompt": "Complete the loop header so it visits every character of s.",
+      "code": "for (char c : s.____()) {"
+    },
+    {
+      "id": "remove-index",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Main {\n    public static void main(String[] args) {\n        List<Integer> xs = new ArrayList<>(List.of(1, 2, 3));\n        xs.remove(1);\n        System.out.println(xs);\n    }\n}\n"
+    },
+    {
+      "id": "dispatch",
+      "type": "single_choice",
+      "prompt": "Dog extends Animal and overrides speak(). After Animal a = new Dog(); which speak() does a.speak() run?",
+      "options": [
+        "Dog's, chosen at run time from the object's actual class",
+        "Animal's, because a is declared as an Animal",
+        "Both, Animal's first",
+        "It doesn't compile without a cast"
+      ]
+    },
+    {
+      "id": "stream-pipeline",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.List;\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(List.of(3, 1, 2).stream().filter(x -> x > 1).map(x -> x * 10).sorted().toList());\n    }\n}\n"
+    },
+    {
+      "id": "single-pass",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this loop?",
+      "code": "long sum = 0;\nfor (int i = 0; i < n; i++) {\n    sum += a[i];\n}",
+      "ask": "time"
+    },
+    {
+      "id": "all-pairs",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this code?",
+      "code": "for (int i = 0; i < n; i++) {\n    for (int j = i + 1; j < n; j++) {\n        if (a[i] == a[j]) {\n            duplicates++;\n        }\n    }\n}",
+      "ask": "time"
+    },
+    {
+      "id": "halving-loop",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this loop?",
+      "code": "for (int i = n; i > 0; i /= 2) {\n    steps++;\n}",
+      "ask": "time"
+    },
+    {
+      "id": "window-loop",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this code for an array of length n?",
+      "code": "int left = 0;\nfor (int right = 0; right < n; right++) {\n    windowSum += a[right];\n    while (windowSum > limit) {\n        windowSum -= a[left];\n        left++;\n    }\n}",
+      "ask": "time"
+    },
+    {
+      "id": "split-recursion",
+      "type": "big_o",
+      "prompt": "What is the time complexity of f(n)?",
+      "code": "static int f(int n) {\n    if (n <= 1) {\n        return 1;\n    }\n    return f(n / 2) + f(n / 2);\n}",
+      "ask": "time"
+    },
+    {
+      "id": "key-lookup",
+      "type": "pattern",
+      "prompt": "You need to find values by key, as fast as possible on average, and don't care about order. Which structure?",
+      "options": [
+        "HashMap",
+        "TreeMap",
+        "A stack",
+        "A queue"
+      ]
+    },
+    {
+      "id": "undo-history",
+      "type": "pattern",
+      "prompt": "An editor's undo button always undoes the most recent action first. Which structure fits the history?",
+      "options": [
+        "A stack (for example ArrayDeque used with push/pop)",
+        "A queue (first in, first out)",
+        "A HashSet",
+        "An ArrayList, adding and removing at the end"
+      ]
+    },
+    {
+      "id": "cheapest-next",
+      "type": "pattern",
+      "prompt": "New orders keep arriving, and the cheapest pending order must always be processed next. Which structure?",
+      "options": [
+        "A priority queue (min-heap)",
+        "A list, sorted again after every new order",
+        "A stack",
+        "A HashMap from order id to order"
+      ]
+    },
+    {
+      "id": "seen-before",
+      "type": "pattern",
+      "prompt": "For each incoming username you must say whether it has been seen before. Which structure?",
+      "options": [
+        "HashSet",
+        "TreeSet",
+        "ArrayList, checking contains",
+        "A single int counter"
+      ]
+    },
+    {
+      "id": "longest-region",
+      "type": "pattern",
+      "prompt": "Find the longest contiguous part of an array whose sum is at most k (all numbers are positive). Which technique would you investigate first?",
+      "options": [
+        "Sliding window: grow on the right, shrink from the left while the sum is too big",
+        "Check every subarray",
+        "Sort the array first",
+        "Binary search on the first element"
+      ]
+    },
+    {
+      "id": "pair-sum",
+      "type": "pattern",
+      "prompt": "Find two numbers in an unsorted array that add up to a target. Which approach?",
+      "options": [
+        "One pass with a hash map from each value to its index, looking up target − x",
+        "Sort, then move two pointers inward",
+        "Check every pair",
+        "Binary search for target − x without sorting"
+      ]
+    },
+    {
+      "id": "sorted-lookup",
+      "type": "pattern",
+      "prompt": "Is the value x present in a sorted array of a million ints? Which approach?",
+      "options": [
+        "Binary search",
+        "Scan from the start",
+        "Sliding window",
+        "Try every subset"
+      ]
+    },
+    {
+      "id": "grid-shortest",
+      "type": "pattern",
+      "prompt": "Find the fewest moves between two cells in a grid with walls, where every move costs the same. Which approach?",
+      "options": [
+        "Breadth-first search",
+        "Depth-first search",
+        "Dijkstra's algorithm",
+        "Always step toward the target"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "java",
+      "name": "Java",
+      "world": "world.java-awakening",
+      "questions": [
+        "string-equality",
+        "get-or-default",
+        "int-division",
+        "references",
+        "char-loop",
+        "remove-index",
+        "dispatch",
+        "stream-pipeline"
+      ]
+    },
+    {
+      "id": "complexity",
+      "name": "Big-O",
+      "world": "world.complexity-caverns",
+      "questions": [
+        "single-pass",
+        "all-pairs",
+        "halving-loop",
+        "window-loop",
+        "split-recursion"
+      ]
+    },
+    {
+      "id": "structures",
+      "name": "Data structures",
+      "world": "world.data-structure-forge",
+      "questions": [
+        "key-lookup",
+        "undo-history",
+        "cheapest-next",
+        "seen-before"
+      ]
+    },
+    {
+      "id": "patterns",
+      "name": "Patterns",
+      "world": "world.pattern-kingdom",
+      "questions": [
+        "longest-region",
+        "pair-sum",
+        "sorted-lookup",
+        "grid-shortest"
+      ]
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

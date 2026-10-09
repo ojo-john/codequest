@@ -76,6 +76,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       ["/practice", "Practice"],
       ["/skills", "Skill tree"],
       ["/skills/patterns.sliding-window", "Sliding window"],
+      ["/base-camp", "Base Camp"],
     ] as const) {
       await page.goto(path);
       await expect(
@@ -83,6 +84,10 @@ for (const colorScheme of ["light", "dark"] as const) {
       ).toBeVisible(FIRST_LOAD);
       await expectNoViolations(page, path);
     }
+
+    await page.goto("/base-camp?run=1");
+    await expect(page.getByText("Java · 0 answered so far")).toBeVisible(FIRST_LOAD);
+    await expectNoViolations(page, "base camp check");
 
     await page.goto("/skills");
     await page.getByText("Show as a graph").click();

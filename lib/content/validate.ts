@@ -68,6 +68,9 @@ export function validateContent(content: LoadedContent, limits: Pick<ExecutionLi
     }
     for (const set of content.exerciseSets) {
       if (!worldIds.has(set.manifest.world.id)) issues.push({ item: set.manifest.id, message: `unknown world ${set.manifest.world.id}` });
+      for (const section of set.manifest.sections ?? []) {
+        if (section.world !== undefined && !worldIds.has(section.world)) issues.push({ item: set.manifest.id, message: `section ${section.id} names unknown world ${section.world}` });
+      }
     }
     const cycle = findStrictCycle(content.skills.skills);
     if (cycle) issues.push({ item: "skills.json", message: `strict prerequisite cycle: ${cycle.join(" -> ")}` });
