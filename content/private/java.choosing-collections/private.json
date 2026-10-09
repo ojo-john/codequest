@@ -1,0 +1,67 @@
+{
+  "answers": {
+    "recent-searches": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "valid",
+        "incorrect"
+      ],
+      "why": "A deque adds and removes at both ends in O(1); ArrayDeque does it without per-node allocations. LinkedList works too. ArrayList.remove(0) shifts every element, O(n), harmless for 5 items but the wrong habit. A map loses the natural ordering.",
+      "skill": "java.collections",
+      "dimension": "recognition"
+    },
+    "lookup-by-sku": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "valid",
+        "valid"
+      ],
+      "why": "HashMap gives O(1) average lookups. TreeMap is O(log n) and only worth it when you need sorted keys. Scanning a list is O(n) per lookup: correct, but far too slow at this volume.",
+      "skill": "java.collections",
+      "dimension": "recognition"
+    },
+    "remove-overloads": {
+      "type": "predict_output",
+      "answer": "[8]",
+      "why": "List<Integer> has two remove methods. remove(Integer.valueOf(3)) removes the value 3, giving [5, 8]. remove(0) removes by index, the element at position 0, leaving [8].",
+      "skill": "java.collections",
+      "dimension": "concept"
+    },
+    "map-orders": {
+      "type": "predict_output",
+      "answer": "[pear, apple, fig]\n[apple, fig, pear]",
+      "why": "LinkedHashMap keeps insertion order; TreeMap keeps its keys sorted. (A plain HashMap promises no order at all.)",
+      "skill": "java.collections",
+      "dimension": "concept"
+    },
+    "remove-while-iterating": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "The for-each loop's iterator notices the list changed behind its back and throws. Use removeIf, or an explicit Iterator and its remove().",
+      "skill": "java.collections",
+      "dimension": "concept"
+    },
+    "remove-if": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "removeIf"
+        ]
+      ],
+      "why": "Collection.removeIf takes a predicate and removes every element it matches, safely and in one pass.",
+      "skill": "java.collections",
+      "dimension": "implementation"
+    },
+    "contains-cost": {
+      "type": "true_false",
+      "answer": false,
+      "why": "ArrayList.contains checks the elements one by one: O(n). Use a HashSet when membership checks are frequent.",
+      "skill": "java.collections",
+      "dimension": "complexity"
+    }
+  }
+}
