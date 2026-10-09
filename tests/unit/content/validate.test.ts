@@ -47,7 +47,7 @@ function content(quests: LoadedQuest[], skillsFile: SkillsFile | undefined = ski
     publicFiles.set(`public/${q.manifest.id}/instructions.md`, q.instructions);
     for (const file of q.starter) publicFiles.set(`public/${q.manifest.id}/starter/${file.path}`, file.content);
   }
-  return { skills: skillsFile, quests, issues: [], publicFiles };
+  return { skills: skillsFile, quests, exerciseSets: [], issues: [], publicFiles };
 }
 
 const messages = (c: LoadedContent) => validateContent(c, LIMITS).map((issue) => issue.message);

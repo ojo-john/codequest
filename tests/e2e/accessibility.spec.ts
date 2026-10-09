@@ -73,6 +73,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       ["/progress", "Progress"],
       ["/data", "Your data"],
       ["/usage", "Usage"],
+      ["/practice", "Practice"],
     ] as const) {
       await page.goto(path);
       await expect(
@@ -80,5 +81,9 @@ for (const colorScheme of ["light", "dark"] as const) {
       ).toBeVisible(FIRST_LOAD);
       await expectNoViolations(page, path);
     }
+
+    await page.getByRole("link", { name: "Maps and counting" }).click();
+    await expect(page.getByText("Question 1 of 9")).toBeVisible(FIRST_LOAD);
+    await expectNoViolations(page, "exercise set");
   });
 }

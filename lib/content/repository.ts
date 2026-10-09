@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { SourceFile } from "@/lib/execution/source-files";
 import type { Mutant } from "@/lib/execution/test-quality";
+import { exerciseSetManifestSchema, exerciseSetPrivateSchema, type ExerciseSetManifest, type ExerciseSetPrivate } from "@/lib/exercises/schema";
 import {
   questManifestSchema,
   questPrivateSchema,
@@ -33,6 +34,11 @@ export interface LoadedTestQuality {
   readonly referenceTests: readonly SourceFile[];
 }
 
+export interface LoadedExerciseSet {
+  readonly manifest: ExerciseSetManifest;
+  readonly privateData: ExerciseSetPrivate;
+}
+
 export interface ContentLoadIssue {
   readonly item: string;
   readonly message: string;
@@ -41,6 +47,7 @@ export interface ContentLoadIssue {
 export interface LoadedContent {
   readonly skills: SkillsFile | undefined;
   readonly quests: readonly LoadedQuest[];
+  readonly exerciseSets: readonly LoadedExerciseSet[];
   readonly issues: readonly ContentLoadIssue[];
   /** Raw text of every public file, for leak detection. */
   readonly publicFiles: ReadonlyMap<string, string>;
@@ -83,16 +90,24 @@ export function loadContent(contentRoot: string): LoadedContent {
   const publicRoot = join(contentRoot, "public");
   const privateRoot = join(contentRoot, "private");
   const quests: LoadedQuest[] = [];
+  const exerciseSets: LoadedExerciseSet[] = [];
   const itemDirs = existsSync(publicRoot) ? readdirSync(publicRoot).filter((name) => statSync(join(publicRoot, name)).isDirectory()).sort() : [];
 
   for (const dir of itemDirs) {
     const itemRoot = join(publicRoot, dir);
     for (const file of readTree(itemRoot)) publicFiles.set(`public/${dir}/${file.path}`, file.content);
     try {
-      const manifest = questManifestSchema.parse(readJson(join(itemRoot, "item.json")));
-      if (manifest.id !== dir) throw new Error(`directory name ${dir} must equal id ${manifest.id}`);
+      const raw = readJson(join(itemRoot, "item.json"));
       const privateDir = join(privateRoot, dir);
       if (!existsSync(join(privateDir, "private.json"))) throw new Error(`missing content/private/${dir}/private.json`);
+      if ((raw as { kind?: unknown }).kind === "exercise-set") {
+        const manifest = exerciseSetManifestSchema.parse(raw);
+        if (manifest.id !== dir) throw new Error(`directory name ${dir} must equal id ${manifest.id}`);
+        exerciseSets.push({ manifest, privateData: exerciseSetPrivateSchema.parse(readJson(join(privateDir, "private.json"))) });
+        continue;
+      }
+      const manifest = questManifestSchema.parse(raw);
+      if (manifest.id !== dir) throw new Error(`directory name ${dir} must equal id ${manifest.id}`);
       const privateData = questPrivateSchema.parse(readJson(join(privateDir, "private.json")));
       quests.push({
         manifest,
@@ -125,5 +140,5 @@ export function loadContent(contentRoot: string): LoadedContent {
     }
   }
 
-  return { skills, quests, issues, publicFiles };
+  return { skills, quests, exerciseSets, issues, publicFiles };
 }

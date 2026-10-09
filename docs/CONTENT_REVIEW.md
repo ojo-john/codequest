@@ -40,6 +40,13 @@ A published version is frozen — payload, skill tags and hidden grading. To cha
 5. Set `"review": { "status": "published", "reviewer": "<your name>", "reviewedAt": "YYYY-MM-DD" }`
    and run `npm run content:sync`.
 
+## Reviewing an exercise set (owner)
+
+Exercise sets (`kind: "exercise-set"`) keep questions in `content/public/<id>/item.json` and
+answers, explanations and skill tags in `content/private/<id>/private.json`. For each question:
+is there exactly one defensible answer, is the `why` right, and are the skill and dimension
+apt? Predict-output answers are checked by running the code (`npm run content:check`).
+
 ## Awaiting review (2026-10-07)
 
 All nine `campaign.shopping-cart` quests (`cart.q1-…` to `cart.q9-…`) are `draft`, written by
