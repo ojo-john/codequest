@@ -74,6 +74,8 @@ for (const colorScheme of ["light", "dark"] as const) {
       ["/data", "Your data"],
       ["/usage", "Usage"],
       ["/practice", "Practice"],
+      ["/skills", "Skill tree"],
+      ["/skills/patterns.sliding-window", "Sliding window"],
     ] as const) {
       await page.goto(path);
       await expect(
@@ -82,6 +84,11 @@ for (const colorScheme of ["light", "dark"] as const) {
       await expectNoViolations(page, path);
     }
 
+    await page.goto("/skills");
+    await page.getByText("Show as a graph").click();
+    await expectNoViolations(page, "skill graph");
+
+    await page.goto("/practice");
     await page.getByRole("link", { name: "Maps and counting" }).click();
     await expect(page.getByText("Question 1 of 9")).toBeVisible(FIRST_LOAD);
     await expectNoViolations(page, "exercise set");

@@ -8,8 +8,11 @@ const LIMITS = { maxSourceFiles: 20, maxTotalSourceBytes: 200 * 1024 };
 const REFERENCE_LINE = "        return Math.multiplyExact(unitPriceCents, quantity);";
 
 function skills(overrides: Partial<Record<string, Array<{ skill: string; kind: "strict" | "recommended" }>>> = {}): SkillsFile {
-  const make = (id: string) => ({ id, category: "java", name: id, definition: "A definition long enough.", difficulty: 1, prerequisites: overrides[id] ?? [] });
-  return { skills: [make("java.a"), make("java.b"), make("java.c")] };
+  const make = (id: string) => ({ id, category: "java", name: id, world: "world.test", definition: "A definition long enough.", difficulty: 1, prerequisites: overrides[id] ?? [] });
+  return {
+    worlds: [{ id: "world.test", number: 1, name: "Test", summary: "A test world.", available: true }],
+    skills: [make("java.a"), make("java.b"), make("java.c")],
+  };
 }
 
 function quest(id = "cart.q1-x", overrides: { order?: number; hints?: Array<{ tier: string; text: string }>; instructions?: string; skill?: string } = {}): LoadedQuest {
@@ -163,5 +166,21 @@ describe("validateContent rubric", () => {
 
   it("validateContent_duplicateFollowUpIds_areReported", () => {
     expect(messages(content([withRubric({ followUps: [FOLLOW_UP, FOLLOW_UP] })])).join()).toMatch(/duplicate follow-up id why/);
+  });
+});
+
+describe("validateContent worlds", () => {
+  it("validateContent_skillInUnknownWorld_isReported", () => {
+    const file = skills();
+    const broken = { ...file, skills: [{ ...file.skills[0], world: "world.nowhere" }, ...file.skills.slice(1)] };
+
+    expect(messages(content([], broken)).join()).toMatch(/java.a is in unknown world world.nowhere/);
+  });
+
+  it("validateContent_repeatedWorldNumbers_areReported", () => {
+    const file = skills();
+    const broken = { ...file, worlds: [...file.worlds, { ...file.worlds[0], id: "world.other" }] };
+
+    expect(messages(content([], broken)).join()).toMatch(/world numbers repeat/);
   });
 });

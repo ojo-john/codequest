@@ -4,7 +4,7 @@ import { signOut } from "@/app/auth/actions";
 export function AppHeader({ email, wide = false }: { email: string | undefined; wide?: boolean }) {
   return (
     <header className="border-b border-neutral-200 bg-white/80 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/80">
-      <nav aria-label="Main" className={`mx-auto flex items-center gap-6 px-4 py-3 ${wide ? "max-w-[1400px]" : "max-w-6xl"}`}>
+      <nav aria-label="Main" className={`mx-auto flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 ${wide ? "max-w-[1400px]" : "max-w-6xl"}`}>
         <Link href="/" className="font-semibold tracking-tight">
           CodeQuest
         </Link>
@@ -13,6 +13,9 @@ export function AppHeader({ email, wide = false }: { email: string | undefined; 
         </Link>
         <Link href="/practice" className="text-sm text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
           Practice
+        </Link>
+        <Link href="/skills" className="text-sm text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
+          Skills
         </Link>
         <Link href="/progress" className="text-sm text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white">
           Progress

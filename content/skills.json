@@ -1,9 +1,23 @@
 {
+  "worlds": [
+    { "id": "world.base-camp", "number": 0, "name": "Base Camp", "summary": "Assessment and your personalised path.", "available": false },
+    { "id": "world.java-awakening", "number": 1, "name": "Java Awakening", "summary": "Java fluency: methods, classes, collections, streams and tests.", "available": true },
+    { "id": "world.complexity-caverns", "number": 2, "name": "Complexity Caverns", "summary": "Big-O and analysing code.", "available": true },
+    { "id": "world.data-structure-forge", "number": 3, "name": "Data Structure Forge", "summary": "Arrays, hash tables, lists, stacks, queues, heaps, trees and graphs.", "available": false },
+    { "id": "world.pattern-kingdom", "number": 4, "name": "Pattern Kingdom", "summary": "Algorithmic patterns and recognising when to use them.", "available": true },
+    { "id": "world.algorithm-arena", "number": 5, "name": "Algorithm Arena", "summary": "Mixed problems without topic labels.", "available": false },
+    { "id": "world.debug-dungeon", "number": 6, "name": "Debug Dungeon", "summary": "Broken-code challenges: diagnose, fix minimally, prove it with a test.", "available": false },
+    { "id": "world.system-design-city", "number": 7, "name": "System Design City", "summary": "Architecture and trade-offs.", "available": false },
+    { "id": "world.backend-workshop", "number": 8, "name": "Backend Workshop", "summary": "Practical Java and low-level design.", "available": false },
+    { "id": "world.interview-arena", "number": 9, "name": "Interview Arena", "summary": "Realistic interviews.", "available": false },
+    { "id": "world.mastery-league", "number": 10, "name": "Mastery League", "summary": "Targeted interview preparation.", "available": false }
+  ],
   "skills": [
     {
       "id": "java.methods",
       "category": "java",
       "name": "Methods",
+      "world": "world.java-awakening",
       "definition": "Declare methods with parameters and return values, and decompose a requirement into small methods with clear contracts.",
       "difficulty": 1
     },
@@ -11,6 +25,7 @@
       "id": "java.conditions",
       "category": "java",
       "name": "Conditions",
+      "world": "world.java-awakening",
       "definition": "Use if/else and boolean expressions to choose behaviour, including boundary values such as 'at least' versus 'more than'.",
       "difficulty": 1
     },
@@ -18,6 +33,7 @@
       "id": "java.loops",
       "category": "java",
       "name": "Loops",
+      "world": "world.java-awakening",
       "definition": "Traverse arrays and collections with for, while and enhanced-for loops with correct start and end boundaries.",
       "difficulty": 1,
       "prerequisites": [{ "skill": "java.conditions", "kind": "recommended" }]
@@ -26,6 +42,7 @@
       "id": "java.input-validation",
       "category": "java",
       "name": "Input validation and exceptions",
+      "world": "world.java-awakening",
       "definition": "Reject invalid arguments at a method's boundary by throwing the right unchecked exception with a useful message.",
       "difficulty": 2,
       "prerequisites": [{ "skill": "java.conditions", "kind": "strict" }]
@@ -34,6 +51,7 @@
       "id": "java.integer-arithmetic",
       "category": "java",
       "name": "Integer arithmetic and overflow",
+      "world": "world.java-awakening",
       "definition": "Represent money in integer minor units and detect overflow with exact arithmetic instead of silently wrapping.",
       "difficulty": 2,
       "prerequisites": [{ "skill": "java.methods", "kind": "recommended" }]
@@ -42,6 +60,7 @@
       "id": "java.classes",
       "category": "java",
       "name": "Classes and objects",
+      "world": "world.java-awakening",
       "definition": "Define classes with constructors, fields and instance methods, and create and use objects.",
       "difficulty": 2,
       "prerequisites": [{ "skill": "java.methods", "kind": "strict" }]
@@ -50,6 +69,7 @@
       "id": "java.encapsulation",
       "category": "java",
       "name": "Encapsulation",
+      "world": "world.java-awakening",
       "definition": "Keep state private and expose behaviour that protects the object's invariants, rather than raw getters and setters.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "java.classes", "kind": "strict" }]
@@ -58,6 +78,7 @@
       "id": "java.interfaces",
       "category": "java",
       "name": "Interfaces and abstraction",
+      "world": "world.java-awakening",
       "definition": "Define interfaces that describe a contract and write callers that depend on the interface, not a concrete class.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "java.classes", "kind": "strict" }]
@@ -66,6 +87,7 @@
       "id": "java.polymorphism",
       "category": "java",
       "name": "Polymorphism",
+      "world": "world.java-awakening",
       "definition": "Call methods through a common type so different runtime implementations supply different behaviour.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "java.interfaces", "kind": "strict" }]
@@ -74,6 +96,7 @@
       "id": "java.inheritance",
       "category": "java",
       "name": "Inheritance",
+      "world": "world.java-awakening",
       "definition": "Extend a suitable base type, override behaviour, and respect substitutability; know when composition is the better choice.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "java.classes", "kind": "strict" }, { "skill": "java.polymorphism", "kind": "recommended" }]
@@ -82,6 +105,7 @@
       "id": "java.collections",
       "category": "java",
       "name": "Collections",
+      "world": "world.java-awakening",
       "definition": "Choose and use List, Set and Map implementations and know the cost of their common operations.",
       "difficulty": 2,
       "prerequisites": [{ "skill": "java.loops", "kind": "recommended" }]
@@ -90,6 +114,7 @@
       "id": "java.streams",
       "category": "java",
       "name": "Streams",
+      "world": "world.java-awakening",
       "definition": "Write map/filter/reduce/collect pipelines, convert loops to streams and back, and explain when a loop is clearer.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "java.collections", "kind": "strict" }]
@@ -98,6 +123,7 @@
       "id": "java.unit-testing",
       "category": "java",
       "name": "Unit testing",
+      "world": "world.java-awakening",
       "definition": "Write focused JUnit tests that cover boundaries and failure cases, not only the happy path.",
       "difficulty": 2,
       "prerequisites": [{ "skill": "java.methods", "kind": "recommended" }]
@@ -106,6 +132,7 @@
       "id": "java.strings",
       "category": "java",
       "name": "Strings",
+      "world": "world.java-awakening",
       "definition": "Work with immutable Strings, char values, equality (equals vs ==), substring/indexOf/split and StringBuilder for repeated building.",
       "difficulty": 1,
       "prerequisites": [{ "skill": "java.methods", "kind": "recommended" }]
@@ -114,6 +141,7 @@
       "id": "bigo.loops",
       "category": "big-o",
       "name": "Loop analysis",
+      "world": "world.complexity-caverns",
       "definition": "Derive time bounds for loops: linear passes, nested and triangular loops, doubling or halving counters, and independent input sizes.",
       "difficulty": 2,
       "prerequisites": [{ "skill": "java.loops", "kind": "strict" }]
@@ -122,6 +150,7 @@
       "id": "patterns.sliding-window",
       "category": "patterns",
       "name": "Sliding window",
+      "world": "world.pattern-kingdom",
       "definition": "Recognise problems about a contiguous range with a maintainable constraint and solve them in one pass by growing and shrinking a window.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }, { "skill": "java.collections", "kind": "recommended" }]
