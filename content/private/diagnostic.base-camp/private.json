@@ -1,0 +1,195 @@
+{
+  "answers": {
+    "string-equality": {
+      "type": "true_false",
+      "answer": false,
+      "why": "== compares references (are these the same object?). Use equals to compare the characters.",
+      "skill": "java.strings",
+      "dimension": "concept"
+    },
+    "get-or-default": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "It returns the default you pass and leaves the map unchanged; nothing is added.",
+      "skill": "java.collections",
+      "dimension": "concept"
+    },
+    "int-division": {
+      "type": "predict_output",
+      "answer": "2 1",
+      "why": "5 / 2 is integer division (2) and 5 % 2 is the remainder (1).",
+      "skill": "java.primitives",
+      "dimension": "concept"
+    },
+    "references": {
+      "type": "predict_output",
+      "answer": "9 1",
+      "why": "Both arguments are passed by value, but the value of a is a reference to the same array, so writing a[0] changes the caller's array; b is just a copy.",
+      "skill": "java.methods",
+      "dimension": "concept"
+    },
+    "char-loop": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "toCharArray"
+        ]
+      ],
+      "why": "A for-each loop needs an array or Iterable; toCharArray() gives the String's characters as a char[].",
+      "skill": "java.strings",
+      "dimension": "implementation"
+    },
+    "remove-index": {
+      "type": "predict_output",
+      "answer": "[1, 3]",
+      "why": "With an int argument, remove(1) removes by index (the element at position 1, which is 2), not the value 1.",
+      "skill": "java.collections",
+      "dimension": "concept"
+    },
+    "dispatch": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Overridden methods are dispatched dynamically: the object's class at run time decides. The declared type only decides which methods you may call.",
+      "skill": "java.polymorphism",
+      "dimension": "concept"
+    },
+    "stream-pipeline": {
+      "type": "predict_output",
+      "answer": "[20, 30]",
+      "why": "filter keeps 3 and 2, map gives 30 and 20, sorted orders them, and toList collects [20, 30].",
+      "skill": "java.streams",
+      "dimension": "concept"
+    },
+    "single-pass": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "One pass, constant work per element.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "all-pairs": {
+      "type": "big_o",
+      "answer": "O(n^2)",
+      "why": "It checks every pair once: n(n − 1)/2 comparisons, which grows like n².",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "halving-loop": {
+      "type": "big_o",
+      "answer": "O(log n)",
+      "why": "i halves every step, so it reaches 0 after about log₂ n steps.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "window-loop": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "left only moves forward and never past right, so the inner loop runs at most n times in total, not n times per outer iteration.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "split-recursion": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "Each call does constant work and makes two calls on half the input: T(n) = 2T(n/2) + O(1). The call tree has about 2n nodes, so it's linear, not logarithmic.",
+      "skill": "bigo.recursion",
+      "dimension": "complexity"
+    },
+    "key-lookup": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "A hash table gives O(1) average lookups. A TreeMap works in O(log n) and is worth it only when you need sorted keys. Stacks and queues don't support lookup by key at all.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "undo-history": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "incorrect",
+        "valid"
+      ],
+      "why": "Most recent first is last-in-first-out: a stack. An ArrayList used only at its end behaves like one too. A queue would undo the oldest action first, and a set loses the order.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "cheapest-next": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "A min-heap inserts and removes the minimum in O(log n). Re-sorting after each arrival works but costs O(n log n) each time. A stack gives the newest, and a map has no notion of cheapest.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "seen-before": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "valid",
+        "incorrect"
+      ],
+      "why": "A HashSet answers membership in O(1) on average. TreeSet is O(log n). An ArrayList is correct but O(n) per check. A counter can't remember which names it has seen.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "longest-region": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "A contiguous region with a constraint you can maintain as it grows and shrinks (positive numbers make the sum monotone) is the sliding-window cue: O(n). Checking every subarray works but is O(n²). Sorting destroys contiguity.",
+      "skill": "patterns.sliding-window",
+      "dimension": "recognition"
+    },
+    "pair-sum": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "valid",
+        "incorrect"
+      ],
+      "why": "The complement lookup is O(n) time, O(n) space. Sorting plus two pointers is O(n log n) and loses the original indices unless you keep them. Every pair is O(n²). Binary search needs sorted data.",
+      "skill": "patterns.hashing",
+      "dimension": "recognition"
+    },
+    "sorted-lookup": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Sorted order is the monotone condition binary search needs: about 20 comparisons for a million items. A scan is correct but O(n).",
+      "skill": "patterns.binary-search",
+      "dimension": "recognition"
+    },
+    "grid-shortest": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "valid",
+        "incorrect"
+      ],
+      "why": "With equal move costs, BFS reaches cells in order of distance, so the first time it reaches the target is the shortest path. Dijkstra also works but its priority queue is unnecessary. DFS finds a path, not the shortest, and greedy steps can get stuck behind walls.",
+      "skill": "patterns.graph-search",
+      "dimension": "recognition"
+    }
+  }
+}

@@ -130,3 +130,45 @@ describe("ExerciseService reads", () => {
     expect([JSON.stringify(view).includes("A missing key"), view.best]).toEqual([false, { "get-or-default": "succeeded" }]);
   });
 });
+
+describe("ExerciseService diagnostic", () => {
+  const DIAGNOSTIC: ExerciseSetRecord = {
+    ...SET,
+    contentVersionId: "33333333-3333-4333-8333-333333333333",
+    contentId: "diagnostic.base-camp",
+    world: { id: "world.base-camp", order: 1 },
+    sections: [{ id: "java", name: "Java", world: "world.java-awakening", questions: ["get-or-default"] }],
+  };
+  const PRACTICE: ExerciseSetRecord = { ...SET, world: { id: "world.java-awakening", order: 2 } };
+
+  function diagnosticStore(): FakeExerciseStore {
+    const store = new FakeExerciseStore();
+    store.sets = [DIAGNOSTIC, PRACTICE];
+    return store;
+  }
+
+  it("answer_diagnosticQuestion_earnsNoXpAndMovesTheEstimateHalfAsFar", async () => {
+    const store = diagnosticStore();
+
+    await service(store).answer(USER, request({ choice: 1 }, { contentVersionId: DIAGNOSTIC.contentVersionId }));
+
+    expect([store.recorded[0].xp, store.recorded[0].skillStates[0].estimate]).toEqual([[], 0.125]);
+  });
+
+  it("listSets_neverListsTheDiagnostic", async () => {
+    expect((await service(diagnosticStore()).listSets(USER)).map((set) => set.contentVersionId)).toEqual([SET_ID]);
+  });
+
+  it("placement_mapsBestOutcomesToSectionsAndSuggestsTheWorldsFirstSet", async () => {
+    const placement = await service(diagnosticStore()).placement(USER);
+
+    expect(placement).toMatchObject({
+      taken: true,
+      sections: [{ sectionId: "java", asked: 1, correct: 1, placement: "start_here", startWith: { contentVersionId: SET_ID, title: "Maps" } }],
+    });
+  });
+
+  it("placement_noDiagnosticVisible_isUndefined", async () => {
+    expect(await service().placement(USER)).toBeUndefined();
+  });
+});

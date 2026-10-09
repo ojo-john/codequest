@@ -1,8 +1,9 @@
 import "server-only";
 import { z } from "zod";
 import { gradeAnswer, InvalidResponseError, type CorrectAnswer, type ExerciseOutcome } from "@/lib/exercises/grade";
+import { DIAGNOSTIC_WORLD, placementSummary, type SectionResult } from "@/lib/exercises/diagnostic";
 import type { PublicQuestion } from "@/lib/exercises/schema";
-import { MASTERY_MODEL_VERSION, masteryState, SCHEDULER_VERSION, updateSkillState, type SkillState } from "@/lib/learning/mastery";
+import { DIAGNOSTIC_EVIDENCE_WEIGHT, MASTERY_MODEL_VERSION, masteryState, SCHEDULER_VERSION, updateSkillState, type SkillState } from "@/lib/learning/mastery";
 import { XP } from "@/lib/learning/xp";
 import type { ExerciseSetRecord, ExerciseStore } from "./exercise-store";
 import { ApiError } from "./http";
@@ -48,6 +49,14 @@ export interface AnswerResult {
 }
 
 const OUTCOME_TEXT: Record<ExerciseOutcome, string> = { pass: "succeeded", partial: "partial", fail: "wrong-answer" };
+const OUTCOME_FROM_TEXT: Record<string, ExerciseOutcome> = { succeeded: "pass", partial: "partial", "wrong-answer": "fail" };
+
+export interface PlacementView {
+  readonly diagnostic: { readonly contentVersionId: string; readonly title: string; readonly estimatedMinutes: number };
+  /** Whether any diagnostic question has been answered. */
+  readonly taken: boolean;
+  readonly sections: ReadonlyArray<SectionResult & { readonly startWith?: { readonly contentVersionId: string; readonly title: string } }>;
+}
 
 export class ExerciseService {
   private readonly store: ExerciseStore;
@@ -63,6 +72,8 @@ export class ExerciseService {
   async listSets(userId: string): Promise<ExerciseSetSummary[]> {
     const sets = await this.store.listVisibleSets(userId);
     return sets
+      // The diagnostic runs adaptively from Base Camp, not as a practice set.
+      .filter((set) => set.world.id !== DIAGNOSTIC_WORLD)
       .map((set) => ({
         contentVersionId: set.contentVersionId,
         title: set.title,
@@ -99,9 +110,11 @@ export class ExerciseService {
     }
 
     const now = this.clock();
+    // The diagnostic places you; it isn't practice: half-weight evidence and no XP (spec §3).
+    const diagnostic = set.world.id === DIAGNOSTIC_WORLD;
     const evidence = { skillId: key.skill, dimension: key.dimension, outcome: graded.outcome, independence: "independent" as const, modelVersion: MASTERY_MODEL_VERSION };
     const previous = (await this.skills.skillStates(userId)).find((state: SkillState) => state.skillId === key.skill && state.dimension === key.dimension);
-    const update = updateSkillState(previous, evidence, now);
+    const update = updateSkillState(previous, evidence, now, diagnostic ? DIAGNOSTIC_EVIDENCE_WEIGHT : 1);
     const recorded = await this.store.recordAttempt({
       userId,
       contentVersionId: request.contentVersionId,
@@ -121,7 +134,7 @@ export class ExerciseService {
           model_version: MASTERY_MODEL_VERSION,
         },
       ],
-      xp: graded.outcome === "pass" ? [{ event_key: `exercise:${set.contentId}:${question.id}`, delta: XP.exercise }] : [],
+      xp: graded.outcome === "pass" && !diagnostic ? [{ event_key: `exercise:${set.contentId}:${question.id}`, delta: XP.exercise }] : [],
     });
 
     return {
@@ -131,6 +144,29 @@ export class ExerciseService {
       awardedXp: recorded.awardedXp,
       // A replay recorded nothing new, so there is no fresh skill update to report.
       skill: recorded.replayed ? null : { state: masteryState(update, now), reviewInDays: update.intervalDays },
+    };
+  }
+
+  /**
+   * The Base Camp diagnostic and the learner's placement from it (best answer per question so
+   * far). Undefined when no diagnostic is visible to this learner.
+   */
+  async placement(userId: string): Promise<PlacementView | undefined> {
+    const sets = await this.store.listVisibleSets(userId);
+    const diagnostic = sets.find((set) => set.world.id === DIAGNOSTIC_WORLD && set.sections !== undefined);
+    if (diagnostic === undefined || diagnostic.sections === undefined) return undefined;
+    const best = await this.store.bestOutcomes(userId, diagnostic.contentVersionId);
+    const outcomes = new Map([...best].flatMap(([id, outcome]) => (OUTCOME_FROM_TEXT[outcome] ? [[id, OUTCOME_FROM_TEXT[outcome]] as const] : [])));
+    const startingPoints = new Map(
+      diagnostic.sections.map((section) => {
+        const first = sets.filter((set) => set.world.id === section.world).sort((a, b) => a.world.order - b.world.order)[0];
+        return [section.id, first ? { contentVersionId: first.contentVersionId, title: first.title } : undefined] as const;
+      }),
+    );
+    return {
+      diagnostic: { contentVersionId: diagnostic.contentVersionId, title: diagnostic.title, estimatedMinutes: diagnostic.estimatedMinutes },
+      taken: outcomes.size > 0,
+      sections: placementSummary(diagnostic.sections, outcomes).map((result) => ({ ...result, startWith: startingPoints.get(result.sectionId) })),
     };
   }
 

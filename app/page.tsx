@@ -5,16 +5,17 @@ import { InsightsCard } from "@/components/home/insights-card";
 import { UnreviewedToggle } from "@/components/home/unreviewed-toggle";
 import { Badge, Card, UnreviewedBadge } from "@/components/ui";
 import { requirePageUser } from "@/lib/auth/dal";
-import { learningService } from "@/lib/server/container";
+import { exerciseService, learningService } from "@/lib/server/container";
 import { createUserClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
   const user = await requirePageUser("/");
   const supabase = await createUserClient();
-  const [progress, active, insights, profile] = await Promise.all([
+  const [progress, active, insights, placement, profile] = await Promise.all([
     learningService().getProgress(user.userId),
     learningService().activeSession(user.userId),
     learningService().insights(user.userId),
+    exerciseService().placement(user.userId),
     supabase.from("profiles").select("settings").eq("user_id", user.userId).single(),
   ]);
   const showUnreviewed = (profile.data?.settings as Record<string, unknown> | undefined)?.show_unreviewed_content === true;
@@ -52,6 +53,18 @@ export default async function HomePage() {
             </div>
             <Link href={`/sessions/${active.id}`} className="ml-auto rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
               Resume session
+            </Link>
+          </Card>
+        )}
+
+        {placement && !placement.taken && (
+          <Card className="flex flex-wrap items-center gap-3">
+            <div className="flex-1">
+              <h2 className="font-semibold">New here? Start at Base Camp</h2>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">A {placement.diagnostic.estimatedMinutes}-minute adaptive check that suggests where to begin.</p>
+            </div>
+            <Link href="/base-camp" className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+              Go to Base Camp
             </Link>
           </Card>
         )}

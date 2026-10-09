@@ -1,6 +1,6 @@
 {
   "worlds": [
-    { "id": "world.base-camp", "number": 0, "name": "Base Camp", "summary": "Assessment and your personalised path.", "available": false },
+    { "id": "world.base-camp", "number": 0, "name": "Base Camp", "summary": "Assessment and your personalised path.", "available": true },
     { "id": "world.java-awakening", "number": 1, "name": "Java Awakening", "summary": "Java fluency: methods, classes, collections, streams and tests.", "available": true },
     { "id": "world.complexity-caverns", "number": 2, "name": "Complexity Caverns", "summary": "Big-O and analysing code.", "available": true },
     { "id": "world.data-structure-forge", "number": 3, "name": "Data Structure Forge", "summary": "Arrays, hash tables, lists, stacks, queues, heaps, trees and graphs.", "available": false },
@@ -181,6 +181,42 @@
       "definition": "Count auxiliary space including the call stack and copies, separate it from output space, and reason about amortized costs such as dynamic-array growth.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }]
+    },
+    {
+      "id": "ds.choosing-structures",
+      "category": "data-structures",
+      "name": "Choosing data structures",
+      "world": "world.data-structure-forge",
+      "definition": "Pick a structure from what the operations need: key lookup, ordering, first-in-first-out, last-in-first-out, priority or membership, and say why.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "java.collections", "kind": "recommended" }]
+    },
+    {
+      "id": "patterns.hashing",
+      "category": "patterns",
+      "name": "Hashing",
+      "world": "world.pattern-kingdom",
+      "definition": "Use hash maps and sets for frequencies, complements, grouping and de-duplication to trade memory for linear time.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }, { "skill": "java.collections", "kind": "recommended" }]
+    },
+    {
+      "id": "patterns.binary-search",
+      "category": "patterns",
+      "name": "Binary search",
+      "world": "world.pattern-kingdom",
+      "definition": "Halve a search space that has a monotone condition: sorted arrays, first/last occurrence and searching on the answer.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }]
+    },
+    {
+      "id": "patterns.graph-search",
+      "category": "patterns",
+      "name": "Graph search",
+      "world": "world.pattern-kingdom",
+      "definition": "Choose and apply BFS or DFS on graphs and grids: shortest paths with equal costs, reachability, components and cycle detection.",
+      "difficulty": 4,
+      "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }, { "skill": "ds.choosing-structures", "kind": "recommended" }]
     }
   ]
 }
