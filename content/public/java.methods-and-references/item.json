@@ -1,0 +1,67 @@
+{
+  "kind": "exercise-set",
+  "id": "java.methods-and-references",
+  "version": 1,
+  "title": "Methods and references",
+  "summary": "Pass-by-value, references, overloading and scope: what really happens when you call a method.",
+  "world": {
+    "id": "world.java-awakening",
+    "order": 4
+  },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "pass-by-value",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    static void bump(int x) {\n        x++;\n    }\n\n    static void bump(int[] xs) {\n        xs[0]++;\n    }\n\n    static void replace(int[] xs) {\n        xs = new int[] {100};\n    }\n\n    public static void main(String[] args) {\n        int a = 1;\n        bump(a);\n        int[] b = {1};\n        bump(b);\n        replace(b);\n        System.out.println(a + \" \" + b[0]);\n    }\n}\n"
+    },
+    {
+      "id": "how-java-passes",
+      "type": "single_choice",
+      "prompt": "How does Java pass arguments to methods?",
+      "options": [
+        "Always by value; for objects, the value copied is the reference",
+        "By reference for objects, by value for primitives",
+        "Always by reference",
+        "By reference only when the parameter is final"
+      ]
+    },
+    {
+      "id": "overload-static-type",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    static String describe(Object o) {\n        return \"object\";\n    }\n\n    static String describe(String s) {\n        return \"string\";\n    }\n\n    public static void main(String[] args) {\n        Object o = \"hi\";\n        System.out.println(describe(o));\n        System.out.println(describe(\"hi\"));\n    }\n}\n"
+    },
+    {
+      "id": "builder-through-method",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    static void add(StringBuilder sb) {\n        sb.append(\"!\");\n    }\n\n    static void swap(StringBuilder sb) {\n        sb = new StringBuilder(\"new\");\n    }\n\n    public static void main(String[] args) {\n        StringBuilder sb = new StringBuilder(\"hi\");\n        add(sb);\n        swap(sb);\n        System.out.println(sb);\n    }\n}\n"
+    },
+    {
+      "id": "loop-scope",
+      "type": "true_false",
+      "prompt": "True or false: a variable declared inside a for loop's body can still be used after the loop ends."
+    },
+    {
+      "id": "return-early",
+      "type": "order",
+      "prompt": "Order the steps of a method that returns the index of target in an array, or -1 if it isn't there.",
+      "steps": [
+        "Return -1",
+        "Loop over every index i",
+        "If the element at i equals target, return i",
+        "Declare the method's parameters: the array and the target"
+      ]
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

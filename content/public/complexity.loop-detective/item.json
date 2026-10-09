@@ -1,0 +1,99 @@
+{
+  "kind": "exercise-set",
+  "id": "complexity.loop-detective",
+  "version": 1,
+  "title": "Loop detective",
+  "summary": "Read loops and name their cost: independent sizes, halving, linear work hiding in nested loops, and harmonic sums.",
+  "world": {
+    "id": "world.complexity-caverns",
+    "order": 1
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "two-sizes-sequential",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this code?",
+      "code": "for (int i = 0; i < n; i++) {\n    count++;\n}\nfor (int j = 0; j < m; j++) {\n    count++;\n}",
+      "ask": "time",
+      "options": [
+        "O(n)",
+        "O(m)",
+        "O(n + m)",
+        "O(n * m)"
+      ]
+    },
+    {
+      "id": "two-sizes-nested",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this code?",
+      "code": "for (int i = 0; i < n; i++) {\n    for (int j = 0; j < m; j++) {\n        count++;\n    }\n}",
+      "ask": "time",
+      "options": [
+        "O(n + m)",
+        "O(n * m)",
+        "O(n^2)",
+        "O(max(n, m))"
+      ]
+    },
+    {
+      "id": "halving",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this loop in terms of the starting value of n?",
+      "code": "while (n > 1) {\n    n /= 2;\n}",
+      "ask": "time"
+    },
+    {
+      "id": "pointer-never-resets",
+      "type": "big_o",
+      "prompt": "a has n elements. What is the time complexity of this code?",
+      "code": "int j = 0;\nfor (int i = 0; i < n; i++) {\n    while (j < n && a[j] < a[i] + k) {\n        j++;\n    }\n}",
+      "ask": "time"
+    },
+    {
+      "id": "doubling-outer",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this code?",
+      "code": "for (int i = 1; i < n; i *= 2) {\n    for (int j = 0; j < n; j++) {\n        count++;\n    }\n}",
+      "ask": "time"
+    },
+    {
+      "id": "harmonic",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this code?",
+      "code": "for (int i = 1; i <= n; i++) {\n    for (int j = i; j <= n; j += i) {\n        count++;\n    }\n}",
+      "ask": "time"
+    },
+    {
+      "id": "constant-inner",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this code?",
+      "code": "for (int i = 0; i < n; i++) {\n    for (int j = 0; j < 1000; j++) {\n        count++;\n    }\n}",
+      "ask": "time"
+    },
+    {
+      "id": "why-drop-constants",
+      "type": "single_choice",
+      "prompt": "A loop runs n(n − 1) / 2 times. Why is it still described as O(n²)?",
+      "options": [
+        "Big-O keeps the fastest-growing term and drops constant factors and lower-order terms",
+        "Because n(n − 1) / 2 is always larger than n²",
+        "Because Big-O always rounds up to the next power",
+        "It isn't: it's O(n² / 2)"
+      ]
+    },
+    {
+      "id": "faster-always",
+      "type": "true_false",
+      "prompt": "True or false: if code A is O(n) and code B is O(n²), A is faster than B for every input size."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
