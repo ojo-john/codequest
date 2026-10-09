@@ -1,0 +1,78 @@
+{
+  "kind": "exercise-set",
+  "id": "java.maps-and-counting",
+  "version": 1,
+  "title": "Maps and counting",
+  "summary": "Count things with a Map, read what the code prints, and size up the loops around it.",
+  "world": { "id": "world.java-awakening", "order": 1 },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "get-or-default",
+      "type": "single_choice",
+      "prompt": "counts is a Map<String, Integer> with no \"tea\" key. What does counts.getOrDefault(\"tea\", 0) return?",
+      "options": ["null", "0", "It throws NoSuchElementException", "An empty Optional"]
+    },
+    {
+      "id": "count-banana",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.Map;\nimport java.util.TreeMap;\n\npublic class Main {\n    public static void main(String[] args) {\n        Map<Character, Integer> counts = new TreeMap<>();\n        for (char c : \"banana\".toCharArray()) {\n            counts.put(c, counts.getOrDefault(c, 0) + 1);\n        }\n        System.out.println(counts);\n    }\n}\n"
+    },
+    {
+      "id": "count-fill",
+      "type": "fill_blank",
+      "prompt": "Complete the line so it adds one to the count for c, starting from zero for a character not seen yet.",
+      "code": "counts.put(c, counts.____(c, 0) + 1);"
+    },
+    {
+      "id": "count-steps",
+      "type": "order",
+      "prompt": "Put the steps for counting how often each character appears in a String in order.",
+      "steps": [
+        "Return the map",
+        "Create an empty map from character to count",
+        "For each character, store its current count (or 0) plus one",
+        "Turn the String into its characters"
+      ]
+    },
+    {
+      "id": "fast-lookup",
+      "type": "multi_choice",
+      "prompt": "Which of these find an element in O(1) time on average? Choose every one that does.",
+      "options": ["HashMap.get(key)", "TreeMap.get(key)", "HashSet.contains(x)", "ArrayList.contains(x)"]
+    },
+    {
+      "id": "string-identity",
+      "type": "true_false",
+      "prompt": "True or false: two String objects containing the same characters are always == to each other in Java."
+    },
+    {
+      "id": "triangular-loop",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this code in terms of n?",
+      "code": "long total = 0;\nfor (int i = 0; i < n; i++) {\n    for (int j = 0; j < i; j++) {\n        total += j;\n    }\n}",
+      "ask": "time"
+    },
+    {
+      "id": "doubling-loop",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this loop in terms of n?",
+      "code": "int steps = 0;\nfor (int i = 1; i < n; i *= 2) {\n    steps++;\n}",
+      "ask": "time"
+    },
+    {
+      "id": "longest-unique-run",
+      "type": "pattern",
+      "prompt": "Find the length of the longest substring of s with no repeated characters. Which approach would you investigate first?",
+      "options": [
+        "Grow and shrink a window over s, keeping the characters inside it in a set or map",
+        "Check every substring for repeats",
+        "Sort the characters of s, then scan for runs",
+        "Binary search on the position of the first repeated character"
+      ]
+    }
+  ],
+  "review": { "status": "draft" },
+  "provenance": { "author": "Claude (AI-drafted for CodeQuest)", "license": "All rights reserved (CodeQuest owner)", "source": "original" }
+}

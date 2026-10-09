@@ -1,0 +1,67 @@
+{
+  "answers": {
+    "get-or-default": {
+      "type": "single_choice",
+      "answer": 1,
+      "why": "getOrDefault returns the value for the key if there is one, otherwise the default you pass in. That's what makes it handy for counting: no null check needed.",
+      "skill": "java.collections",
+      "dimension": "concept"
+    },
+    "count-banana": {
+      "type": "predict_output",
+      "answer": "{a=3, b=1, n=2}",
+      "why": "Each character's count starts at 0 via getOrDefault and goes up by one. A TreeMap keeps its keys sorted, so the map prints in the order a, b, n.",
+      "skill": "java.collections",
+      "dimension": "concept"
+    },
+    "count-fill": {
+      "type": "fill_blank",
+      "answer": [["getOrDefault"]],
+      "why": "counts.getOrDefault(c, 0) reads the current count, using 0 the first time c appears; adding one and putting it back updates the count.",
+      "skill": "java.collections",
+      "dimension": "implementation"
+    },
+    "count-steps": {
+      "type": "order",
+      "answer": [1, 3, 2, 0],
+      "why": "You need the map before you can fill it, the characters before you can loop over them, and the counts before you can return them.",
+      "skill": "java.collections",
+      "dimension": "implementation"
+    },
+    "fast-lookup": {
+      "type": "multi_choice",
+      "answer": [0, 2],
+      "why": "Hash-based structures find a key in constant time on average. TreeMap is a balanced tree, so lookups are O(log n), and ArrayList.contains scans the list, O(n).",
+      "skill": "java.collections",
+      "dimension": "complexity"
+    },
+    "string-identity": {
+      "type": "true_false",
+      "answer": false,
+      "why": "== compares references: whether both variables point at the same object. Two separately built Strings with equal characters are different objects; compare their contents with equals.",
+      "skill": "java.strings",
+      "dimension": "concept"
+    },
+    "triangular-loop": {
+      "type": "big_o",
+      "answer": "O(n^2)",
+      "why": "The inner loop runs 0, 1, 2, …, n−1 times: n(n−1)/2 in total. Halving the work still grows with n², so it's O(n²).",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "doubling-loop": {
+      "type": "big_o",
+      "answer": "O(log n)",
+      "why": "i doubles every step (1, 2, 4, 8, …), so it passes n after about log₂ n steps.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "longest-unique-run": {
+      "type": "pattern",
+      "grades": ["optimal", "valid", "incorrect", "incorrect"],
+      "why": "It asks about a contiguous region (a substring) with a constraint you can maintain as it grows and shrinks (no repeats), which is the sliding-window cue: O(n). Checking every substring works but is O(n³) or O(n²). Sorting destroys the order that defines a substring, and there's no monotone condition to binary search on the first repeat.",
+      "skill": "patterns.sliding-window",
+      "dimension": "recognition"
+    }
+  }
+}

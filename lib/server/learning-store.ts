@@ -249,6 +249,13 @@ const versionRowSchema = z.object({
   payload: z.unknown(),
 });
 
+/** Published content, plus unreviewed drafts for a learner who opted in (spec §44). */
+export async function visibleContentStatuses(db: SupabaseClient, userId: string): Promise<readonly ContentStatus[]> {
+  const row = check("profile", await db.from("profiles").select("settings").eq("user_id", userId).maybeSingle());
+  const settings = (row?.settings ?? {}) as Record<string, unknown>;
+  return settings.show_unreviewed_content === true ? UNREVIEWED_VISIBLE : PUBLISHED_ONLY;
+}
+
 function check<T>(operation: string, result: { data: T; error: { message: string; code?: string } | null }): T {
   if (result.error) throw new StoreError(operation, result.error.message, { cause: result.error });
   return result.data;
@@ -258,9 +265,7 @@ export class SupabaseLearningStore implements LearningStore {
   constructor(private readonly db: SupabaseClient) {}
 
   private async visibleStatuses(userId: string): Promise<readonly ContentStatus[]> {
-    const row = check("profile", await this.db.from("profiles").select("settings").eq("user_id", userId).maybeSingle());
-    const settings = (row?.settings ?? {}) as Record<string, unknown>;
-    return settings.show_unreviewed_content === true ? UNREVIEWED_VISIBLE : PUBLISHED_ONLY;
+    return visibleContentStatuses(this.db, userId);
   }
 
   private toQuest(row: z.infer<typeof versionRowSchema>): QuestRecord | undefined {

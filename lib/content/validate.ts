@@ -2,6 +2,7 @@ import { publicContractSpec } from "@/lib/execution/contract";
 import { validateSourceFiles } from "@/lib/execution/source-files";
 import type { ExecutionLimits } from "@/lib/execution/limits";
 import { isLearnerTest, LEARNER_TEST_ROOT } from "@/lib/execution/test-quality";
+import { validateExerciseSets } from "@/lib/exercises/validate";
 import { dimensionForCriterion } from "@/lib/grading/rubric";
 import { ANSWER_ONLY_DIMENSIONS } from "@/lib/learning/mastery";
 import type { LoadedContent, LoadedQuest } from "./repository";
@@ -107,6 +108,7 @@ export function validateContent(content: LoadedContent, limits: Pick<ExecutionLi
     issues.push(...validateRubric(quest, skillIds));
   }
 
+  issues.push(...validateExerciseSets(content.exerciseSets, skillIds, new Set(content.quests.map((quest) => quest.manifest.id))));
   return issues;
 }
 
