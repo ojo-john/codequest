@@ -154,6 +154,33 @@
       "definition": "Recognise problems about a contiguous range with a maintainable constraint and solve them in one pass by growing and shrinking a window.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }, { "skill": "java.collections", "kind": "recommended" }]
+    },
+    {
+      "id": "java.primitives",
+      "category": "java",
+      "name": "Primitives and operators",
+      "world": "world.java-awakening",
+      "definition": "Use int, long, double, char and boolean correctly: integer division and remainder, casting, overflow, floating-point comparison and boxed-value equality.",
+      "difficulty": 1,
+      "prerequisites": []
+    },
+    {
+      "id": "bigo.recursion",
+      "category": "big-o",
+      "name": "Recursion analysis",
+      "world": "world.complexity-caverns",
+      "definition": "Bound recursive algorithms by their call tree: linear chains, halving, divide and conquer, branching recursion and output-sensitive enumeration.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }, { "skill": "java.methods", "kind": "recommended" }]
+    },
+    {
+      "id": "bigo.space",
+      "category": "big-o",
+      "name": "Space and amortized cost",
+      "world": "world.complexity-caverns",
+      "definition": "Count auxiliary space including the call stack and copies, separate it from output space, and reason about amortized costs such as dynamic-array growth.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }]
     }
   ]
 }

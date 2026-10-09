@@ -1,0 +1,79 @@
+{
+  "kind": "exercise-set",
+  "id": "java.primitives-and-operators",
+  "version": 1,
+  "title": "Primitives and operators",
+  "summary": "Integer division, remainders, casts, overflow and floating point: the small rules behind big bugs.",
+  "world": {
+    "id": "world.java-awakening",
+    "order": 2
+  },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "division-and-remainder",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(7 / 2);\n        System.out.println(7 / 2.0);\n        System.out.println(7 % 3);\n        System.out.println(-7 % 3);\n    }\n}\n"
+    },
+    {
+      "id": "overflow",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        int big = Integer.MAX_VALUE;\n        System.out.println(big + 1);\n        long fixed = big + 1L;\n        System.out.println(fixed);\n    }\n}\n"
+    },
+    {
+      "id": "cast-truncates",
+      "type": "single_choice",
+      "prompt": "What is the value of (int) -3.99?",
+      "options": [
+        "-3",
+        "-4",
+        "-3.99",
+        "It doesn't compile"
+      ]
+    },
+    {
+      "id": "char-arithmetic",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        char c = 'A';\n        c += 2;\n        System.out.println(c);\n        System.out.println('A' + 2);\n    }\n}\n"
+    },
+    {
+      "id": "integer-equality",
+      "type": "single_choice",
+      "prompt": "a and b are Integer objects. Which expression reliably checks that they hold the same value?",
+      "options": [
+        "a == b",
+        "a.equals(b)",
+        "a.compareTo(b) == 1",
+        "a.hashCode() == b"
+      ]
+    },
+    {
+      "id": "safe-midpoint",
+      "type": "fill_blank",
+      "prompt": "Complete the midpoint calculation so it can't overflow when lo and hi are both large ints.",
+      "code": "int mid = lo + (hi - ____) / 2;"
+    },
+    {
+      "id": "floating-point",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(0.1 + 0.2 == 0.3);\n        System.out.println(Math.abs(0.1 + 0.2 - 0.3) < 1e-9);\n    }\n}\n"
+    },
+    {
+      "id": "char-unsigned",
+      "type": "true_false",
+      "prompt": "True or false: char is a 16-bit unsigned type in Java, so 'A' + 1 evaluates to the int 66."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
