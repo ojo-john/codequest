@@ -13,6 +13,8 @@ export const XP = Object.freeze({
   noHintBonus: 20,
   /** Own tests that catch the planted bugs (spec §19); earned once per quest like the others. */
   testQuality: 20,
+  /** A short exercise question answered correctly, once per question. */
+  exercise: 5,
 });
 
 export interface XpAward {

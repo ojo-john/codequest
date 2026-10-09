@@ -101,6 +101,30 @@
       "definition": "Write focused JUnit tests that cover boundaries and failure cases, not only the happy path.",
       "difficulty": 2,
       "prerequisites": [{ "skill": "java.methods", "kind": "recommended" }]
+    },
+    {
+      "id": "java.strings",
+      "category": "java",
+      "name": "Strings",
+      "definition": "Work with immutable Strings, char values, equality (equals vs ==), substring/indexOf/split and StringBuilder for repeated building.",
+      "difficulty": 1,
+      "prerequisites": [{ "skill": "java.methods", "kind": "recommended" }]
+    },
+    {
+      "id": "bigo.loops",
+      "category": "big-o",
+      "name": "Loop analysis",
+      "definition": "Derive time bounds for loops: linear passes, nested and triangular loops, doubling or halving counters, and independent input sizes.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "java.loops", "kind": "strict" }]
+    },
+    {
+      "id": "patterns.sliding-window",
+      "category": "patterns",
+      "name": "Sliding window",
+      "definition": "Recognise problems about a contiguous range with a maintainable constraint and solve them in one pass by growing and shrinking a window.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }, { "skill": "java.collections", "kind": "recommended" }]
     }
   ]
 }

@@ -1,12 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { loadContent, type LoadedQuest } from "../lib/content/repository";
+import { loadContent, type LoadedExerciseSet, type LoadedQuest } from "../lib/content/repository";
 import { validateContent, type ContentIssue } from "../lib/content/validate";
 import { DockerSandboxProvider } from "../lib/execution/docker-sandbox-provider";
 import { SandboxJavaExecutor, type ExecutionResult } from "../lib/execution/java-executor";
 import { loadExecutionLimits } from "../lib/execution/limits";
 import { validateSourceFiles } from "../lib/execution/source-files";
+import { outputVerificationSources } from "../lib/exercises/verify-output";
 import { loadVercelSandboxConfig, VercelSandboxProvider } from "../lib/execution/vercel-sandbox-provider";
 import { createLogger } from "../lib/observability/log";
 
@@ -17,6 +18,7 @@ import { createLogger } from "../lib/observability/log";
  *   - every reference solution PASSES its contract under the pinned JDK
  *   - every starter compiles (unless declared otherwise) and does NOT already pass
  *   - with testQuality: the reference tests pass on the reference and catch EVERY mutant
+ *   - every predict-output exercise prints exactly its canonical answer
  *
  *   npm run content:check [-- --provider vercel] [-- --static-only]
  */
@@ -65,6 +67,20 @@ async function checkTestQuality(executor: SandboxJavaExecutor, quest: LoadedQues
   return undefined;
 }
 
+/** Runs every predict-output program of a set and compares its output with the canonical answer. */
+async function checkPredictOutputs(executor: SandboxJavaExecutor, set: LoadedExerciseSet): Promise<string | undefined> {
+  const { files, checks } = outputVerificationSources(set.manifest.questions, set.privateData.answers);
+  if (checks.length === 0) return undefined;
+  const validated = validateSourceFiles(files, loadExecutionLimits(process.env));
+  if (!validated.ok) return `predict-output programs are invalid: ${JSON.stringify(validated.issues)}`;
+  const result = await executor.execute(validated.files, { requestId: randomUUID(), grading: { kind: "junit" } });
+  console.log(`  ${set.manifest.id}: ${checks.length} predict-output program(s) ${result.outcome}`);
+  if (result.outcome === "succeeded") return undefined;
+  const failed = checks.filter((check) => result.summary?.failedTests.some((name) => name.startsWith(check.testName))).map((check) => check.questionId);
+  const detail = failed.length > 0 ? `wrong canonical output for ${failed.join(", ")}` : `${result.outcome}/${result.detail}`;
+  return `${detail}\n${(result.compileOutput || result.testOutput || "").slice(-1500)}`;
+}
+
 async function main(): Promise<void> {
   const { values } = parseArgs({
     options: { provider: { type: "string", default: "docker" }, "static-only": { type: "boolean", default: false } },
@@ -103,10 +119,15 @@ async function main(): Promise<void> {
       const quality = await checkTestQuality(gateExecutor, quest, productionBudgetMs);
       if (quality !== undefined) issues.push({ item, message: quality });
     }
+    for (const set of content.exerciseSets) {
+      const problem = await checkPredictOutputs(executor, set);
+      if (problem !== undefined) issues.push({ item: set.manifest.id, message: problem });
+    }
   }
 
-  const unreviewed = content.quests.filter((quest) => quest.manifest.review.status === "draft" || quest.manifest.review.status === "ai_reviewed");
-  console.log(`\n${content.quests.length} quest(s), ${content.skills?.skills.length ?? 0} skill(s); ${unreviewed.length} awaiting human review.`);
+  const items = [...content.quests, ...content.exerciseSets];
+  const unreviewed = items.filter((item) => item.manifest.review.status === "draft" || item.manifest.review.status === "ai_reviewed");
+  console.log(`\n${content.quests.length} quest(s), ${content.exerciseSets.length} exercise set(s), ${content.skills?.skills.length ?? 0} skill(s); ${unreviewed.length} awaiting human review.`);
   if (issues.length > 0) {
     for (const issue of issues) console.error(`✗ ${issue.item}: ${issue.message}`);
     console.error(`\nContent gate: FAILED (${issues.length} issue(s))`);
