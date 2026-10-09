@@ -14,14 +14,28 @@ export const skillDimensionSchema = z.enum([
   "concept", "recognition", "implementation", "complexity", "explanation", "testing", "communication", "design",
 ]);
 
+/** The game's worlds (spec §2). `available` is false for worlds whose content isn't built yet. */
+export const worldSchema = z
+  .object({
+    id: contentIdSchema,
+    number: z.number().int().min(0).max(20),
+    name: z.string().min(1).max(60),
+    summary: z.string().min(5).max(200),
+    available: z.boolean(),
+  })
+  .strict();
+
 export const skillsFileSchema = z
   .object({
+    worlds: z.array(worldSchema).min(1),
     skills: z
       .array(
         z.object({
           id: contentIdSchema,
           category: z.string().min(1),
           name: z.string().min(1),
+          /** The world this skill is taught in. */
+          world: contentIdSchema,
           definition: z.string().min(10),
           difficulty: z.number().int().min(1).max(6),
           prerequisites: z
