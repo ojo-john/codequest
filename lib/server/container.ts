@@ -15,6 +15,8 @@ import { ArchiveService } from "./archive-service";
 import { ExerciseService } from "./exercise-service";
 import { SupabaseExerciseStore } from "./exercise-store";
 import { JournalService } from "./journal-service";
+import { SkillTreeService } from "./skill-tree-service";
+import { SupabaseSkillTreeStore } from "./skill-tree-store";
 import { SupabaseJournalStore } from "./journal-store";
 import { SupabaseArchiveStore } from "./archive-store";
 import { LearningService } from "./learning-service";
@@ -102,4 +104,13 @@ export function exerciseService(): ExerciseService {
   const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
   exercises = new ExerciseService({ store: new SupabaseExerciseStore(db), skills: new SupabaseLearningStore(db) });
   return exercises;
+}
+
+let skillTree: SkillTreeService | undefined;
+
+export function skillTreeService(): SkillTreeService {
+  if (skillTree) return skillTree;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
+  skillTree = new SkillTreeService({ store: new SupabaseSkillTreeStore(db), learning: new SupabaseLearningStore(db), exercises: new SupabaseExerciseStore(db) });
+  return skillTree;
 }

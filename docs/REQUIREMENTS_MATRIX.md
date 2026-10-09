@@ -8,7 +8,7 @@ mocks · **P4** advanced ML + optional tutor.
 | § | Requirement | Phase | Surfaces / entities | Acceptance check | Status |
 |---|---|---|---|---|---|
 | 1 | Product goal | all | — | Release gates (§68, §71) | Not started |
-| 2 | Game structure, 11 worlds, skill DAG | P2 | `skills`, `skill_edges` | Strict-edge cycle check passes; worlds visible with unavailable scope marked | Not started |
+| 2 | Game structure, 11 worlds, skill DAG | P2 | `skills`, `skill_edges` | Strict-edge cycle check passes; worlds visible with unavailable scope marked | **Done (structure)** — all 11 worlds in `skills.json` → `worlds` table, unavailable ones shown as \"Coming later\"; every skill belongs to a world; strict-edge cycle check unchanged (DB trigger + gate) |
 | 3 | Adaptive diagnostic first launch | P2 | diagnostic flow, `attempts` | Placement changes path without skipping fundamentals | Not started |
 | 4 | Daily home screen + time budget | P1 | `app/page.tsx` | 5/15/30/45/60+ choices create a session | **Done** — XP, reviews due, budget picker, campaign list with unreviewed labels (e2e) |
 | 5 | Adaptive session engine | P1 | `lib/learning/session-planner.ts`, `create_session()` | Items fit budget; reasons cited; resumable | **Done (P1 scope)** — rules-v1 planner in §5's priority order for available content: overdue reviews, weak skills (from insights), current path, with budget fit and resumable slices; reasons shown on the session page; completion and resume (unit + integration + e2e). Prerequisite gaps and the per-budget activity mix need P2 content |
@@ -41,7 +41,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 36 | XP | P1 | `xp_ledger` (unique `event_key`) | Repeated submission cannot duplicate XP | **Done** — keyed awards, tested twice-submitted and replayed jobs; the result shows exactly the XP newly earned (integration + e2e) |
 | 37 | Streaks | P3 | timezone-aware | Freeze/vacation rules defined | Not started |
 | 38 | Achievements | P3 | `achievement_awards` | Tied to independent evidence | Not started |
-| 39 | Skill tree | P2 | React Flow + list view | Keyboard/screen-reader usable | Not started |
+| 39 | Skill tree | P2 | React Flow + list view | Keyboard/screen-reader usable | **Done** — `/skills` list view (complete, accessible) grouped by world with per-dimension states, evidence, last practice, next review, strict vs suggested prerequisites; graph view (layered by strict prerequisite depth, nodes are links); `/skills/[id]` detail with per-dimension table and up to 3 recommended quests/practice sets (axe-clean, e2e) |
 | 40 | Dashboard | P2 | progress page | Sample sizes shown | Not started |
 | 41 | Readiness ≠ XP | P2 | readiness model | Easy grinding can't inflate readiness | Not started |
 | 42 | Knowledge-graph data model | P0→P1 | migrations | Attempts reference immutable versions | **In progress** — schema + immutability triggers tested locally |
