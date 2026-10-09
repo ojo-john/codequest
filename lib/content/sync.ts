@@ -183,12 +183,19 @@ export async function syncContent(sql: postgres.Sql, content: LoadedContent): Pr
   const progress: SyncProgress = { inserted, updated, unchanged };
 
   await sql.begin(async (tx) => {
+    for (const world of content.skills!.worlds) {
+      await tx`
+        insert into public.worlds (id, number, name, summary, available)
+        values (${world.id}, ${world.number}, ${world.name}, ${world.summary}, ${world.available})
+        on conflict (id) do update set number = excluded.number, name = excluded.name,
+          summary = excluded.summary, available = excluded.available`;
+    }
     for (const skill of skills) {
       await tx`
-        insert into public.skills (id, category, name, definition, difficulty)
-        values (${skill.id}, ${skill.category}, ${skill.name}, ${skill.definition}, ${skill.difficulty})
+        insert into public.skills (id, category, name, definition, difficulty, world_id)
+        values (${skill.id}, ${skill.category}, ${skill.name}, ${skill.definition}, ${skill.difficulty}, ${skill.world})
         on conflict (id) do update set category = excluded.category, name = excluded.name,
-          definition = excluded.definition, difficulty = excluded.difficulty`;
+          definition = excluded.definition, difficulty = excluded.difficulty, world_id = excluded.world_id`;
     }
     // Replace the edge set: removing first lets a reordering of strict edges pass the cycle check.
     await tx`delete from public.skill_edges`;

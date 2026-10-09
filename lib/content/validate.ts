@@ -60,6 +60,15 @@ export function validateContent(content: LoadedContent, limits: Pick<ExecutionLi
         if (prerequisite.skill === skill.id) issues.push({ item: "skills.json", message: `${skill.id} requires itself` });
       }
     }
+    const worldIds = new Set(content.skills.worlds.map((world) => world.id));
+    if (worldIds.size !== content.skills.worlds.length) issues.push({ item: "skills.json", message: "world ids repeat" });
+    if (new Set(content.skills.worlds.map((world) => world.number)).size !== content.skills.worlds.length) issues.push({ item: "skills.json", message: "world numbers repeat" });
+    for (const skill of content.skills.skills) {
+      if (!worldIds.has(skill.world)) issues.push({ item: "skills.json", message: `${skill.id} is in unknown world ${skill.world}` });
+    }
+    for (const set of content.exerciseSets) {
+      if (!worldIds.has(set.manifest.world.id)) issues.push({ item: set.manifest.id, message: `unknown world ${set.manifest.world.id}` });
+    }
     const cycle = findStrictCycle(content.skills.skills);
     if (cycle) issues.push({ item: "skills.json", message: `strict prerequisite cycle: ${cycle.join(" -> ")}` });
   }
