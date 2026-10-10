@@ -72,6 +72,17 @@ describe("exercise sets", () => {
     expect([sets.map((set) => set.contentId).includes(SET), JSON.stringify(sets).includes("\"why\"")]).toEqual([true, false]);
   });
 
+  it("listVisibleSets_diagnostic_keepsItsSectionsInOrder", async () => {
+    const diagnostic = (await store.listVisibleSets(alice.id)).find((set) => set.contentId === "diagnostic.base-camp");
+
+    expect(diagnostic?.sections?.map((section) => [section.id, section.world])).toEqual([
+      ["java", "world.java-awakening"],
+      ["complexity", "world.complexity-caverns"],
+      ["structures", "world.data-structure-forge"],
+      ["patterns", "world.pattern-kingdom"],
+    ]);
+  });
+
   it("listVisibleQuests_neverIncludesExerciseSets", async () => {
     const quests = await new SupabaseLearningStore(serviceClient()).listVisibleQuests(alice.id);
 

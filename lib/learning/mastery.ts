@@ -103,9 +103,12 @@ export interface SkillStateUpdate extends SkillState {
 
 const round3 = (value: number) => Math.round(value * 1000) / 1000;
 
-export function updateSkillState(previous: SkillState | undefined, evidence: EvidenceRow, now: Date): SkillStateUpdate {
+/** Placement (diagnostic) evidence moves estimates half as far as practice (spec §3). */
+export const DIAGNOSTIC_EVIDENCE_WEIGHT = 0.5;
+
+export function updateSkillState(previous: SkillState | undefined, evidence: EvidenceRow, now: Date, weight = 1): SkillStateUpdate {
   const before = previous?.estimate ?? 0;
-  const estimate = round3(Math.min(1, Math.max(0, before + ESTIMATE_DELTA[evidence.outcome][evidence.independence])));
+  const estimate = round3(Math.min(1, Math.max(0, before + weight * ESTIMATE_DELTA[evidence.outcome][evidence.independence])));
   let intervalDays = LADDER.find((rung) => estimate < rung.below)!.days;
   let reason: ReviewReason = "spaced_review";
   if (evidence.outcome === "fail") {
