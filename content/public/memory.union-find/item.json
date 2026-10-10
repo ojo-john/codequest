@@ -1,0 +1,31 @@
+{
+  "kind": "quest",
+  "id": "memory.union-find",
+  "version": 1,
+  "title": "From memory: union-find",
+  "summary": "Write a disjoint-set structure from a blank class: union, connected and a component count.",
+  "campaign": {
+    "id": "problems.from-memory",
+    "order": 5
+  },
+  "stage": "delayed_transfer",
+  "family": "union-find",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "ds.graphs",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

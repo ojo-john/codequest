@@ -36,6 +36,8 @@ function publicPayload(quest: LoadedQuest): QuestPayload {
     summary: manifest.summary,
     campaign: manifest.campaign,
     stage: manifest.stage,
+    // Omitted when absent, so existing quests keep the payload they were synced with.
+    ...(manifest.family && { family: manifest.family }),
     estimatedMinutes: manifest.estimatedMinutes,
     skills: manifest.skills,
     instructions: quest.instructions,

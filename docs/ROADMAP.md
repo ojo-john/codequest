@@ -21,7 +21,7 @@ optional timer (lands with interview mode, §34).
 | 2.5 Session mix and mixed mode ✅ | §5, §25 | Per-budget activity mix using exercises (5 min: flash questions + recognition + complexity; …); mixed mode with neutral names and hidden tags. |
 | 2.6 Content: Data Structure Forge + Pattern Kingdom ✅ | §8, §9, §10 | Structure and pattern items and coding problems, with Pattern Hunter recognition. |
 | 2.7 Readiness and dashboard ✅ | §40, §41 | Readiness separate from XP: breadth/depth, retention, unseen problems, assistance, with "insufficient evidence" instead of invented confidence. |
-| 2.8 Debug dungeon, template memory, blank page, bosses, transfer | §11, §17, §53, §57, §59 | Built on the exercise engine and coding quests. |
+| 2.8 Debug dungeon, template memory, blank page, bosses, transfer ✅ (first content) | §11, §17, §53, §57, §59 | Built on the exercise engine and coding quests. |
 
 ## Phase 3+ (outline)
 

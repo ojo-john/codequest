@@ -22,6 +22,13 @@
       "kind": "problems"
     },
     {
+      "id": "problems.from-memory",
+      "title": "From memory",
+      "summary": "Rewrite core algorithms from a blank editor, with no templates: binary search, BFS, merge sort, list reversal, union-find.",
+      "world": "world.pattern-kingdom",
+      "kind": "problems"
+    },
+    {
       "id": "problems.debug-dungeon",
       "title": "Debug Dungeon",
       "summary": "Broken code with a bug report: find the root cause, fix it minimally, and prove it with a test that fails before the fix.",

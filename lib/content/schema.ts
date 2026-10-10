@@ -109,6 +109,11 @@ export const questManifestSchema = z
     summary: z.string().min(10).max(400),
     campaign: z.object({ id: contentIdSchema, order: z.number().int().min(1) }).strict(),
     stage: questStageSchema,
+    /**
+     * Variants of one underlying problem share a family (spec §57), so "unseen problems solved"
+     * never counts a superficial duplicate twice. Defaults to the quest's own id.
+     */
+    family: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).max(60).optional(),
     estimatedMinutes: z.number().int().min(1).max(90),
     skills: z.array(z.object({ skill: contentIdSchema, dimension: skillDimensionSchema }).strict()).min(1),
     /** Markdown file in the item directory. */

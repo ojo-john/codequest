@@ -1,0 +1,31 @@
+{
+  "kind": "quest",
+  "id": "memory.merge-sort",
+  "version": 1,
+  "title": "From memory: merge sort",
+  "summary": "Write merge sort from a blank editor: split, sort each half recursively, merge.",
+  "campaign": {
+    "id": "problems.from-memory",
+    "order": 3
+  },
+  "stage": "delayed_transfer",
+  "family": "merge-sort",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "bigo.recursion",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

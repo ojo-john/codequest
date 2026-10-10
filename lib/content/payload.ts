@@ -11,6 +11,7 @@ export const questPayloadSchema = z.object({
   summary: z.string(),
   campaign: z.object({ id: contentIdSchema, order: z.number().int() }),
   stage: questStageSchema,
+  family: z.string().optional(),
   estimatedMinutes: z.number().int(),
   skills: z.array(z.object({ skill: contentIdSchema, dimension: skillDimensionSchema })),
   instructions: z.string(),
