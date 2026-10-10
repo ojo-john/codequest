@@ -1,0 +1,488 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "new": "workshop.TtlCache",
+            "args": [
+              1000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1",
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a",
+              500
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": "1"
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a",
+              1000
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [
+              1000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "boundary",
+        "steps": [
+          {
+            "new": "workshop.TtlCache",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1",
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a",
+              99
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": "1"
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a",
+              100
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": null
+            }
+          }
+        ]
+      },
+      {
+        "id": "rewrite-extends",
+        "steps": [
+          {
+            "new": "workshop.TtlCache",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1",
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "2",
+              80
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a",
+              150
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": "2"
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a",
+              180
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": null
+            }
+          }
+        ]
+      },
+      {
+        "id": "miss",
+        "steps": [
+          {
+            "new": "workshop.TtlCache",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "x",
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "size-counts-live",
+        "steps": [
+          {
+            "new": "workshop.TtlCache",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1",
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "b",
+              "2",
+              50
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "c",
+              "3",
+              90
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ]
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [
+              120
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 2
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [
+              149
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 2
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [
+              150
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [
+              190
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "large-times",
+        "steps": [
+          {
+            "new": "workshop.TtlCache",
+            "args": [
+              86400000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1",
+              1700000000000
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String",
+              "long"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a",
+              1700086399999
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": "1"
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a",
+              1700086400000
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "long"
+            ],
+            "expect": {
+              "value": null
+            }
+          }
+        ]
+      },
+      {
+        "id": "zero-ttl",
+        "steps": [
+          {
+            "new": "workshop.TtlCache",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "negative-ttl",
+        "steps": [
+          {
+            "new": "workshop.TtlCache",
+            "args": [
+              -5
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Write the contract's edge cases as examples first (empty, boundary, invalid input), then pick the structure that makes each operation's cost match the requirement."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "boundary",
+      "rewrite-extends",
+      "zero-ttl",
+      "large-times"
+    ],
+    "followUps": [
+      {
+        "id": "inject-time",
+        "criterion": "explanation",
+        "skill": "practical.caching",
+        "prompt": "Why pass the current time in (or inject a clock) instead of calling System.currentTimeMillis() inside the cache?",
+        "options": [
+          "Tests can check expiry at exact instants without sleeping, so they are fast and not flaky",
+          "It makes the cache thread-safe",
+          "System.currentTimeMillis() is deprecated",
+          "It uses less memory"
+        ],
+        "answer": 0,
+        "why": "Time is an external dependency. Controlling it in tests makes boundary behaviour checkable and removes sleep-based flakiness."
+      }
+    ]
+  }
+}

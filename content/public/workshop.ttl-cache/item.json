@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "workshop.ttl-cache",
+  "version": 1,
+  "title": "TTL cache",
+  "summary": "A cache whose entries expire, with time passed in explicitly so it can be tested without sleeping.",
+  "campaign": {
+    "id": "practical.workshop",
+    "order": 2
+  },
+  "stage": "independent",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "practical.caching",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.classes",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

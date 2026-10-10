@@ -34,6 +34,13 @@
       "summary": "Broken code with a bug report: find the root cause, fix it minimally, and prove it with a test that fails before the fix.",
       "world": "world.debug-dungeon",
       "kind": "problems"
+    },
+    {
+      "id": "practical.workshop",
+      "title": "Backend Workshop",
+      "summary": "Practical Java: the small components real services are built from, with explicit contracts and testable time.",
+      "world": "world.backend-workshop",
+      "kind": "problems"
     }
   ]
 }

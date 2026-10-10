@@ -20,6 +20,7 @@ export const TRACKS = [
   { id: "patterns", name: "Patterns and recognition", categories: ["patterns"] },
   { id: "debugging", name: "Debugging", categories: ["debugging"] },
   { id: "system-design", name: "System design", categories: ["system-design"] },
+  { id: "practical", name: "Practical Java", categories: ["practical"] },
 ] as const;
 
 /** Tracks the spec asks for whose content doesn't exist yet: shown, never scored. */
