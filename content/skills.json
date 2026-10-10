@@ -6,7 +6,7 @@
     { "id": "world.data-structure-forge", "number": 3, "name": "Data Structure Forge", "summary": "Arrays, hash tables, lists, stacks, queues, heaps, trees and graphs.", "available": true },
     { "id": "world.pattern-kingdom", "number": 4, "name": "Pattern Kingdom", "summary": "Algorithmic patterns and recognising when to use them.", "available": true },
     { "id": "world.algorithm-arena", "number": 5, "name": "Algorithm Arena", "summary": "Mixed problems without topic labels.", "available": false },
-    { "id": "world.debug-dungeon", "number": 6, "name": "Debug Dungeon", "summary": "Broken-code challenges: diagnose, fix minimally, prove it with a test.", "available": false },
+    { "id": "world.debug-dungeon", "number": 6, "name": "Debug Dungeon", "summary": "Broken-code challenges: diagnose, fix minimally, prove it with a test.", "available": true },
     { "id": "world.system-design-city", "number": 7, "name": "System Design City", "summary": "Architecture and trade-offs.", "available": false },
     { "id": "world.backend-workshop", "number": 8, "name": "Backend Workshop", "summary": "Practical Java and low-level design.", "available": false },
     { "id": "world.interview-arena", "number": 9, "name": "Interview Arena", "summary": "Realistic interviews.", "available": false },
@@ -266,6 +266,15 @@
       "definition": "Move two indices through an array or string (towards each other or in the same direction) to solve pair, partition and palindrome problems in one pass.",
       "difficulty": 2,
       "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }]
+    },
+    {
+      "id": "debug.diagnosis",
+      "category": "debugging",
+      "name": "Debugging",
+      "world": "world.debug-dungeon",
+      "definition": "Go from a symptom to a root cause, make the smallest fix that removes it, and pin it down with a test that failed before the fix.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.unit-testing", "kind": "recommended" }, { "skill": "java.methods", "kind": "recommended" }]
     }
   ]
 }

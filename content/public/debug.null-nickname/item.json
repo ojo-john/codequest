@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "debug.null-nickname",
+  "version": 1,
+  "title": "The crash without a nickname",
+  "summary": "The greeting screen crashes for users who never set a nickname. Fix the null handling.",
+  "campaign": {
+    "id": "problems.debug-dungeon",
+    "order": 5
+  },
+  "stage": "independent",
+  "estimatedMinutes": 15,
+  "skills": [
+    {
+      "skill": "debug.diagnosis",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "debug.diagnosis",
+      "dimension": "explanation"
+    },
+    {
+      "skill": "java.unit-testing",
+      "dimension": "testing"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

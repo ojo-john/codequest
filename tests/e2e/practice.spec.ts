@@ -59,6 +59,8 @@ test("a learner works through an exercise set: right, wrong, ordering, blanks an
 test("mixed practice hides where each question comes from", async ({ page }) => {
   await signInAsNewLearner(page, "mixed");
   await page.getByLabel(/Show unreviewed drafts/).check();
+  // The opt-in saves asynchronously; wait until drafts show before navigating away.
+  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
   await page.goto("/practice");
   await page.getByRole("link", { name: "Start mixed practice" }).click(FIRST_LOAD);
 

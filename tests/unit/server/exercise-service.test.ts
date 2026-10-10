@@ -38,6 +38,8 @@ class FakeExerciseStore implements ExerciseStore {
   async passedQuestions() { return new Map<string, Set<string>>(); }
   async answeredSince() { return new Set<string>(); }
   async skillsOf() { return new Map<string, string[]>(); }
+  outcomes = new Map<string, string>();
+  async outcomesSince() { return this.outcomes; }
   async recordAttempt(input: ExerciseAttemptInput): Promise<RecordedExerciseAttempt> {
     if (this.keys.has(input.requestKey)) return { attemptId: "a1", awardedXp: 0, replayed: true };
     this.keys.add(input.requestKey);
@@ -184,5 +186,44 @@ describe("ExerciseService.mixed", () => {
     const items = await new ExerciseService({ store, skills: { skillStates: async () => [] }, random: () => 0.5 }).mixed(USER);
 
     expect(items.map((item) => [item.contentVersionId, item.question.id])).toEqual([[SET_ID, "get-or-default"]]);
+  });
+});
+
+describe("ExerciseService.bossResult", () => {
+  const BOSS: ExerciseSetRecord = {
+    ...SET,
+    contentVersionId: "88888888-8888-4888-8888-888888888888",
+    contentId: "ds.forge-exam",
+    boss: { passShare: 0.7 },
+    sections: [{ id: "maps", name: "Maps", questions: ["get-or-default"] }],
+  };
+
+  it("bossResult_failedSection_suggestsPracticeOnItsSkills", async () => {
+    const store = new FakeExerciseStore();
+    store.sets = [BOSS, SET];
+    store.outcomes = new Map([["get-or-default", "wrong-answer"]]);
+    store.skillsOf = async () => new Map([[SET_ID, ["java.collections"]]]);
+
+    const view = await service(store).bossResult(USER, BOSS.contentVersionId, NOW);
+
+    expect([view.passed, view.sections[0].remediation]).toEqual([false, [{ contentVersionId: SET_ID, title: "Maps" }]]);
+  });
+
+  it("bossResult_passedSection_hasNoRemediation", async () => {
+    const store = new FakeExerciseStore();
+    store.sets = [BOSS, SET];
+    store.outcomes = new Map([["get-or-default", "succeeded"]]);
+
+    const view = await service(store).bossResult(USER, BOSS.contentVersionId, NOW);
+
+    expect([view.passed, view.sections[0].remediation]).toEqual([true, []]);
+  });
+
+  it("bossResult_ordinarySet_is409", async () => {
+    expect((await apiError(service().bossResult(USER, SET_ID, NOW))).code).toBe("not_a_boss");
+  });
+
+  it("sittingStart_isSlightlyBeforeNowToAbsorbClockSkew", () => {
+    expect(service().sittingStart()).toEqual(new Date(NOW.getTime() - 5000));
   });
 });

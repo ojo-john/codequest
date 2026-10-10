@@ -76,6 +76,13 @@ describe("validateExerciseSets", () => {
     expect(messages([set([CHOICE], { c: { type: "single_choice", answer: 0, ...BASE } })], ["java.set"]).join()).toMatch(/also used by a quest/);
   });
 
+  it("validate_bossWithoutSections_isReported", () => {
+    const boss = set([CHOICE], { c: { type: "single_choice", answer: 0, ...BASE } });
+    const withBoss = { ...boss, manifest: { ...boss.manifest, boss: { passShare: 0.7 } } };
+
+    expect(messages([withBoss]).join()).toMatch(/needs sections/);
+  });
+
   it("validate_questionInNoSectionOrTwo_isReported", () => {
     const second: PublicQuestion = { ...CHOICE, id: "d" };
     const answers = { c: { type: "single_choice" as const, answer: 0, ...BASE }, d: { type: "single_choice" as const, answer: 0, ...BASE } };

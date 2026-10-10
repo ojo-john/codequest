@@ -1,0 +1,231 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "top3-example",
+        "steps": [
+          {
+            "new": "problems.Leaderboard",
+            "args": [
+              [
+                5,
+                9,
+                1,
+                7
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "as": "b"
+          },
+          {
+            "call": "top3",
+            "target": "b",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": [
+                9,
+                7,
+                5
+              ]
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "order-kept-after-top3",
+        "steps": [
+          {
+            "new": "problems.Leaderboard",
+            "args": [
+              [
+                5,
+                9,
+                1,
+                7
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "as": "b"
+          },
+          {
+            "call": "top3",
+            "target": "b",
+            "args": [],
+            "paramTypes": []
+          },
+          {
+            "call": "scores",
+            "target": "b",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": [
+                5,
+                9,
+                1,
+                7
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "top3-twice",
+        "steps": [
+          {
+            "new": "problems.Leaderboard",
+            "args": [
+              [
+                3,
+                1,
+                2
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "as": "b"
+          },
+          {
+            "call": "top3",
+            "target": "b",
+            "args": [],
+            "paramTypes": []
+          },
+          {
+            "call": "top3",
+            "target": "b",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": [
+                3,
+                2,
+                1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "fewer-than-three",
+        "steps": [
+          {
+            "new": "problems.Leaderboard",
+            "args": [
+              [
+                4
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "as": "b"
+          },
+          {
+            "call": "top3",
+            "target": "b",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": [
+                4
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "new": "problems.Leaderboard",
+            "args": [
+              []
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "as": "b"
+          },
+          {
+            "call": "top3",
+            "target": "b",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": []
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "The report says the order changes after top3() runs. Which line in top3 changes state rather than just reading it?"
+    },
+    {
+      "tier": "pattern",
+      "text": "Arrays.sort sorts the array you give it in place. Sorting a field is a side effect every later caller sees."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "order-kept-after-top3",
+      "fewer-than-three",
+      "empty"
+    ],
+    "followUps": [
+      {
+        "id": "diagnosis",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "What was the root cause?",
+        "options": [
+          "top3() sorted the leaderboard's own array in place, a side effect that changed every later read",
+          "scores() returned the wrong array",
+          "The constructor forgot to copy the input",
+          "Arrays.sort is unstable"
+        ],
+        "answer": 0,
+        "why": "A query method mutated state. Sorting a copy keeps top3() free of side effects."
+      },
+      {
+        "id": "prevention",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "What test shape catches hidden side effects like this?",
+        "options": [
+          "Call the method, then check the object's other observable state is unchanged",
+          "Call the method once and check only its return value",
+          "Only test with already sorted input",
+          "Test that no exception is thrown"
+        ],
+        "answer": 0,
+        "why": "Checking return values alone can't see side effects. Assert the state after the call, too (and test sorted input last, since it hides this bug)."
+      }
+    ]
+  },
+  "testQuality": {
+    "target": "src/main/java/problems/Leaderboard.java",
+    "passRatio": 1,
+    "referenceTestsDir": "reference-tests",
+    "mutants": [
+      {
+        "id": "original-bug",
+        "description": "the original bug from the report",
+        "file": "mutants/original-bug.java"
+      }
+    ]
+  }
+}

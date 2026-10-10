@@ -2,6 +2,7 @@ import "server-only";
 import { z } from "zod";
 import { gradeAnswer, InvalidResponseError, type CorrectAnswer, type ExerciseOutcome } from "@/lib/exercises/grade";
 import { DIAGNOSTIC_WORLD, placementSummary, type SectionResult } from "@/lib/exercises/diagnostic";
+import { bossResult, type BossSectionResult } from "@/lib/exercises/boss";
 import { selectMixed, type MixedItem } from "@/lib/exercises/mixed";
 import type { PublicQuestion } from "@/lib/exercises/schema";
 import { DIAGNOSTIC_EVIDENCE_WEIGHT, MASTERY_MODEL_VERSION, masteryState, SCHEDULER_VERSION, updateSkillState, type SkillState } from "@/lib/learning/mastery";
@@ -54,6 +55,17 @@ export interface AnswerResult {
 const OUTCOME_TEXT: Record<ExerciseOutcome, string> = { pass: "succeeded", partial: "partial", fail: "wrong-answer" };
 const OUTCOME_FROM_TEXT: Record<string, ExerciseOutcome> = { succeeded: "pass", partial: "partial", "wrong-answer": "fail" };
 
+const SITTING_MARGIN_MS = 5000;
+
+/** Practice sets suggested per failed boss section. */
+const MAX_REMEDIATION = 2;
+
+export interface BossView {
+  readonly passShare: number;
+  readonly passed: boolean;
+  readonly sections: ReadonlyArray<BossSectionResult & { readonly remediation: ReadonlyArray<{ readonly contentVersionId: string; readonly title: string }> }>;
+}
+
 export interface PlacementView {
   readonly diagnostic: { readonly contentVersionId: string; readonly title: string; readonly estimatedMinutes: number };
   /** Whether any diagnostic question has been answered. */
@@ -72,6 +84,42 @@ export class ExerciseService {
     this.skills = deps.skills;
     this.clock = deps.clock ?? (() => new Date());
     this.random = deps.random ?? Math.random;
+  }
+
+  /** Start of a boss sitting: answers from here on count. The margin absorbs clock skew with the database. */
+  sittingStart(): Date {
+    return new Date(this.clock().getTime() - SITTING_MARGIN_MS);
+  }
+
+  /**
+   * A boss exam's result for one sitting (spec §53): per section pass/not yet, and for each
+   * section not yet passed, practice sets covering its skills.
+   */
+  async bossResult(userId: string, contentVersionId: string, since: Date): Promise<BossView> {
+    const set = await this.requireSet(userId, contentVersionId);
+    if (set.boss === undefined || set.sections === undefined) throw new ApiError(409, "not_a_boss", "That set isn't a mastery exam.");
+    const [latest, answers, sets] = await Promise.all([
+      this.store.outcomesSince(userId, contentVersionId, since),
+      this.store.getAnswers(contentVersionId),
+      this.store.listVisibleSets(userId),
+    ]);
+    const outcomes = new Map([...latest].flatMap(([id, outcome]) => (OUTCOME_FROM_TEXT[outcome] ? [[id, OUTCOME_FROM_TEXT[outcome]] as const] : [])));
+    const result = bossResult(set.sections, outcomes, set.boss.passShare);
+    const practice = sets.filter((candidate) => candidate.boss === undefined && candidate.world.id !== DIAGNOSTIC_WORLD);
+    const tags = await this.store.skillsOf(practice.map((candidate) => candidate.contentVersionId));
+    return {
+      passShare: set.boss.passShare,
+      passed: result.passed,
+      sections: result.sections.map((section) => {
+        if (section.passed) return { ...section, remediation: [] };
+        const sectionSkills = new Set(set.sections!.find((entry) => entry.id === section.sectionId)!.questions.flatMap((id) => (answers[id] ? [answers[id].skill] : [])));
+        const remediation = practice
+          .filter((candidate) => (tags.get(candidate.contentVersionId) ?? []).some((skill) => sectionSkills.has(skill)))
+          .slice(0, MAX_REMEDIATION)
+          .map((candidate) => ({ contentVersionId: candidate.contentVersionId, title: candidate.title }));
+        return { ...section, remediation };
+      }),
+    };
   }
 
   /** Mixed practice (spec §25): interleaved questions from every practice set, unpassed first. */

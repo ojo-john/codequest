@@ -1,0 +1,263 @@
+{
+  "kind": "exercise-set",
+  "id": "ds.forge-exam",
+  "version": 1,
+  "title": "Data Structure Forge exam",
+  "summary": "The world's mastery exam: 5 complexity, 5 selection, 3 debugging, 3 implementation and 4 scenario questions. Each section needs 70% on its own.",
+  "world": {
+    "id": "world.data-structure-forge",
+    "order": 9
+  },
+  "estimatedMinutes": 25,
+  "questions": [
+    {
+      "id": "hashmap-get",
+      "type": "big_o",
+      "prompt": "What is the average time of HashMap.get?",
+      "ask": "time"
+    },
+    {
+      "id": "heap-poll",
+      "type": "big_o",
+      "prompt": "What is the time of PriorityQueue.poll on n elements?",
+      "ask": "time"
+    },
+    {
+      "id": "heap-peek",
+      "type": "big_o",
+      "prompt": "What is the time of PriorityQueue.peek?",
+      "ask": "time"
+    },
+    {
+      "id": "deque-ends",
+      "type": "big_o",
+      "prompt": "What is the time of ArrayDeque.addFirst and pollLast?",
+      "ask": "time"
+    },
+    {
+      "id": "unbalanced-bst",
+      "type": "big_o",
+      "prompt": "What is the worst-case time to search an unbalanced binary search tree of n keys?",
+      "ask": "time"
+    },
+    {
+      "id": "browser-back",
+      "type": "pattern",
+      "prompt": "A browser's back button returns to the most recently visited page.",
+      "options": [
+        "A stack",
+        "A queue",
+        "A min-heap",
+        "A hash set"
+      ]
+    },
+    {
+      "id": "print-jobs",
+      "type": "pattern",
+      "prompt": "A printer handles jobs in the order they were sent.",
+      "options": [
+        "A queue",
+        "A stack",
+        "A TreeMap",
+        "A heap ordered by size"
+      ]
+    },
+    {
+      "id": "emergency-room",
+      "type": "pattern",
+      "prompt": "Patients are treated by urgency, most urgent first, as new patients keep arriving.",
+      "options": [
+        "A priority queue",
+        "A queue",
+        "A sorted list, re-sorted on every arrival",
+        "A stack"
+      ]
+    },
+    {
+      "id": "price-range",
+      "type": "pattern",
+      "prompt": "Find all products priced between 10 and 20, with prices changing often.",
+      "options": [
+        "A TreeMap from price to products, using subMap",
+        "A HashMap from price to products",
+        "A stack",
+        "A queue"
+      ]
+    },
+    {
+      "id": "friend-groups",
+      "type": "pattern",
+      "prompt": "Repeatedly merge friend groups and ask whether two people are in the same group.",
+      "options": [
+        "Union-find (disjoint sets)",
+        "BFS over the friendship graph for every question",
+        "A sorted array",
+        "A stack"
+      ]
+    },
+    {
+      "id": "pop-empty",
+      "type": "single_choice",
+      "prompt": "This stack's pop() sometimes crashes with ArrayIndexOutOfBoundsException. What's wrong?",
+      "options": [
+        "It doesn't check for an empty stack, so size becomes -1 and indexes the array at -1",
+        "The array never grows",
+        "push and pop use different arrays",
+        "ArrayDeque should be used instead"
+      ],
+      "code": "public int pop() {\n    size--;\n    return items[size];\n}"
+    },
+    {
+      "id": "mutable-key",
+      "type": "single_choice",
+      "prompt": "A Point is put in a HashSet, then its x field is changed. Now set.contains(point) returns false. Why?",
+      "options": [
+        "Its hashCode changed, so the set looks in a different bucket than the one it was stored in",
+        "HashSet removes changed elements",
+        "equals is never called by HashSet",
+        "Points can't be stored in sets"
+      ]
+    },
+    {
+      "id": "bfs-revisit",
+      "type": "single_choice",
+      "prompt": "This BFS takes forever on graphs with cycles. What's missing?",
+      "options": [
+        "It never marks nodes as seen, so cycles queue the same nodes again and again",
+        "It should use a stack",
+        "It should start from every node",
+        "The queue should be sorted"
+      ],
+      "code": "queue.add(start);\nwhile (!queue.isEmpty()) {\n    int node = queue.poll();\n    for (int next : graph.get(node)) {\n        queue.add(next);\n    }\n}"
+    },
+    {
+      "id": "queue-poll",
+      "type": "fill_blank",
+      "prompt": "Complete the line that takes the next job from the front of a Queue<Job> called jobs (null if empty).",
+      "code": "Job next = jobs.____();"
+    },
+    {
+      "id": "min-heap-order",
+      "type": "order",
+      "prompt": "Order the steps for adding a value to a min-heap stored in an array.",
+      "steps": [
+        "Stop when the parent is smaller or the value reaches the root",
+        "Put the value in the next free slot at the end",
+        "While it's smaller than its parent, swap it with the parent"
+      ]
+    },
+    {
+      "id": "tree-size",
+      "type": "fill_blank",
+      "prompt": "Complete the recursive count of nodes in a binary tree.",
+      "code": "static int size(Node node) {\n    if (node == null) {\n        return ____;\n    }\n    return 1 + size(node.left()) + size(node.right());\n}"
+    },
+    {
+      "id": "autocomplete",
+      "type": "pattern",
+      "prompt": "Suggest words as a user types each letter of a prefix.",
+      "options": [
+        "A trie (prefix tree)",
+        "A HashSet of all words, checking each one",
+        "A stack",
+        "A queue"
+      ]
+    },
+    {
+      "id": "lru-cache",
+      "type": "pattern",
+      "prompt": "A cache that evicts the least recently used entry when full, with O(1) get and put.",
+      "options": [
+        "A LinkedHashMap in access order (or a hash map plus a doubly linked list)",
+        "A TreeMap keyed by insertion time",
+        "A plain HashMap",
+        "A stack"
+      ]
+    },
+    {
+      "id": "streaming-median",
+      "type": "pattern",
+      "prompt": "Report the median of a stream of numbers after each new one.",
+      "options": [
+        "Two heaps: a max-heap for the lower half and a min-heap for the upper half",
+        "Sort everything after every number",
+        "A single queue",
+        "A hash set"
+      ]
+    },
+    {
+      "id": "course-order",
+      "type": "pattern",
+      "prompt": "Find an order to take courses so every prerequisite comes first.",
+      "options": [
+        "Topological sort of the prerequisite graph",
+        "Sort courses alphabetically",
+        "A min-heap of course names",
+        "Binary search"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "complexity",
+      "name": "Complexity",
+      "questions": [
+        "hashmap-get",
+        "heap-poll",
+        "heap-peek",
+        "deque-ends",
+        "unbalanced-bst"
+      ]
+    },
+    {
+      "id": "selection",
+      "name": "Choosing a structure",
+      "questions": [
+        "browser-back",
+        "print-jobs",
+        "emergency-room",
+        "price-range",
+        "friend-groups"
+      ]
+    },
+    {
+      "id": "debugging",
+      "name": "Debugging",
+      "questions": [
+        "pop-empty",
+        "mutable-key",
+        "bfs-revisit"
+      ]
+    },
+    {
+      "id": "implementation",
+      "name": "Implementation",
+      "questions": [
+        "queue-poll",
+        "min-heap-order",
+        "tree-size"
+      ]
+    },
+    {
+      "id": "scenarios",
+      "name": "Scenarios",
+      "questions": [
+        "autocomplete",
+        "lru-cache",
+        "streaming-median",
+        "course-order"
+      ]
+    }
+  ],
+  "boss": {
+    "passShare": 0.7
+  },
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

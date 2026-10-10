@@ -47,6 +47,8 @@ export interface ExerciseStore {
   passedQuestions(userId: string): Promise<Map<string, Set<string>>>;
   /** Questions of this set version answered (any outcome) since `since`. */
   answeredSince(userId: string, contentVersionId: string, since: Date): Promise<Set<string>>;
+  /** Latest outcome per question of this set version, for answers since `since` (one sitting). */
+  outcomesSince(userId: string, contentVersionId: string, since: Date): Promise<Map<string, string>>;
   /** Skill ids each set version is tagged with. */
   skillsOf(contentVersionIds: readonly string[]): Promise<Map<string, string[]>>;
 }
@@ -179,5 +181,22 @@ export class SupabaseExerciseStore implements ExerciseStore {
       skills.set(row.content_version_id, list);
     }
     return skills;
+  }
+
+  async outcomesSince(userId: string, contentVersionId: string, since: Date): Promise<Map<string, string>> {
+    const rows = check(
+      "outcomes_since",
+      await this.db
+        .from("attempts")
+        .select("outcome, response, created_at")
+        .eq("user_id", userId)
+        .eq("content_version_id", contentVersionId)
+        .eq("state", "graded")
+        .gte("created_at", since.toISOString())
+        .order("created_at", { ascending: true }),
+    ) as Array<{ outcome: string | null; response: { questionId?: string } | null }>;
+    const latest = new Map<string, string>();
+    for (const row of rows) if (row.response?.questionId && row.outcome) latest.set(row.response.questionId, row.outcome);
+    return latest;
   }
 }
