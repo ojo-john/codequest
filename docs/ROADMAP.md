@@ -19,8 +19,8 @@ optional timer (lands with interview mode, §34).
 | 2.3 Content: Java Awakening + Complexity Caverns ✅ | §6, §7 | Exercise sets for World 1 (Java fluency) and World 2 (Big-O detective: loops, doubling, triangular nesting, recursion, space). |
 | 2.4 Base Camp diagnostic ✅ | §3 | An adaptive first-launch diagnostic (~10 Java items, rising Big-O items, structure scenarios, pattern recognition, one easy implementation). Placement seeds skill estimates as low-weight evidence and picks the starting path without skipping fundamentals. |
 | 2.5 Session mix and mixed mode ✅ | §5, §25 | Per-budget activity mix using exercises (5 min: flash questions + recognition + complexity; …); mixed mode with neutral names and hidden tags. |
-| 2.6 Content: Data Structure Forge + Pattern Kingdom | §8, §9, §10 | Structure and pattern items and coding problems, with Pattern Hunter recognition. |
-| 2.7 Readiness and dashboard | §40, §41 | Readiness separate from XP: breadth/depth, retention, unseen problems, assistance, with "insufficient evidence" instead of invented confidence. |
+| 2.6 Content: Data Structure Forge + Pattern Kingdom ✅ | §8, §9, §10 | Structure and pattern items and coding problems, with Pattern Hunter recognition. |
+| 2.7 Readiness and dashboard ✅ | §40, §41 | Readiness separate from XP: breadth/depth, retention, unseen problems, assistance, with "insufficient evidence" instead of invented confidence. |
 | 2.8 Debug dungeon, template memory, blank page, bosses, transfer | §11, §17, §53, §57, §59 | Built on the exercise engine and coding quests. |
 
 ## Phase 3+ (outline)
