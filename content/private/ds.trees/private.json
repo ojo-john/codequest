@@ -1,0 +1,57 @@
+{
+  "answers": {
+    "inorder": {
+      "type": "predict_output",
+      "answer": "1 2 3 4 6 7",
+      "why": "In-order visits the left subtree, then the node, then the right subtree. This tree is a binary search tree, so that order is sorted.",
+      "skill": "ds.trees",
+      "dimension": "concept"
+    },
+    "preorder": {
+      "type": "predict_output",
+      "answer": "4 2 1 3 6 7",
+      "why": "Pre-order visits the node first, then its left subtree, then its right subtree.",
+      "skill": "ds.trees",
+      "dimension": "concept"
+    },
+    "why-sorted": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "The BST property orders each node against its whole subtrees, and visiting left, node, right respects that at every level.",
+      "skill": "ds.trees",
+      "dimension": "explanation"
+    },
+    "degenerate": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "Each new key is larger than everything before it, so the tree degenerates into a chain going right. Searching it is a linked-list walk. Balanced trees (like the red-black tree behind TreeMap) prevent this.",
+      "skill": "ds.trees",
+      "dimension": "complexity"
+    },
+    "treemap-get": {
+      "type": "big_o",
+      "answer": "O(log n)",
+      "why": "TreeMap is a red-black tree, which keeps itself balanced, so its height stays O(log n).",
+      "skill": "ds.trees",
+      "dimension": "complexity"
+    },
+    "level-order": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Nodes are processed in the order they were discovered, level by level: first in, first out.",
+      "skill": "ds.trees",
+      "dimension": "concept"
+    },
+    "height": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "max"
+        ]
+      ],
+      "why": "A tree is as tall as its taller subtree plus the node itself.",
+      "skill": "ds.trees",
+      "dimension": "implementation"
+    }
+  }
+}

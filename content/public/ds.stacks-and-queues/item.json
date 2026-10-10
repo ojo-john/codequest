@@ -1,0 +1,79 @@
+{
+  "kind": "exercise-set",
+  "id": "ds.stacks-and-queues",
+  "version": 1,
+  "title": "Stacks, queues and deques",
+  "summary": "Last-in-first-out, first-in-first-out, and the problems each one fits.",
+  "world": {
+    "id": "world.data-structure-forge",
+    "order": 2
+  },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "stack-order",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.ArrayDeque;\nimport java.util.Deque;\n\npublic class Main {\n    public static void main(String[] args) {\n        Deque<Integer> stack = new ArrayDeque<>();\n        stack.push(1);\n        stack.push(2);\n        stack.push(3);\n        System.out.println(stack.pop());\n        System.out.println(stack.peek());\n    }\n}\n"
+    },
+    {
+      "id": "queue-order",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.ArrayDeque;\nimport java.util.Queue;\n\npublic class Main {\n    public static void main(String[] args) {\n        Queue<String> queue = new ArrayDeque<>();\n        queue.offer(\"a\");\n        queue.offer(\"b\");\n        queue.offer(\"c\");\n        System.out.println(queue.poll());\n        System.out.println(queue);\n    }\n}\n"
+    },
+    {
+      "id": "brackets",
+      "type": "pattern",
+      "prompt": "Check whether a string of brackets like \"([]{})\" is balanced, with three kinds of bracket. Which approach?",
+      "options": [
+        "Push opening brackets on a stack; each closing bracket must match the top",
+        "Count openings minus closings",
+        "Put the brackets in a queue",
+        "Sort the brackets"
+      ]
+    },
+    {
+      "id": "why-arraydeque",
+      "type": "single_choice",
+      "prompt": "Why is ArrayDeque preferred over the old Stack class in modern Java?",
+      "options": [
+        "Stack is a legacy, synchronized class built on Vector; ArrayDeque is the recommended, faster choice",
+        "Stack has no push method",
+        "ArrayDeque can store null elements",
+        "Stack.push is O(n)"
+      ]
+    },
+    {
+      "id": "bracket-steps",
+      "type": "order",
+      "prompt": "Put the steps of a balanced-brackets check in order.",
+      "steps": [
+        "If the stack is empty at the end, the brackets are balanced",
+        "For each character, push it if it's an opening bracket",
+        "For a closing bracket, pop and check it matches; fail if the stack was empty or it doesn't match",
+        "Create an empty stack"
+      ]
+    },
+    {
+      "id": "monotonic-stack",
+      "type": "big_o",
+      "prompt": "This finds the next greater element for every position. What is its time complexity for an array of length n?",
+      "code": "Deque<Integer> stack = new ArrayDeque<>();\nfor (int i = 0; i < n; i++) {\n    while (!stack.isEmpty() && a[stack.peek()] < a[i]) {\n        next[stack.pop()] = a[i];\n    }\n    stack.push(i);\n}",
+      "ask": "time"
+    },
+    {
+      "id": "queue-removes",
+      "type": "true_false",
+      "prompt": "True or false: a queue's next removed element is the one added most recently."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
