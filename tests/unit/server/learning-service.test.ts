@@ -93,6 +93,7 @@ class FakeStore implements LearningStore {
   submissionsSince: Date | undefined;
   async recentSubmissions(_u: string, since: Date) { this.submissionsSince = since; return this.submissions; }
   async skillNames() { return new Map([["java.loops", "Loops"]]); }
+  listCampaigns: LearningStore["listCampaigns"] = async () => [{ id: "campaign.shopping-cart", title: "Shopping cart", summary: "Cart.", kind: "project", worldNumber: 1 }];
   session: SessionView | undefined;
   completedItems: string[] = [];
   async completeSessionItem(_u: string, itemId: string) { this.completedItems.push(itemId); return { completed: true, sessionCompleted: true }; }
@@ -562,6 +563,20 @@ describe("LearningService practice in sessions", () => {
 
   it("completePracticeItem_someoneElsesSession_is404", async () => {
     expect((await apiError(practiceService(new FakeStore()).completePracticeItem(USER, SESSION_ID, ITEM_ID))).status).toBe(404);
+  });
+});
+
+describe("LearningService.getProgress", () => {
+  it("getProgress_groupsQuestsByCampaignAndLeavesOutEmptyCampaigns", async () => {
+    const store = new FakeStore();
+    store.listCampaigns = async () => [
+      { id: "campaign.shopping-cart", title: "Shopping cart", summary: "Cart.", kind: "project" as const, worldNumber: 1 },
+      { id: "problems.patterns", title: "Pattern problems", summary: "Problems.", kind: "problems" as const, worldNumber: 4 },
+    ];
+
+    const progress = await service(store).getProgress(USER);
+
+    expect(progress.campaigns.map((campaign) => [campaign.id, campaign.quests.map((quest) => quest.contentId)])).toEqual([["campaign.shopping-cart", ["cart.q1-checkout-totals"]]]);
   });
 });
 

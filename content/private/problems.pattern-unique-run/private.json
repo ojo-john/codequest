@@ -1,0 +1,261 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              "abcabcbb"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 3
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "all-same",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              "bbbbb"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "not-a-subsequence",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              "pwwkew"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              ""
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "single",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              "a"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "all-unique",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              "abcdef"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 6
+            }
+          }
+        ]
+      },
+      {
+        "id": "left-never-moves-back",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              "abba"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "restart-mid",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              "dvdf"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "case-sensitive",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              "aA"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "spaces-count",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              " a b"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "null-rejected",
+        "steps": [
+          {
+            "call": "longest",
+            "static": "problems.UniqueRun",
+            "args": [
+              null
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "It's about a contiguous region with a rule you can keep true while it grows: no repeats."
+    },
+    {
+      "tier": "pattern",
+      "text": "Sliding window: extend the right end each step; when a repeat enters, move the left end past the earlier copy."
+    },
+    {
+      "tier": "key_insight",
+      "text": "Remember each character's last position. Only jump left forward (never back): \"abba\" is the trap."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "empty",
+      "single",
+      "left-never-moves-back",
+      "restart-mid",
+      "case-sensitive",
+      "null-rejected"
+    ],
+    "followUps": [
+      {
+        "id": "run-time",
+        "criterion": "time_complexity",
+        "skill": "patterns.sliding-window",
+        "prompt": "What is the time complexity of the sliding-window solution?",
+        "options": [
+          "O(n)",
+          "O(n^2)",
+          "O(n log n)",
+          "O(n^3)"
+        ],
+        "answer": 0,
+        "why": "right moves n times and left only ever moves forward, so the total work is linear."
+      },
+      {
+        "id": "run-cue",
+        "criterion": "explanation",
+        "skill": "patterns.sliding-window",
+        "prompt": "What in the problem statement points to a sliding window?",
+        "options": [
+          "It asks about a contiguous range with a constraint (no repeats) that can be kept true as the range grows and shrinks",
+          "It mentions characters",
+          "It asks for a length",
+          "Strings are always solved with windows"
+        ],
+        "answer": 0,
+        "why": "Contiguous + maintainable constraint is the window cue; \"subsequence\" or \"pair\" problems would point elsewhere."
+      }
+    ]
+  }
+}

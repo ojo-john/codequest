@@ -14,6 +14,31 @@ export const skillDimensionSchema = z.enum([
   "concept", "recognition", "implementation", "complexity", "explanation", "testing", "communication", "design",
 ]);
 
+/**
+ * Campaigns group quests. A "project" campaign builds one project across its quests (the
+ * shopping cart, spec §69); in a "problems" campaign every quest is a standalone problem with
+ * its own files (spec §8–9).
+ */
+export const campaignsFileSchema = z
+  .object({
+    campaigns: z
+      .array(
+        z
+          .object({
+            id: contentIdSchema,
+            title: z.string().min(3).max(80),
+            summary: z.string().min(10).max(300),
+            world: contentIdSchema,
+            kind: z.enum(["project", "problems"]),
+          })
+          .strict(),
+      )
+      .min(1),
+  })
+  .strict();
+
+export type CampaignsFile = z.infer<typeof campaignsFileSchema>;
+
 /** The game's worlds (spec §2). `available` is false for worlds whose content isn't built yet. */
 export const worldSchema = z
   .object({

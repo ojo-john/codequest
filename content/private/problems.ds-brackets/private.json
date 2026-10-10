@@ -1,0 +1,280 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "nested-mixed",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "([]{})"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "wrong-order",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "([)]"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": false
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              ""
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "single-pair",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "()"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "unclosed",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "(("
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "close-first",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "))"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "reversed",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "}{"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "ignores-letters",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "a(b)c"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "deep",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "{[(())]}"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "extra-close",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "()]"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "only-text",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              "no brackets"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          }
+        ]
+      },
+      {
+        "id": "null-rejected",
+        "steps": [
+          {
+            "call": "isBalanced",
+            "static": "problems.Brackets",
+            "args": [
+              null
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "The bracket that must close next is always the most recently opened one."
+    },
+    {
+      "tier": "pattern",
+      "text": "That's last in, first out: push openings on a stack; a closing bracket must match the top."
+    },
+    {
+      "tier": "key_insight",
+      "text": "Fail on a closing bracket when the stack is empty or the top doesn't match; at the end, the stack must be empty."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "empty",
+      "unclosed",
+      "close-first",
+      "reversed",
+      "extra-close",
+      "null-rejected"
+    ],
+    "followUps": [
+      {
+        "id": "why-not-count",
+        "criterion": "explanation",
+        "skill": "ds.stacks-queues",
+        "prompt": "Why isn't counting openings minus closings enough here?",
+        "options": [
+          "It can't tell \"([)]\" from \"([])\": both have matching counts, but only one closes in order",
+          "Counting is too slow",
+          "Counting doesn't work on strings",
+          "It is enough"
+        ],
+        "answer": 0,
+        "why": "Counts check how many brackets close, not which one closes. The order constraint needs memory of what's open: the stack."
+      },
+      {
+        "id": "brackets-time",
+        "criterion": "time_complexity",
+        "skill": "ds.stacks-queues",
+        "prompt": "What is the time complexity of the stack solution for a string of length n?",
+        "options": [
+          "O(n)",
+          "O(n log n)",
+          "O(n^2)",
+          "O(1)"
+        ],
+        "answer": 0,
+        "why": "One pass, each character pushed or popped at most once."
+      }
+    ]
+  }
+}

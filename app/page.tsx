@@ -19,7 +19,6 @@ export default async function HomePage() {
     supabase.from("profiles").select("settings").eq("user_id", user.userId).single(),
   ]);
   const showUnreviewed = (profile.data?.settings as Record<string, unknown> | undefined)?.show_unreviewed_content === true;
-  const done = progress.campaign.filter((quest) => quest.completed).length;
   const due = progress.skills.filter((skill) => new Date(skill.reviewDueAt) <= new Date()).length;
 
   return (
@@ -83,30 +82,41 @@ export default async function HomePage() {
         </Card>
 
         <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-          <Card>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-semibold">Shopping-cart campaign</h2>
-              <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                {done} of {progress.campaign.length} done
-              </span>
-            </div>
-            {progress.campaign.length === 0 ? (
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">Nothing to show yet.</p>
+          <div className="flex flex-col gap-6">
+            {progress.campaigns.length === 0 ? (
+              <Card>
+                <h2 className="mb-3 font-semibold">Quests</h2>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">Nothing to show yet.</p>
+              </Card>
             ) : (
-              <ol className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                {progress.campaign.map((quest) => (
-                  <li key={quest.contentVersionId} className="flex flex-wrap items-center gap-3 py-2.5">
-                    <span className="w-6 text-right text-sm text-neutral-500 dark:text-neutral-400">{quest.order}.</span>
-                    <Link href={`/quests/${quest.contentVersionId}`} className="font-medium hover:underline">
-                      {quest.title}
-                    </Link>
-                    <UnreviewedBadge status={quest.status} />
-                    {quest.completed && <Badge tone="success">✓ Done</Badge>}
-                  </li>
-                ))}
-              </ol>
+              progress.campaigns.map((campaign) => (
+                <Card key={campaign.id}>
+                  <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                    <h2 className="font-semibold">
+                      {campaign.title}
+                      {campaign.kind === "project" ? " campaign" : ""}
+                    </h2>
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                      {campaign.quests.filter((quest) => quest.completed).length} of {campaign.quests.length} done
+                    </span>
+                  </div>
+                  <p className="mb-2 text-sm text-neutral-600 dark:text-neutral-400">{campaign.summary}</p>
+                  <ol className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                    {campaign.quests.map((quest) => (
+                      <li key={quest.contentVersionId} className="flex flex-wrap items-center gap-3 py-2.5">
+                        <span className="w-6 text-right text-sm text-neutral-500 dark:text-neutral-400">{quest.order}.</span>
+                        <Link href={`/quests/${quest.contentVersionId}`} className="font-medium hover:underline">
+                          {quest.title}
+                        </Link>
+                        <UnreviewedBadge status={quest.status} />
+                        {quest.completed && <Badge tone="success">✓ Done</Badge>}
+                      </li>
+                    ))}
+                  </ol>
+                </Card>
+              ))
             )}
-          </Card>
+          </div>
           <Card>
             <h2 className="mb-3 font-semibold">Content</h2>
             <UnreviewedToggle enabled={showUnreviewed} />

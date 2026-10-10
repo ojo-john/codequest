@@ -1,0 +1,313 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [
+                2,
+                7,
+                11,
+                15
+              ],
+              9
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                1
+              ]
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "same-value-twice",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [
+                3,
+                3
+              ],
+              6
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "none",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [
+                1,
+                2
+              ],
+              7
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "not-with-itself",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [
+                3,
+                2,
+                4
+              ],
+              6
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                1,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "negatives",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [
+                -3,
+                4,
+                3,
+                90
+              ],
+              0
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [],
+              5
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "single",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [
+                5
+              ],
+              10
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "earliest-second-position",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [
+                1,
+                4,
+                2,
+                3
+              ],
+              5
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "smallest-first-for-that-second",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              [
+                2,
+                2,
+                3
+              ],
+              5
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "null-rejected",
+        "steps": [
+          {
+            "call": "indicesOf",
+            "static": "problems.PairSum",
+            "args": [
+              null,
+              1
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "For each value x you need to know whether target − x appeared earlier."
+    },
+    {
+      "tier": "pattern",
+      "text": "A HashMap from value to the first position it appeared at answers that in O(1)."
+    },
+    {
+      "tier": "key_insight",
+      "text": "Look up target − x before storing x, so x can't pair with itself; use putIfAbsent to keep the earliest position."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "same-value-twice",
+      "none",
+      "not-with-itself",
+      "empty",
+      "single",
+      "smallest-first-for-that-second",
+      "null-rejected"
+    ],
+    "followUps": [
+      {
+        "id": "pairs-time",
+        "criterion": "time_complexity",
+        "skill": "patterns.hashing",
+        "prompt": "What is the average time complexity of the one-pass hash map solution?",
+        "options": [
+          "O(n)",
+          "O(n log n)",
+          "O(n^2)",
+          "O(log n)"
+        ],
+        "answer": 0,
+        "why": "n iterations, each with O(1) average map operations."
+      },
+      {
+        "id": "pairs-vs-sort",
+        "criterion": "explanation",
+        "skill": "patterns.hashing",
+        "prompt": "Sorting plus two pointers also finds a pair. Why is it a worse fit here?",
+        "options": [
+          "Sorting loses the original positions (unless you carry them along) and costs O(n log n)",
+          "Two pointers don't work on numbers",
+          "Sorting uses no memory",
+          "It finds pairs that don't add up"
+        ],
+        "answer": 0,
+        "why": "The question asks for positions in the original array, and the hash map does it in O(n) at the cost of O(n) space."
+      }
+    ]
+  }
+}
