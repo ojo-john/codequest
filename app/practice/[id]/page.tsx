@@ -9,10 +9,15 @@ import { ApiError } from "@/lib/server/http";
 
 export const metadata: Metadata = { title: "Practice · CodeQuest" };
 
-export default async function PracticeSetPage({ params }: PageProps<"/practice/[id]">) {
+const UUID = /^[0-9a-f-]{36}$/;
+
+export default async function PracticeSetPage({ params, searchParams }: PageProps<"/practice/[id]">) {
   const { id } = await params;
+  const query = await searchParams;
+  // Opened from a planned session: finishing the set completes that session item.
+  const session = typeof query.session === "string" && typeof query.item === "string" && UUID.test(query.session) && UUID.test(query.item) ? { id: query.session, itemId: query.item } : undefined;
   const user = await requirePageUser(`/practice/${id}`);
-  if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
+  if (!UUID.test(id)) notFound();
   let view;
   try {
     view = await exerciseService().getSet(user.userId, id);
@@ -31,7 +36,7 @@ export default async function PracticeSetPage({ params }: PageProps<"/practice/[
           <UnreviewedBadge status={set.status} />
         </div>
         <Card>
-          <ExerciseRunner contentVersionId={set.contentVersionId} title={set.title} questions={set.questions} best={best} />
+          <ExerciseRunner items={set.questions.map((question) => ({ contentVersionId: set.contentVersionId, question }))} title={set.title} best={best} session={session} />
         </Card>
       </main>
     </>

@@ -35,6 +35,9 @@ class FakeExerciseStore implements ExerciseStore {
   async getVisibleSet(_u: string, id: string) { return this.sets.find((set) => set.contentVersionId === id); }
   async getAnswers() { return this.answers; }
   async bestOutcomes() { return new Map([["get-or-default", "succeeded"]]); }
+  async passedQuestions() { return new Map<string, Set<string>>(); }
+  async answeredSince() { return new Set<string>(); }
+  async skillsOf() { return new Map<string, string[]>(); }
   async recordAttempt(input: ExerciseAttemptInput): Promise<RecordedExerciseAttempt> {
     if (this.keys.has(input.requestKey)) return { attemptId: "a1", awardedXp: 0, replayed: true };
     this.keys.add(input.requestKey);
@@ -170,5 +173,16 @@ describe("ExerciseService diagnostic", () => {
 
   it("placement_noDiagnosticVisible_isUndefined", async () => {
     expect(await service().placement(USER)).toBeUndefined();
+  });
+});
+
+describe("ExerciseService.mixed", () => {
+  it("mixed_excludesTheDiagnosticAndKeepsEachQuestionsSet", async () => {
+    const store = new FakeExerciseStore();
+    store.sets = [SET, { ...SET, contentVersionId: "44444444-4444-4444-8444-444444444444", world: { id: "world.base-camp", order: 1 } }];
+
+    const items = await new ExerciseService({ store, skills: { skillStates: async () => [] }, random: () => 0.5 }).mixed(USER);
+
+    expect(items.map((item) => [item.contentVersionId, item.question.id])).toEqual([[SET_ID, "get-or-default"]]);
   });
 });

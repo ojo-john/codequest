@@ -164,3 +164,52 @@ describe("exercise attempts", () => {
     expect(error?.code).toBe("42501");
   });
 });
+
+describe("practice in sessions", () => {
+  it("passedQuestionsAndAnsweredSince_trackThisLearnersAnswers", async () => {
+    const frank = await createTestUser("ex-frank");
+    try {
+      // Wide margins: the database clock and this machine's clock can disagree by seconds.
+      const before = new Date(Date.now() - 60 * 60_000);
+      await store.recordAttempt(attempt(frank));
+      await store.recordAttempt(attempt(frank, { outcome: "wrong-answer", response: { questionId: "fast-lookup", answer: { choices: [1] } }, xp: [] }));
+
+      const passed = await store.passedQuestions(frank.id);
+      const answered = await store.answeredSince(frank.id, setVersionId, before);
+      const later = await store.answeredSince(frank.id, setVersionId, new Date(Date.now() + 60 * 60_000));
+
+      expect([[...(passed.get(setVersionId) ?? [])], [...answered].sort(), later.size]).toEqual([["get-or-default"], ["fast-lookup", "get-or-default"], 0]);
+    } finally {
+      await deleteTestUser(frank);
+    }
+  });
+
+  it("skillsOf_listsEachSetsSkillsOnce", async () => {
+    const skills = await store.skillsOf([setVersionId]);
+
+    expect(skills.get(setVersionId)?.sort()).toEqual(["bigo.loops", "java.collections", "java.strings", "patterns.sliding-window"]);
+  });
+
+  it("completeSessionItem_completesTheItemAndTheSessionForItsOwnerOnly", async () => {
+    const learning = new SupabaseLearningStore(serviceClient());
+    const sessionId = await learning.createSession(bob.id, 5, `key-${crypto.randomUUID()}`, "rules-v1", [{ contentVersionId: setVersionId, estimatedMinutes: 8 }]);
+    const itemId = (await learning.getSession(bob.id, sessionId))?.items[0].id ?? "";
+
+    const byAlice = await learning.completeSessionItem(alice.id, itemId);
+    const byBob = await learning.completeSessionItem(bob.id, itemId);
+
+    const session = await learning.getSession(bob.id, sessionId);
+    expect([byAlice, byBob, session?.state, session?.items[0].kind]).toEqual([
+      { completed: false, sessionCompleted: false },
+      { completed: true, sessionCompleted: true },
+      "completed",
+      "practice",
+    ]);
+  });
+
+  it("completeSessionItem_asSignedInLearner_isDenied", async () => {
+    const { error } = await bob.client.rpc("complete_session_item", { p_user_id: bob.id, p_item_id: crypto.randomUUID() });
+
+    expect(error?.code).toBe("42501");
+  });
+});

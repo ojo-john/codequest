@@ -7,7 +7,7 @@ import {
   type EvidenceRow,
   type SkillState,
 } from "@/lib/learning/mastery";
-import { planSession, type QuestCandidate } from "@/lib/learning/session-planner";
+import { planSession, type PracticeCandidate, type QuestCandidate } from "@/lib/learning/session-planner";
 import { XP, xpAwardsFor } from "@/lib/learning/xp";
 
 const NOW = new Date("2026-10-07T12:00:00Z");
@@ -161,6 +161,53 @@ describe("planSession", () => {
     estimatedMinutes: minutes,
     completed,
     skills,
+  });
+
+  const set = (id: string, overrides: Partial<PracticeCandidate> = {}): PracticeCandidate => ({
+    contentVersionId: id,
+    title: `Set ${id}`,
+    estimatedMinutes: 8,
+    worldNumber: 1,
+    worldOrder: 1,
+    skills: ["java.collections"],
+    passedShare: 0,
+    ...overrides,
+  });
+
+  it("planSession_fiveMinutes_isOnlyAPracticeSetEvenWithReviewsDue", () => {
+    const due = [{ skillId: "java.loops", dueAt: new Date(NOW.getTime() - DAY), reason: "spaced_review" }];
+
+    const plan = planSession(5, [quest(1, true, 20, ["java.loops"]), quest(2, false)], due, NOW, [], [set("s1")]);
+
+    expect(plan.items.map((item) => [item.kind, item.contentVersionId])).toEqual([["practice", "s1"]]);
+  });
+
+  it("planSession_practice_prefersASetOnADueSkill", () => {
+    const due = [{ skillId: "bigo.loops", dueAt: new Date(NOW.getTime() - DAY), reason: "spaced_review" }];
+
+    const plan = planSession(5, [], due, NOW, [], [set("first"), set("bigo", { skills: ["bigo.loops"], worldNumber: 2 })]);
+
+    expect(plan.items.map((item) => [item.contentVersionId, item.reasons[0].code])).toEqual([["bigo", "practice_review"]]);
+  });
+
+  it("planSession_practice_otherwiseTakesTheNextUnfinishedSetInWorldOrder", () => {
+    const plan = planSession(5, [], [], NOW, [], [set("later", { worldNumber: 2 }), set("done", { passedShare: 1 }), set("next", { worldOrder: 2 })]);
+
+    expect(plan.items.map((item) => [item.contentVersionId, item.reasons[0].code])).toEqual([["next", "practice_new"]]);
+  });
+
+  it("planSession_practiceThatDoesntFit_isLeftOutOfLongerSessions", () => {
+    const plan = planSession(15, [quest(1, false, 15)], [], NOW, [], [set("big", { estimatedMinutes: 20 })]);
+
+    expect(plan.items.map((item) => item.kind)).toEqual(["quest"]);
+  });
+
+  it("planSession_fiveMinutesWithNoPracticeAvailable_fallsBackToAQuestSlice", () => {
+    expect(planSession(5, [quest(1, false, 30)], [], NOW, [], []).items.map((item) => item.kind)).toEqual(["quest"]);
+  });
+
+  it("planSession_noQuestsButPractice_stillPlans", () => {
+    expect(planSession(30, [], [], NOW, [], [set("s1")]).items.map((item) => item.kind)).toEqual(["practice"]);
   });
 
   it("planSession_weakSkill_revisitsAPassedQuestAfterOverdueReviews", () => {

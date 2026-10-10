@@ -55,7 +55,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     ).toBeVisible(FIRST_LOAD);
     await expectNoViolations(page, "session");
 
-    await page.getByRole("link", { name: "Start" }).first().click();
+    await page.getByRole("listitem").filter({ hasText: "Checkout totals" }).getByRole("link", { name: "Start" }).click();
     await expect(page.getByRole("tab", { name: "Checkout.java" })).toBeVisible(
       FIRST_LOAD,
     );
@@ -77,6 +77,7 @@ for (const colorScheme of ["light", "dark"] as const) {
       ["/skills", "Skill tree"],
       ["/skills/patterns.sliding-window", "Sliding window"],
       ["/base-camp", "Base Camp"],
+      ["/practice/mixed", "Mixed practice"],
     ] as const) {
       await page.goto(path);
       await expect(

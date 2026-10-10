@@ -2,6 +2,7 @@ import "server-only";
 import { z } from "zod";
 import { gradeAnswer, InvalidResponseError, type CorrectAnswer, type ExerciseOutcome } from "@/lib/exercises/grade";
 import { DIAGNOSTIC_WORLD, placementSummary, type SectionResult } from "@/lib/exercises/diagnostic";
+import { selectMixed, type MixedItem } from "@/lib/exercises/mixed";
 import type { PublicQuestion } from "@/lib/exercises/schema";
 import { DIAGNOSTIC_EVIDENCE_WEIGHT, MASTERY_MODEL_VERSION, masteryState, SCHEDULER_VERSION, updateSkillState, type SkillState } from "@/lib/learning/mastery";
 import { XP } from "@/lib/learning/xp";
@@ -28,6 +29,8 @@ export interface ExerciseServiceDeps {
   readonly store: ExerciseStore;
   readonly skills: Pick<LearningStore, "skillStates">;
   readonly clock?: () => Date;
+  /** For mixed practice's shuffle; injected so tests are deterministic. */
+  readonly random?: () => number;
 }
 
 export interface ExerciseSetSummary {
@@ -62,11 +65,22 @@ export class ExerciseService {
   private readonly store: ExerciseStore;
   private readonly skills: ExerciseServiceDeps["skills"];
   private readonly clock: () => Date;
+  private readonly random: () => number;
 
   constructor(deps: ExerciseServiceDeps) {
     this.store = deps.store;
     this.skills = deps.skills;
     this.clock = deps.clock ?? (() => new Date());
+    this.random = deps.random ?? Math.random;
+  }
+
+  /** Mixed practice (spec §25): interleaved questions from every practice set, unpassed first. */
+  async mixed(userId: string): Promise<MixedItem[]> {
+    const [sets, passed] = await Promise.all([this.store.listVisibleSets(userId), this.store.passedQuestions(userId)]);
+    const sources = sets
+      .filter((set) => set.world.id !== DIAGNOSTIC_WORLD)
+      .map((set) => ({ contentVersionId: set.contentVersionId, questions: set.questions, passed: passed.get(set.contentVersionId) ?? new Set<string>() }));
+    return selectMixed(sources, this.random);
   }
 
   async listSets(userId: string): Promise<ExerciseSetSummary[]> {
