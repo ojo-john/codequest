@@ -95,6 +95,11 @@ for (const colorScheme of ["light", "dark"] as const) {
     await expectNoViolations(page, "skill graph");
 
     await page.goto("/practice");
+    await page.getByRole("link", { name: "Design a URL shortener" }).click();
+    await expect(page.getByLabel("API")).toBeVisible(FIRST_LOAD);
+    await expectNoViolations(page, "design workspace");
+
+    await page.goto("/practice");
     await page.getByRole("link", { name: "Capacity estimation" }).click();
     await expect(page.getByLabel("Your estimate")).toBeVisible(FIRST_LOAD);
     await expectNoViolations(page, "numeric question");

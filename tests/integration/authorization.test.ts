@@ -283,6 +283,13 @@ describe("project files", () => {
     expect(error?.code).toBe("23514");
   });
 
+  it("save_project_file: a design document saves, but no other non-Java path does", async () => {
+    const design = await save(alice, seeded.alice.projectId, "design/api.md", 0, "# API");
+    const rejected = await Promise.all(["design/../Api.md", "notes/api.md", "design/Api.md", "README.md"].map((path) => save(alice, seeded.alice.projectId, path, 0, "x")));
+
+    expect([design.error, ...rejected.map((result) => result.error?.code)]).toEqual([null, "23514", "23514", "23514", "23514"]);
+  });
+
   it("save_project_file: source beyond the project size limit is rejected", async () => {
     const { error } = await save(alice, seeded.alice.projectId, "shop/Huge.java", 0, "x".repeat(204_801));
 

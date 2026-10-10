@@ -1,0 +1,110 @@
+{
+  "kind": "exercise-set",
+  "id": "sd.design-url-shortener",
+  "version": 1,
+  "title": "Design a URL shortener",
+  "summary": "Write a design for a link shortener, then defend it against follow-up questions on growth, reads, analytics and duplicates.",
+  "world": {
+    "id": "world.system-design-city",
+    "order": 6
+  },
+  "estimatedMinutes": 35,
+  "questions": [
+    {
+      "id": "key-generation",
+      "type": "pattern",
+      "prompt": "Links grow to billions. How do you generate short codes without collisions or a central bottleneck?",
+      "options": [
+        "Give each app server a block of numeric IDs from a coordinator and encode them in base62",
+        "Hash the long URL, take 6 characters, and retry with a salt on collision",
+        "One database counter row that every request locks and increments",
+        "Random 3-character codes"
+      ]
+    },
+    {
+      "id": "fast-redirects",
+      "type": "single_choice",
+      "prompt": "Redirects outnumber creations 10 to 1 and must be fast. What do you put on the read path?",
+      "options": [
+        "A cache of short code → long URL in front of the database (cache-aside), with long TTLs since mappings rarely change",
+        "Read every redirect straight from the primary database",
+        "Recompute the mapping on each request",
+        "Send redirects through the analytics queue first"
+      ]
+    },
+    {
+      "id": "analytics",
+      "type": "single_choice",
+      "prompt": "How do you count clicks without slowing redirects down?",
+      "options": [
+        "Publish a click event to a queue and aggregate counts asynchronously",
+        "Increment a counter row in the same transaction as each redirect",
+        "Count clicks in the browser and trust it",
+        "Skip analytics"
+      ]
+    },
+    {
+      "id": "write-rate",
+      "type": "numeric",
+      "prompt": "About 100 million new links a month (assume 30 days). How many link creations per second is that on average?",
+      "unit": "creations/s"
+    },
+    {
+      "id": "duplicate-long-url",
+      "type": "true_false",
+      "prompt": "True or false: when two users shorten the same long URL, returning the existing short link and creating a new one are both defensible choices, as long as you state which one and why."
+    }
+  ],
+  "design": {
+    "scenario": "Design a service like a link shortener: users submit a long URL and get a short one such as `sho.rt/aZ3k9Q`. Anyone opening the short link is redirected to the long URL.\n\nWrite your design in the sections on the right, as you would talk it through in an interview. Then answer the interviewer's follow-up questions.",
+    "requirements": [
+      "Create a short link for any long URL",
+      "Redirect a short link to its long URL quickly (p99 under 100 ms)",
+      "Short codes never collide",
+      "About 100 million new links a month; about 10 redirects for every link created",
+      "Click counts per link, which may lag by a few minutes",
+      "Optional: users can choose a custom alias"
+    ],
+    "sections": [
+      {
+        "id": "requirements",
+        "title": "Requirements and assumptions",
+        "guidance": "Restate what you'll build, what you won't, and the numbers you're assuming. Ask the questions you'd ask an interviewer."
+      },
+      {
+        "id": "api",
+        "title": "API",
+        "guidance": "The main endpoints or calls: inputs, outputs, errors."
+      },
+      {
+        "id": "data-model",
+        "title": "Data model",
+        "guidance": "What you store, the keys, and why this storage fits the access patterns."
+      },
+      {
+        "id": "architecture",
+        "title": "Architecture",
+        "guidance": "Components and how a request flows through them (a list or arrows in text is fine)."
+      },
+      {
+        "id": "estimates",
+        "title": "Estimates",
+        "guidance": "QPS, storage and bandwidth from your stated assumptions."
+      },
+      {
+        "id": "tradeoffs",
+        "title": "Trade-offs and failure",
+        "guidance": "What you chose over what, what breaks first, and how the design degrades."
+      }
+    ],
+    "timeMinutes": 35
+  },
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
