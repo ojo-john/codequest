@@ -20,7 +20,10 @@ import { createLogger } from "../lib/observability/log";
  *   - with testQuality: the reference tests pass on the reference and catch EVERY mutant
  *   - every predict-output exercise prints exactly its canonical answer
  *
- *   npm run content:check [-- --provider vercel] [-- --static-only]
+ *   npm run content:check [-- --provider vercel] [-- --static-only] [-- --only <id-prefix>]
+ *
+ * --only limits the execution checks to items whose id starts with the prefix (the static checks
+ * always cover everything); handy while authoring, never a substitute for a full run.
  */
 
 const CONTENT_ROOT = join(import.meta.dirname, "..", "content");
@@ -83,7 +86,7 @@ async function checkPredictOutputs(executor: SandboxJavaExecutor, set: LoadedExe
 
 async function main(): Promise<void> {
   const { values } = parseArgs({
-    options: { provider: { type: "string", default: "docker" }, "static-only": { type: "boolean", default: false } },
+    options: { provider: { type: "string", default: "docker" }, "static-only": { type: "boolean", default: false }, only: { type: "string" } },
   });
   const limits = loadExecutionLimits(process.env);
   const content = loadContent(CONTENT_ROOT);
@@ -100,7 +103,8 @@ async function main(): Promise<void> {
     // Leave the same margin the executor keeps for cleanup.
     const productionBudgetMs = values.provider === "vercel" ? (limits.sandboxLifetimeSeconds - 5) * 1000 : undefined;
 
-    for (const quest of content.quests) {
+    const selected = (id: string) => values.only === undefined || id.startsWith(values.only);
+    for (const quest of content.quests.filter((candidate) => selected(candidate.manifest.id))) {
       const item = quest.manifest.id;
       const reference = await runQuest(executor, quest, "reference");
       if (reference.outcome !== "succeeded") {
@@ -119,7 +123,7 @@ async function main(): Promise<void> {
       const quality = await checkTestQuality(gateExecutor, quest, productionBudgetMs);
       if (quality !== undefined) issues.push({ item, message: quality });
     }
-    for (const set of content.exerciseSets) {
+    for (const set of content.exerciseSets.filter((candidate) => selected(candidate.manifest.id))) {
       // Gate-only programs: the long lifetime keeps slow (emulated) hosts from timing out.
       const problem = await checkPredictOutputs(gateExecutor, set);
       if (problem !== undefined) issues.push({ item: set.manifest.id, message: problem });
@@ -135,7 +139,7 @@ async function main(): Promise<void> {
     process.exitCode = 1;
     return;
   }
-  console.log("Content gate: PASSED");
+  console.log(values.only === undefined ? "Content gate: PASSED" : `Content gate: PASSED (execution checks limited to "${values.only}")`);
 }
 
 main().catch((error: unknown) => {

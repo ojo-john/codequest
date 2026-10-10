@@ -76,6 +76,15 @@ export function validateContent(content: LoadedContent, limits: Pick<ExecutionLi
     if (cycle) issues.push({ item: "skills.json", message: `strict prerequisite cycle: ${cycle.join(" -> ")}` });
   }
 
+  const campaignIds = new Set(content.campaigns?.campaigns.map((campaign) => campaign.id) ?? []);
+  if (content.campaigns) {
+    if (campaignIds.size !== content.campaigns.campaigns.length) issues.push({ item: "campaigns.json", message: "campaign ids repeat" });
+    const worldIds = new Set(content.skills?.worlds.map((world) => world.id) ?? []);
+    for (const campaign of content.campaigns.campaigns) {
+      if (!worldIds.has(campaign.world)) issues.push({ item: "campaigns.json", message: `${campaign.id} is in unknown world ${campaign.world}` });
+    }
+  }
+
   const campaignSlots = new Map<string, string>();
   for (const quest of content.quests) {
     const { manifest, privateData } = quest;
@@ -85,6 +94,7 @@ export function validateContent(content: LoadedContent, limits: Pick<ExecutionLi
       if (!skillIds.has(tag.skill)) issues.push({ item, message: `unknown skill ${tag.skill}` });
     }
 
+    if (content.campaigns && !campaignIds.has(manifest.campaign.id)) issues.push({ item, message: `unknown campaign ${manifest.campaign.id}` });
     const slot = `${manifest.campaign.id}#${manifest.campaign.order}`;
     const holder = campaignSlots.get(slot);
     if (holder) issues.push({ item, message: `campaign position ${slot} is also used by ${holder}` });

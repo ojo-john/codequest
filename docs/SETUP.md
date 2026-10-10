@@ -100,7 +100,9 @@ created 2026-10-06. The database password is in the git-ignored `.env.supabase.l
 
 ## Content (spec §44–45, §71)
 
-Curriculum is data in `content/`: `skills.json`, `public/<id>/` (item.json, instructions,
+Curriculum is data in `content/`: `skills.json` (worlds and skills), `campaigns.json` (quest
+groups: a "project" campaign builds one project across its quests; in a "problems" campaign each
+quest is standalone with its own project), `public/<id>/` (item.json, instructions,
 starter code) and `private/<id>/` (contract with hidden expectations, curated hints, reference
 solution). See `docs/CONTENT_REVIEW.md` for the review and publication rules.
 
@@ -114,6 +116,7 @@ Apple silicon (~10x slower), so the gate gives that check a 300 s lifetime.
 ```sh
 npm run content:check                          # gate: static checks + reference passes / starter doesn't (Docker runner)
 npm run content:check -- --provider vercel     # same, on Vercel Sandbox
+npm run content:check -- --only problems.      # execution checks for matching ids only (while authoring)
 npm run content:sync                           # load into the local database (one transaction)
 SUPABASE_DB_URL=... npm run content:sync -- --target cloud
 ```

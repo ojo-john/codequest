@@ -1,0 +1,30 @@
+{
+  "kind": "quest",
+  "id": "problems.pattern-unique-run",
+  "version": 1,
+  "title": "Longest unique run",
+  "summary": "Find the length of the longest substring without repeated characters, in one pass.",
+  "campaign": {
+    "id": "problems.patterns",
+    "order": 2
+  },
+  "stage": "independent",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "patterns.sliding-window",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

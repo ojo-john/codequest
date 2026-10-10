@@ -67,7 +67,8 @@ describe("content visibility", () => {
 
     const quests = await store.listVisibleQuests(alice.id);
 
-    expect([quests.length, new Set(quests.map((quest) => quest.status))]).toEqual([9, new Set(["draft"])]);
+    const cart = quests.filter((quest) => quest.campaign.id === "campaign.shopping-cart");
+    expect([cart.length, new Set(quests.map((quest) => quest.status))]).toEqual([9, new Set(["draft"])]);
   });
 
   it("getVisibleQuest_draftWithoutOptIn_isUndefined", async () => {

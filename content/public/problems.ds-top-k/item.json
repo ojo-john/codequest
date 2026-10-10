@@ -1,0 +1,30 @@
+{
+  "kind": "quest",
+  "id": "problems.ds-top-k",
+  "version": 1,
+  "title": "Top K",
+  "summary": "Return the k largest values from an array, largest first, without sorting the whole array.",
+  "campaign": {
+    "id": "problems.data-structures",
+    "order": 3
+  },
+  "stage": "independent",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "ds.heaps",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

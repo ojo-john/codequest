@@ -182,7 +182,7 @@ async function syncItem(tx: postgres.TransactionSql, item: SyncItem, progress: S
 }
 
 export async function syncContent(sql: postgres.Sql, content: LoadedContent): Promise<SyncReport> {
-  if (content.issues.length > 0 || content.skills === undefined) {
+  if (content.issues.length > 0 || content.skills === undefined || content.campaigns === undefined) {
     throw new ContentSyncError("content has load issues; run `npm run content:check` first");
   }
   const skills = content.skills.skills;
@@ -198,6 +198,13 @@ export async function syncContent(sql: postgres.Sql, content: LoadedContent): Pr
         values (${world.id}, ${world.number}, ${world.name}, ${world.summary}, ${world.available})
         on conflict (id) do update set number = excluded.number, name = excluded.name,
           summary = excluded.summary, available = excluded.available`;
+    }
+    for (const campaign of content.campaigns?.campaigns ?? []) {
+      await tx`
+        insert into public.campaigns (id, title, summary, world_id, kind)
+        values (${campaign.id}, ${campaign.title}, ${campaign.summary}, ${campaign.world}, ${campaign.kind})
+        on conflict (id) do update set title = excluded.title, summary = excluded.summary,
+          world_id = excluded.world_id, kind = excluded.kind`;
     }
     for (const skill of skills) {
       await tx`

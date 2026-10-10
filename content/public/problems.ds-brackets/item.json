@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "problems.ds-brackets",
+  "version": 1,
+  "title": "Balanced brackets",
+  "summary": "Decide whether (), [] and {} in a string are balanced and properly nested, ignoring every other character.",
+  "campaign": {
+    "id": "problems.data-structures",
+    "order": 2
+  },
+  "stage": "independent",
+  "estimatedMinutes": 15,
+  "skills": [
+    {
+      "skill": "ds.stacks-queues",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.strings",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
