@@ -1,0 +1,53 @@
+{
+  "answers": {
+    "dns": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "DNS resolves names to addresses (and is itself heavily cached). Encryption is TLS; load balancing and page caching are separate components.",
+      "skill": "sd.networking",
+      "dimension": "concept"
+    },
+    "udp-call": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "UDP doesn't retransmit or block on lost packets, which suits real-time media where late data is useless. TCP's reliable, ordered delivery adds waiting.",
+      "skill": "sd.networking",
+      "dimension": "concept"
+    },
+    "idempotent-put": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "PUT replaces a resource with the given state, so repeating it changes nothing further. POST typically creates something new each time; PATCH may or may not be idempotent.",
+      "skill": "sd.networking",
+      "dimension": "concept"
+    },
+    "created-status": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "201 says a resource was created (usually with a Location header pointing at it).",
+      "skill": "sd.networking",
+      "dimension": "concept"
+    },
+    "push-one-way": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "SSE is a simple one-way stream over HTTP. WebSockets also work but are two-way machinery you don't need; tight polling wastes requests.",
+      "skill": "sd.networking",
+      "dimension": "concept"
+    },
+    "reverse-proxy": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "A reverse proxy represents servers to clients. A forward proxy represents clients to the internet.",
+      "skill": "sd.networking",
+      "dimension": "concept"
+    },
+    "cdn-dynamic": {
+      "type": "true_false",
+      "answer": true,
+      "why": "Edge caches cut latency and offload the origin. Personalised, uncacheable responses still go to the origin.",
+      "skill": "sd.networking",
+      "dimension": "concept"
+    }
+  }
+}

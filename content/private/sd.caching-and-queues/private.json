@@ -1,0 +1,58 @@
+{
+  "answers": {
+    "cache-aside": {
+      "type": "order",
+      "answer": [
+        1,
+        2,
+        3,
+        0
+      ],
+      "why": "Check the cache, fall back to the source of truth on a miss, populate the cache, then answer.",
+      "skill": "sd.caching-queues",
+      "dimension": "concept"
+    },
+    "stampede": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Coalescing the misses (a lock or request collapsing) or early refresh with jitter prevents the thundering herd.",
+      "skill": "sd.caching-queues",
+      "dimension": "concept"
+    },
+    "write-back-risk": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Write-back acknowledges writes before they reach durable storage. It's fast and can lose data on failure.",
+      "skill": "sd.caching-queues",
+      "dimension": "concept"
+    },
+    "why-queue": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Decoupling lets each side scale and fail independently; the queue buffers bursts.",
+      "skill": "sd.caching-queues",
+      "dimension": "concept"
+    },
+    "duplicates": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "At-least-once means duplicates happen (e.g. after a timeout). Dedupe keys or idempotent writes make them harmless.",
+      "skill": "sd.caching-queues",
+      "dimension": "concept"
+    },
+    "dead-letter": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "After a few failed attempts a message moves aside for investigation instead of being retried forever.",
+      "skill": "sd.caching-queues",
+      "dimension": "concept"
+    },
+    "ttl-staleness": {
+      "type": "true_false",
+      "answer": true,
+      "why": "TTLs bound staleness rather than prevent it. Invalidate on write when freshness matters.",
+      "skill": "sd.caching-queues",
+      "dimension": "concept"
+    }
+  }
+}

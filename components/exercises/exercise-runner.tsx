@@ -8,7 +8,7 @@ import { useActiveSeconds } from "@/lib/client/use-active-seconds";
 import type { CorrectAnswer, ExerciseOutcome } from "@/lib/exercises/grade";
 import type { PublicQuestion } from "@/lib/exercises/schema";
 import { BossResult } from "./boss-result";
-import { initialValue, isComplete, QuestionCode, QuestionInput, type ResponseValue } from "./question-input";
+import { initialValue, isComplete, QuestionCode, QuestionInput, responseFor, type ResponseValue } from "./question-input";
 
 interface AnswerResult {
   readonly outcome: ExerciseOutcome;
@@ -40,6 +40,8 @@ export function describeCorrect(question: PublicQuestion, correct: CorrectAnswer
       return question.type === "order" ? correct.order.map((index, position) => `${position + 1}. ${question.steps[index]}`) : [];
     case "blanks":
       return correct.accepted.map((accepted, index) => `Blank ${index + 1}: ${accepted.join(" or ")}`);
+    case "number":
+      return [`About ${correct.value.toLocaleString("en")} ${correct.unit} (within ${Math.round(correct.tolerance * 100)}% counts as right)`];
   }
 }
 
@@ -91,7 +93,7 @@ export function ExerciseRunner({
           requestKey: crypto.randomUUID(),
           contentVersionId: items[index].contentVersionId,
           questionId: question.id,
-          answer: value,
+          answer: responseFor(question, value),
           activeSeconds: Math.min(3600, activeTime.take()),
         },
       });

@@ -9,7 +9,7 @@ import { nextDiagnosticQuestion } from "@/lib/exercises/diagnostic";
 import type { CorrectAnswer, ExerciseOutcome } from "@/lib/exercises/grade";
 import type { ExerciseSection, PublicQuestion } from "@/lib/exercises/schema";
 import { describeCorrect } from "./exercise-runner";
-import { initialValue, isComplete, QuestionCode, QuestionInput, type ResponseValue } from "./question-input";
+import { initialValue, isComplete, QuestionCode, QuestionInput, responseFor, type ResponseValue } from "./question-input";
 
 interface AnswerResult {
   readonly outcome: ExerciseOutcome;
@@ -37,7 +37,7 @@ export function DiagnosticRunner({ contentVersionId, questions, sections }: { co
     try {
       const response = await apiCall<AnswerResult>("/api/v1/exercises/answers", {
         method: "POST",
-        body: { requestKey: crypto.randomUUID(), contentVersionId, questionId: question.id, answer: value, activeSeconds: Math.min(3600, activeTime.take()) },
+        body: { requestKey: crypto.randomUUID(), contentVersionId, questionId: question.id, answer: responseFor(question, value), activeSeconds: Math.min(3600, activeTime.take()) },
       });
       setResult(response);
       setOutcomes((previous) => new Map(previous).set(question.id, response.outcome));

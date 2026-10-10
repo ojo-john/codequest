@@ -53,9 +53,25 @@ export function initialValue(question: PublicQuestion): ResponseValue {
   return undefined;
 }
 
+/** "23,148", "23148.5" and "2.3e4" are numbers; anything else isn't (yet). */
+export function parseEstimate(raw: string): number | undefined {
+  const cleaned = raw.trim().replaceAll(",", "").replaceAll("_", "");
+  if (cleaned === "" || !/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(cleaned)) return undefined;
+  const value = Number(cleaned);
+  return Number.isFinite(value) ? value : undefined;
+}
+
+/** The body sent to the grader: numeric questions send only the parsed value. */
+export function responseFor(question: PublicQuestion, value: ResponseValue): ResponseValue {
+  if (question.type === "numeric" && value !== undefined) return { value: value.value };
+  return value;
+}
+
 export function isComplete(question: PublicQuestion, value: ResponseValue): boolean {
   if (value === undefined) return false;
   switch (question.type) {
+    case "numeric":
+      return typeof value.value === "number";
     case "multi_choice":
       return (value.choices as number[]).length > 0;
     case "predict_output":
@@ -130,6 +146,29 @@ export function QuestionInput({ question, value, onChange, disabled }: Props) {
         </div>
       );
     }
+    case "numeric":
+      return (
+        <div className="flex flex-wrap items-center gap-2">
+          <label htmlFor={name} className="text-sm font-medium">
+            Your estimate
+          </label>
+          <input
+            id={name}
+            inputMode="decimal"
+            disabled={disabled}
+            value={(value?.raw as string) ?? ""}
+            onChange={(event) => {
+              const parsed = parseEstimate(event.target.value);
+              onChange(parsed === undefined ? { raw: event.target.value } : { raw: event.target.value, value: parsed });
+            }}
+            aria-describedby={`${name}-unit`}
+            className="w-40 rounded-md border border-neutral-300 bg-transparent px-2 py-1 font-mono text-sm outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-neutral-700"
+          />
+          <span id={`${name}-unit`} className="text-sm">
+            {question.unit}
+          </span>
+        </div>
+      );
     case "order": {
       const order = (value?.order as number[]) ?? [];
       const move = (position: number, by: number) => {

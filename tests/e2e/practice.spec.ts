@@ -67,3 +67,22 @@ test("mixed practice hides where each question comes from", async ({ page }) => 
   await expect(page.getByText("Challenge 1 of 8")).toBeVisible(FIRST_LOAD);
   await expect(page.getByText(/Maps and counting|Loop detective|Strings essentials/)).toHaveCount(0);
 });
+
+test("capacity estimates accept typed numbers in the question's unit, within a stated tolerance", async ({ page }) => {
+  await signInAsNewLearner(page, "estimate");
+  await page.getByLabel(/Show unreviewed drafts/).check();
+  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
+  await page.goto("/practice");
+  await page.getByRole("link", { name: "Capacity estimation" }).click(FIRST_LOAD);
+
+  await expect(page.getByText("requests/s", { exact: true })).toBeVisible(FIRST_LOAD);
+  await page.getByLabel("Your estimate").fill("23,000");
+  await page.getByRole("button", { name: "Check" }).click();
+  await expect(page.getByText("✓ Correct")).toBeVisible();
+  await page.getByRole("button", { name: "Next question" }).click();
+
+  // An estimate far off shows the expected value and how close counts.
+  await page.getByLabel("Your estimate").fill("1000");
+  await page.getByRole("button", { name: "Check" }).click();
+  await expect(page.getByText(/About 69,444 requests\/s \(within 10% counts as right\)/)).toBeVisible();
+});

@@ -32,6 +32,8 @@ export const publicQuestionSchema = z.discriminatedUnion("type", [
   /** Steps shown in this (authored, shuffled) order; the learner reorders them. */
   z.object({ id: QUESTION_ID, type: z.literal("order"), prompt, steps: z.array(z.string().min(1).max(300)).min(3).max(8) }).strict(),
   z.object({ id: QUESTION_ID, type: z.literal("fill_blank"), prompt, code }).strict(),
+  /** Estimation (spec §28): a number in a stated unit; assumptions belong in the prompt. */
+  z.object({ id: QUESTION_ID, type: z.literal("numeric"), prompt, code: code.optional(), unit: z.string().min(1).max(30) }).strict(),
 ]);
 
 export type PublicQuestion = z.infer<typeof publicQuestionSchema>;
@@ -57,6 +59,8 @@ export const privateAnswerSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("order"), answer: z.array(z.number().int().min(0)).min(3).max(8), ...answerBase }).strict(),
   /** Accepted answers per blank, in order. */
   z.object({ type: z.literal("fill_blank"), answer: z.array(z.array(z.string().min(1).max(200)).min(1)).min(1), ...answerBase }).strict(),
+  /** `tolerance` is relative (0.1 = within 10 %); estimates are judged as estimates. */
+  z.object({ type: z.literal("numeric"), answer: z.number().finite(), tolerance: z.number().gt(0).lte(1), ...answerBase }).strict(),
 ]);
 
 export type PrivateAnswer = z.infer<typeof privateAnswerSchema>;

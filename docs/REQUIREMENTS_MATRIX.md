@@ -32,7 +32,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 23 | Original problem bank | P1→P2 | `content_versions` provenance | Provenance + license on every item | Not started |
 | 24 | Problem progression | P2 | sequencing rules | Remediation offered on missing prereq | Not started |
 | 25 | Mixed mode | P2 | — | Neutral names; tags internal only | **Done** — `/practice/mixed`: up to 8 questions interleaved across every practice set (unpassed first, round-robin so no topic dominates), \"Challenge n\" names, no set titles or tags shown; tags kept server-side for grading and evidence |
-| 26–30 | System design world, recognition, capacity, simulator, bosses | P3 | SD workspace, text alt to canvas | Reasoning graded vs requirements | Not started |
+| 26–30 | System design world, recognition, capacity, simulator, bosses | P3 | SD workspace, text alt to canvas | Reasoning graded vs requirements | **In progress (3.1)** — System Design City available: draft sets on networking, scaling and storage, caching and queues, capacity estimation (new numeric type: value in a stated unit with a stated tolerance; partial within 2×) and scenario-to-component recognition (\"a cue isn't proof\"); System design readiness track. Simulator, canvas and design bosses in 3.2 |
 | 31 | LLD / OOD | P3 | content | Behaviour + extensibility graded | Not started |
 | 32 | Practical Java world | P3 | projects | Contracts + tests per build | Not started |
 | 33 | Interview communication | P3 | workflow prompts | — | Not started |

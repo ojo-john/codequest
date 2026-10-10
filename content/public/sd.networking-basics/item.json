@@ -1,0 +1,93 @@
+{
+  "kind": "exercise-set",
+  "id": "sd.networking-basics",
+  "version": 1,
+  "title": "Networking basics",
+  "summary": "What happens between a browser and a server: DNS, TCP and UDP, HTTP semantics, push channels, proxies and CDNs.",
+  "world": {
+    "id": "world.system-design-city",
+    "order": 1
+  },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "dns",
+      "type": "single_choice",
+      "prompt": "What does DNS do when a browser opens example.com?",
+      "options": [
+        "Translates the name into an IP address the client can connect to",
+        "Encrypts the connection",
+        "Balances load between servers",
+        "Caches the page's HTML"
+      ]
+    },
+    {
+      "id": "udp-call",
+      "type": "single_choice",
+      "prompt": "A live video call would rather drop a late frame than wait for it to be resent. Which transport fits?",
+      "options": [
+        "UDP",
+        "TCP",
+        "HTTP/1.1 polling",
+        "SMTP"
+      ]
+    },
+    {
+      "id": "idempotent-put",
+      "type": "single_choice",
+      "prompt": "Which HTTP method is defined as idempotent, so repeating the same request has the same effect as sending it once?",
+      "options": [
+        "PUT",
+        "POST",
+        "PATCH (always)",
+        "None of them"
+      ]
+    },
+    {
+      "id": "created-status",
+      "type": "single_choice",
+      "prompt": "A POST successfully creates a new order. Which status code fits best?",
+      "options": [
+        "201 Created",
+        "200 OK",
+        "204 No Content",
+        "302 Found"
+      ]
+    },
+    {
+      "id": "push-one-way",
+      "type": "single_choice",
+      "prompt": "A dashboard needs live updates from the server, and the browser never sends messages back over that channel. Which fits most simply?",
+      "options": [
+        "Server-sent events",
+        "WebSockets",
+        "Polling every 10 ms",
+        "FTP"
+      ]
+    },
+    {
+      "id": "reverse-proxy",
+      "type": "single_choice",
+      "prompt": "What does a reverse proxy sit in front of?",
+      "options": [
+        "Your servers, accepting client traffic on their behalf (TLS, routing, load balancing)",
+        "Clients, hiding them from the internet",
+        "The DNS root servers",
+        "The database only"
+      ]
+    },
+    {
+      "id": "cdn-dynamic",
+      "type": "true_false",
+      "prompt": "True or false: a CDN mainly helps by serving cacheable content (images, scripts, video) from locations close to users."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { describeCorrect } from "@/components/exercises/exercise-runner";
-import { initialValue, isComplete } from "@/components/exercises/question-input";
+import { initialValue, isComplete, parseEstimate, responseFor } from "@/components/exercises/question-input";
 import type { PublicQuestion } from "@/lib/exercises/schema";
 
 const ORDER: PublicQuestion = { id: "o", type: "order", prompt: "Order these", steps: ["b", "a", "c"] };
@@ -42,5 +42,31 @@ describe("describeCorrect", () => {
 
   it("describeCorrect_choice_namesTheOptions", () => {
     expect(describeCorrect(MULTI, { type: "choice", indices: [0, 1] })).toEqual(["a", "b"]);
+  });
+});
+
+describe("numeric input", () => {
+  const NUMERIC: PublicQuestion = { id: "n", type: "numeric", prompt: "How many?", unit: "GB" };
+
+  it.each([
+    ["23,148", 23148],
+    ["23148.5", 23148.5],
+    ["2.3e4", 23000],
+    [" 1_000 ", 1000],
+    ["-4", -4],
+  ])("parseEstimate_%s_is_%s", (raw, expected) => {
+    expect(parseEstimate(raw)).toBe(expected);
+  });
+
+  it.each(["", "23k", "1.2.3", "abc", "e5"])("parseEstimate_%s_isNotANumber", (raw) => {
+    expect(parseEstimate(raw)).toBeUndefined();
+  });
+
+  it("numeric_answerableOnlyOnceItParses_andSendsOnlyTheValue", () => {
+    expect([isComplete(NUMERIC, { raw: "23k" }), isComplete(NUMERIC, { raw: "23000", value: 23000 }), responseFor(NUMERIC, { raw: "23,000", value: 23000 })]).toEqual([false, true, { value: 23000 }]);
+  });
+
+  it("describeCorrect_number_statesUnitAndTolerance", () => {
+    expect(describeCorrect(NUMERIC, { type: "number", value: 23148, unit: "QPS", tolerance: 0.1 })).toEqual(["About 23,148 QPS (within 10% counts as right)"]);
   });
 });
