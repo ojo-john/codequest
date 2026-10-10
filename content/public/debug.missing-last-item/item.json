@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "debug.missing-last-item",
+  "version": 1,
+  "title": "The missing last item",
+  "summary": "A sum that's always a little short. Find why, fix it, and prove it with a test.",
+  "campaign": {
+    "id": "problems.debug-dungeon",
+    "order": 1
+  },
+  "stage": "independent",
+  "estimatedMinutes": 15,
+  "skills": [
+    {
+      "skill": "debug.diagnosis",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "debug.diagnosis",
+      "dimension": "explanation"
+    },
+    {
+      "skill": "java.unit-testing",
+      "dimension": "testing"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

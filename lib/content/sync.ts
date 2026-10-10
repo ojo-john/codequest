@@ -91,6 +91,7 @@ function exerciseSetPayload(set: LoadedExerciseSet): ExerciseSetPayload {
     questions: manifest.questions,
     // Omitted when absent, so sets without sections keep the payload they were synced with.
     ...(manifest.sections && { sections: manifest.sections }),
+    ...(manifest.boss && { boss: manifest.boss }),
   };
 }
 

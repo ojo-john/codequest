@@ -18,6 +18,7 @@ export const TRACKS = [
   { id: "big-o", name: "Complexity (Big-O)", categories: ["big-o"] },
   { id: "data-structures", name: "Data structures", categories: ["data-structures"] },
   { id: "patterns", name: "Patterns and recognition", categories: ["patterns"] },
+  { id: "debugging", name: "Debugging", categories: ["debugging"] },
 ] as const;
 
 /** Tracks the spec asks for whose content doesn't exist yet: shown, never scored. */

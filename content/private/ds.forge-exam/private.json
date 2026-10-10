@@ -1,0 +1,201 @@
+{
+  "answers": {
+    "hashmap-get": {
+      "type": "big_o",
+      "answer": "O(1)",
+      "why": "Hashing finds the bucket directly; buckets stay short while the load factor is kept low.",
+      "skill": "ds.hash-tables",
+      "dimension": "complexity"
+    },
+    "heap-poll": {
+      "type": "big_o",
+      "answer": "O(log n)",
+      "why": "Removing the minimum moves the last element to the root and sifts it down the heap's height.",
+      "skill": "ds.heaps",
+      "dimension": "complexity"
+    },
+    "heap-peek": {
+      "type": "big_o",
+      "answer": "O(1)",
+      "why": "The minimum is always at the root, index 0.",
+      "skill": "ds.heaps",
+      "dimension": "complexity"
+    },
+    "deque-ends": {
+      "type": "big_o",
+      "answer": "O(1)",
+      "why": "A circular array supports constant-time operations at both ends (addFirst is amortized).",
+      "skill": "ds.stacks-queues",
+      "dimension": "complexity"
+    },
+    "unbalanced-bst": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "Inserting keys in sorted order makes it a chain. Balanced trees (TreeMap) keep it at O(log n).",
+      "skill": "ds.trees",
+      "dimension": "complexity"
+    },
+    "browser-back": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Most recent first is last-in-first-out.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "print-jobs": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "valid",
+        "incorrect"
+      ],
+      "why": "Arrival order is first-in-first-out. A TreeMap keyed by arrival time also works, with more machinery; ordering by size changes the rule.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "emergency-room": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "valid",
+        "incorrect"
+      ],
+      "why": "A heap gives the most urgent in O(log n) per change; re-sorting works but costs O(n log n) per arrival.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "price-range": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "A sorted map answers range queries directly. A HashMap can only do it by checking every key.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "friend-groups": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Union-find merges and answers in near-constant amortized time. A fresh BFS per question works but repeats work.",
+      "skill": "ds.graphs",
+      "dimension": "recognition"
+    },
+    "pop-empty": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Popping an empty stack decrements size to -1 and reads items[-1]. Check for empty first and throw a clear exception.",
+      "skill": "ds.stacks-queues",
+      "dimension": "concept"
+    },
+    "mutable-key": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Keys must not change in ways that affect equals/hashCode while they're in a hash structure. Use immutable keys (records).",
+      "skill": "ds.hash-tables",
+      "dimension": "concept"
+    },
+    "bfs-revisit": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Without a seen set, a cycle feeds nodes back into the queue forever. Mark nodes when they're queued.",
+      "skill": "patterns.graph-search",
+      "dimension": "concept"
+    },
+    "queue-poll": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "poll"
+        ]
+      ],
+      "why": "Queue.poll removes and returns the head, or null when the queue is empty (remove() would throw).",
+      "skill": "ds.stacks-queues",
+      "dimension": "implementation"
+    },
+    "min-heap-order": {
+      "type": "order",
+      "answer": [
+        1,
+        2,
+        0
+      ],
+      "why": "Append at the end to keep the tree complete, then sift up until the heap order holds.",
+      "skill": "ds.heaps",
+      "dimension": "implementation"
+    },
+    "tree-size": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "0"
+        ]
+      ],
+      "why": "An empty tree has no nodes; every real node adds one plus the sizes of its subtrees.",
+      "skill": "ds.trees",
+      "dimension": "implementation"
+    },
+    "autocomplete": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "A trie walks the prefix once and finds every continuation below it. Checking every word works but scans the whole dictionary per keystroke.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "lru-cache": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "The map finds entries in O(1) and the list tracks recency in O(1). A TreeMap works in O(log n); a plain HashMap has no notion of recency.",
+      "skill": "ds.choosing-structures",
+      "dimension": "recognition"
+    },
+    "streaming-median": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "The two heaps keep the middle at their tops: O(log n) per number. Re-sorting is correct but O(n log n) each time.",
+      "skill": "ds.heaps",
+      "dimension": "recognition"
+    },
+    "course-order": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Prerequisites form a directed graph; a topological order (Kahn's algorithm or DFS) is exactly an order that respects every edge.",
+      "skill": "patterns.graph-search",
+      "dimension": "recognition"
+    }
+  }
+}

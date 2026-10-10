@@ -26,6 +26,7 @@ export default async function PracticeSetPage({ params, searchParams }: PageProp
     throw error;
   }
   const { set, best } = view;
+  const sittingStartedAt = exerciseService().sittingStart().toISOString();
 
   return (
     <>
@@ -36,7 +37,7 @@ export default async function PracticeSetPage({ params, searchParams }: PageProp
           <UnreviewedBadge status={set.status} />
         </div>
         <Card>
-          <ExerciseRunner items={set.questions.map((question) => ({ contentVersionId: set.contentVersionId, question }))} title={set.title} best={best} session={session} />
+          <ExerciseRunner items={set.questions.map((question) => ({ contentVersionId: set.contentVersionId, question }))} title={set.title} best={best} session={session} boss={set.boss ? { contentVersionId: set.contentVersionId, sittingStartedAt } : undefined} />
         </Card>
       </main>
     </>

@@ -76,6 +76,7 @@ export function validateExerciseSets(sets: readonly LoadedExerciseSet[], skillId
       if (problem) issues.push({ item, message: `question ${question.id} ${problem}` });
       if (!skillIds.has(answer.skill)) issues.push({ item, message: `question ${question.id} names unknown skill ${answer.skill}` });
     }
+    if (manifest.boss && !manifest.sections) issues.push({ item, message: "a boss exam needs sections (each is passed on its own)" });
     if (manifest.sections) {
       const placed = manifest.sections.flatMap((section) => section.questions);
       if (new Set(manifest.sections.map((section) => section.id)).size !== manifest.sections.length) issues.push({ item, message: "section ids repeat" });
