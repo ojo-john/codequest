@@ -375,7 +375,9 @@ export class LearningService {
 
   private async practiceCandidates(userId: string): Promise<PracticeCandidate[]> {
     if (this.practice === undefined) return [];
-    const sets = (await this.practice.listVisibleSets(userId)).filter((set) => set.world.id !== DIAGNOSTIC_WORLD);
+    // Plain practice only: the diagnostic runs from Base Camp, design challenges need their
+    // workspace, and mastery exams are taken on purpose rather than slipped into a session.
+    const sets = (await this.practice.listVisibleSets(userId)).filter((set) => set.world.id !== DIAGNOSTIC_WORLD && set.design === undefined && set.boss === undefined);
     const [passed, skills, worlds] = await Promise.all([
       this.practice.passedQuestions(userId),
       this.practice.skillsOf(sets.map((set) => set.contentVersionId)),

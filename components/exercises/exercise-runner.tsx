@@ -58,6 +58,7 @@ export function ExerciseRunner({
   session,
   neutralNames = false,
   boss,
+  onFinished,
 }: {
   items: readonly RunnerItem[];
   title: string;
@@ -68,6 +69,8 @@ export function ExerciseRunner({
   neutralNames?: boolean;
   /** A mastery exam: show the per-section result for this sitting at the end. */
   boss?: { readonly contentVersionId: string; readonly sittingStartedAt: string };
+  /** Called once the last question has been answered and the learner moves on. */
+  onFinished?: () => void;
 }) {
   const questions = items.map((item) => item.question);
   const [sessionDone, setSessionDone] = useState<"item" | "session" | undefined>();
@@ -118,7 +121,10 @@ export function ExerciseRunner({
 
   function next() {
     const following = index + 1;
-    if (following >= questions.length) void completeSessionItem();
+    if (following >= questions.length) {
+      void completeSessionItem();
+      onFinished?.();
+    }
     setIndex(following);
     setResult(undefined);
     if (following < questions.length) setValue(initialValue(questions[following]));

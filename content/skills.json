@@ -316,6 +316,15 @@
       "definition": "Map requirements to candidate components (CDN, cache, queue, partitioning, replicas) and justify them with trade-offs rather than cues alone.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "sd.caching-queues", "kind": "recommended" }, { "skill": "sd.capacity", "kind": "recommended" }]
+    },
+    {
+      "id": "sd.design",
+      "category": "system-design",
+      "name": "Design reasoning",
+      "world": "world.system-design-city",
+      "definition": "Turn requirements into a design and defend it under follow-up: growth, read and write paths, fan-out, failure, duplicates and cost, with explicit trade-offs.",
+      "difficulty": 4,
+      "prerequisites": [{ "skill": "sd.recognition", "kind": "recommended" }, { "skill": "sd.capacity", "kind": "recommended" }]
     }
   ]
 }

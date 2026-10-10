@@ -65,6 +65,22 @@ export const privateAnswerSchema = z.discriminatedUnion("type", [
 
 export type PrivateAnswer = z.infer<typeof privateAnswerSchema>;
 
+export const designSchema = z
+  .object({
+    /** The scenario, in Markdown. */
+    scenario: z.string().min(20).max(4000),
+    requirements: z.array(z.string().min(3).max(300)).min(1).max(20),
+    /** The parts of the written design, each saved as its own document. */
+    sections: z
+      .array(z.object({ id: QUESTION_ID, title: z.string().min(1).max(60), guidance: z.string().min(5).max(400) }).strict())
+      .min(1)
+      .max(10),
+    timeMinutes: z.number().int().min(5).max(90),
+  })
+  .strict();
+
+export type DesignBrief = z.infer<typeof designSchema>;
+
 export const sectionSchema = z
   .object({
     id: QUESTION_ID,
@@ -86,10 +102,13 @@ export const exerciseSetManifestSchema = z
     summary: z.string().min(10).max(400),
     /** World (spec §2) and position within it. */
     world: z.object({ id: contentIdSchema, order: z.number().int().min(1) }).strict(),
-    estimatedMinutes: z.number().int().min(1).max(30),
+    // Design challenges take interview length; practice sets stay short.
+    estimatedMinutes: z.number().int().min(1).max(60),
     questions: z.array(publicQuestionSchema).min(1).max(40),
     /** Optional grouping (e.g. the diagnostic's areas); each question in exactly one section, easiest first. */
     sections: z.array(sectionSchema).max(10).optional(),
+    /** A design challenge (spec §29, §59): a written design first; the questions are the follow-up probes. */
+    design: designSchema.optional(),
     /** A world's mastery exam (spec §53): each section is passed on its own at this share. */
     boss: z.object({ passShare: z.number().gt(0).lte(1) }).strict().optional(),
     review: reviewSchema,
@@ -99,7 +118,13 @@ export const exerciseSetManifestSchema = z
 
 export type ExerciseSetManifest = z.infer<typeof exerciseSetManifestSchema>;
 
-export const exerciseSetPrivateSchema = z.object({ answers: z.record(QUESTION_ID, privateAnswerSchema) }).strict();
+export const exerciseSetPrivateSchema = z
+  .object({
+    answers: z.record(QUESTION_ID, privateAnswerSchema),
+    /** Design challenges: key considerations, revealed for self-review once the probes are answered. */
+    considerations: z.array(z.string().min(5).max(400)).max(20).optional(),
+  })
+  .strict();
 
 export type ExerciseSetPrivate = z.infer<typeof exerciseSetPrivateSchema>;
 
@@ -113,6 +138,7 @@ export const exerciseSetPayloadSchema = z.object({
   questions: z.array(publicQuestionSchema),
   sections: z.array(sectionSchema).optional(),
   boss: z.object({ passShare: z.number() }).optional(),
+  design: designSchema.optional(),
 });
 
 export type ExerciseSetPayload = z.infer<typeof exerciseSetPayloadSchema>;

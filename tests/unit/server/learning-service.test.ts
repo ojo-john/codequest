@@ -541,6 +541,18 @@ describe("LearningService practice in sessions", () => {
     expect(plan.items.map((item) => item.kind)).toEqual(["practice", "quest"]);
   });
 
+  it("createSession_neverPlansDesignChallengesOrExamsAsPractice", async () => {
+    const deps = practice();
+    deps.listVisibleSets = async () => [
+      { ...SET, contentVersionId: "design-1", design: { scenario: "A scenario long enough.", requirements: ["r"], sections: [{ id: "api", title: "API", guidance: "The API." }], timeMinutes: 35 } },
+      { ...SET, contentVersionId: "boss-1", boss: { passShare: 0.7 } },
+    ];
+
+    const { plan } = await practiceService(new FakeStore(), deps).createSession(USER, { budgetMinutes: 15, clientRequestKey: "key-12345678" });
+
+    expect(plan.items.map((item) => item.kind)).toEqual(["quest"]);
+  });
+
   it("completePracticeItem_unansweredQuestions_is409AndCompletesNothing", async () => {
     const store = storeWithItem();
 
