@@ -8,6 +8,7 @@ import type { MeteredExecuteOptions, MeteredExecution } from "@/lib/execution/me
 import { validateSourceFiles, type SourceFile, type ValidatedSourceSet } from "@/lib/execution/source-files";
 import { testingOutcome, type TestQualitySpec } from "@/lib/execution/test-quality";
 import { DuplicateJobError } from "@/lib/execution/usage-ledger";
+import { DIAGNOSTIC_WORLD } from "@/lib/exercises/diagnostic";
 import { computeRubric, dimensionForCriterion, RUBRIC_VERSION, type RubricResult } from "@/lib/grading/rubric";
 import { deriveInsights, INSIGHT_MAX_SUBMISSIONS, INSIGHT_WINDOW_DAYS, strugglingSkills, type Insight, type QuestRef, type SubmissionSummary } from "@/lib/learning/insights";
 import {
@@ -20,9 +21,10 @@ import {
   type EvidenceOutcome,
   type SkillState,
 } from "@/lib/learning/mastery";
-import { BUDGET_CHOICES, planSession, type BudgetMinutes, type SessionPlan } from "@/lib/learning/session-planner";
+import { BUDGET_CHOICES, planSession, type BudgetMinutes, type PracticeCandidate, type SessionPlan } from "@/lib/learning/session-planner";
 import { xpAwardsFor } from "@/lib/learning/xp";
 import type { Logger } from "@/lib/observability/log";
+import type { ExerciseStore } from "./exercise-store";
 import { ApiError } from "./http";
 import {
   FollowUpsAlreadyAnsweredError,
@@ -34,6 +36,7 @@ import {
   type QuestGrading,
   type QuestRecord,
 } from "./learning-store";
+import type { SkillTreeStore } from "./skill-tree-store";
 
 /**
  * The learning loop's server logic (spec §5, §15, §21–22, §36, §67, §70). All persistence goes
@@ -47,6 +50,8 @@ export interface MeteredExecutor {
 
 export interface LearningServiceDeps {
   readonly store: LearningStore;
+  /** Practice sets for session planning and practice-item completion; omit for quests only. */
+  readonly practice?: Pick<ExerciseStore, "listVisibleSets" | "passedQuestions" | "skillsOf" | "answeredSince"> & Pick<SkillTreeStore, "worlds">;
   readonly executor: MeteredExecutor;
   readonly limits: Pick<ExecutionLimits, "maxSourceFiles" | "maxTotalSourceBytes">;
   readonly clock?: () => Date;
@@ -103,12 +108,14 @@ const RESUME_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 export class LearningService {
   private readonly store: LearningStore;
+  private readonly practice: LearningServiceDeps["practice"];
   private readonly executor: MeteredExecutor;
   private readonly limits: LearningServiceDeps["limits"];
   private readonly clock: () => Date;
 
   constructor(deps: LearningServiceDeps) {
     this.store = deps.store;
+    this.practice = deps.practice;
     this.executor = deps.executor;
     this.limits = deps.limits;
     this.clock = deps.clock ?? (() => new Date());
@@ -136,6 +143,7 @@ export class LearningService {
       states.map((state) => ({ skillId: state.skillId, dueAt: state.reviewDueAt, reason: "spaced_review" })),
       now,
       strugglingSkills(insights),
+      await this.practiceCandidates(userId),
     );
     const sessionId = await this.store.createSession(
       userId,
@@ -341,6 +349,46 @@ export class LearningService {
       gradesTests: quest.skills.some((tag) => tag.dimension === "testing"),
     }));
     return deriveInsights(summaries, refs, skillNames, now);
+  }
+
+  /**
+   * Completes a practice-set session item once every question in the set has been answered
+   * since the session started (spec §5). Quest items complete when a submission passes.
+   */
+  async completePracticeItem(userId: string, sessionId: string, itemId: string): Promise<{ sessionCompleted: boolean }> {
+    const session = await this.store.getSession(userId, sessionId);
+    const item = session?.items.find((candidate) => candidate.id === itemId);
+    if (session === undefined || item === undefined) throw new ApiError(404, "not_found", "No such session item.");
+    if (item.kind !== "practice" || this.practice === undefined) throw new ApiError(409, "not_practice", "Only practice items are completed this way.");
+    if (item.state === "completed") return { sessionCompleted: session.state === "completed" };
+    const set = (await this.practice.listVisibleSets(userId)).find((candidate) => candidate.contentVersionId === item.contentVersionId);
+    if (set === undefined) throw new ApiError(404, "not_found", "That practice set isn't available to you.");
+    const answered = await this.practice.answeredSince(userId, item.contentVersionId, new Date(session.startedAt));
+    const missing = set.questions.filter((question) => !answered.has(question.id)).length;
+    if (missing > 0) throw new ApiError(409, "unanswered_questions", `Answer the remaining ${missing} question${missing === 1 ? "" : "s"} to finish this item.`);
+    return { sessionCompleted: (await this.store.completeSessionItem(userId, itemId)).sessionCompleted };
+  }
+
+  private async practiceCandidates(userId: string): Promise<PracticeCandidate[]> {
+    if (this.practice === undefined) return [];
+    const sets = (await this.practice.listVisibleSets(userId)).filter((set) => set.world.id !== DIAGNOSTIC_WORLD);
+    const [passed, skills, worlds] = await Promise.all([
+      this.practice.passedQuestions(userId),
+      this.practice.skillsOf(sets.map((set) => set.contentVersionId)),
+      this.practice.worlds(),
+    ]);
+    const numbers = new Map(worlds.map((world) => [world.id, world.number]));
+    // A set in a world the database doesn't know sorts last rather than failing the plan.
+    const worldNumber = (id: string) => numbers.get(id) ?? Number.MAX_SAFE_INTEGER;
+    return sets.map((set) => ({
+      contentVersionId: set.contentVersionId,
+      title: set.title,
+      estimatedMinutes: set.estimatedMinutes,
+      worldNumber: worldNumber(set.world.id),
+      worldOrder: set.world.order,
+      skills: skills.get(set.contentVersionId) ?? [],
+      passedShare: set.questions.length === 0 ? 1 : (passed.get(set.contentVersionId)?.size ?? 0) / set.questions.length,
+    }));
   }
 
   /** The session to offer "resume" for on the home screen, if any. */

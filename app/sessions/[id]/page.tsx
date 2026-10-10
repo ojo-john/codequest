@@ -7,6 +7,8 @@ import { learningService } from "@/lib/server/container";
 
 const REASON_TEXT: Record<string, string> = {
   review_due: "Includes a review that's due, so it sticks.",
+  practice_review: "Includes practice questions on a skill that's due or that you recently missed.",
+  practice_new: "Includes a short practice set: reading code, sizing up complexity, choosing an approach.",
   weak_skill: "Revisits a skill your recent submissions found hard, using a quest you've already passed.",
   continue_campaign: "Continues your campaign where you left off.",
   continues_later: "The quest is longer than this session — your project is saved, so you can stop any time and pick it up later.",
@@ -57,11 +59,12 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
                 <Card className="flex flex-wrap items-center gap-3">
                   <span className="text-sm text-neutral-500 dark:text-neutral-400">{index + 1}.</span>
                   <span className="font-medium">{item.title}</span>
+                  <Badge>{item.kind === "practice" ? "Practice" : "Coding quest"}</Badge>
                   <Badge>≈ {item.estimatedMinutes} min</Badge>
                   {item.state === "completed" && <Badge tone="success">✓ Done</Badge>}
                   {item.state === "in_progress" && <Badge tone="warning">In progress</Badge>}
                   <Link
-                    href={`/quests/${item.contentVersionId}?session=${session.id}&item=${item.id}`}
+                    href={item.kind === "practice" ? `/practice/${item.contentVersionId}?session=${session.id}&item=${item.id}` : `/quests/${item.contentVersionId}?session=${session.id}&item=${item.id}`}
                     className="ml-auto rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
                   >
                     {item.state === "completed" ? "Open" : item.state === "in_progress" ? "Continue" : "Start"}

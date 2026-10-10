@@ -8,7 +8,7 @@ import { silentLogger } from "@/lib/observability/log";
 import { ApiError } from "@/lib/server/http";
 import type { RubricResult } from "@/lib/grading/rubric";
 import { FollowUpsAlreadyAnsweredError, type FollowUpAnswersInput, type FollowUpContext, type RecentSubmission } from "@/lib/server/learning-store";
-import type { ActiveSession, GradedAttemptInput, JobState, LearningStore, QuestGrading, QuestRecord } from "@/lib/server/learning-store";
+import type { ActiveSession, GradedAttemptInput, SessionView, JobState, LearningStore, QuestGrading, QuestRecord } from "@/lib/server/learning-store";
 import { LearningService, type ExecuteRequest, type MeteredExecutor } from "@/lib/server/learning-service";
 
 const USER = "11111111-1111-4111-8111-111111111111";
@@ -58,9 +58,9 @@ class FakeStore implements LearningStore {
   async xpTotal() { return 0; }
   async hintLevel() { return this.hints; }
   async recordHint(_u: string, _c: string, maxTier: number) { this.hints = Math.min(maxTier, this.hints + 1); return this.hints; }
-  async createSession() { return "session-1"; }
+  createSession: LearningStore["createSession"] = async () => "session-1";
   async recordRecommendation() {}
-  async getSession() { return undefined; }
+  async getSession() { return this.session; }
   async updateJob(jobId: string, patch: { state: JobState }) { this.jobUpdates.push({ jobId, state: patch.state }); }
   async getJob() { return undefined; }
   /** Event keys already in the ledger; like the database, an earned key is never awarded again. */
@@ -93,6 +93,9 @@ class FakeStore implements LearningStore {
   submissionsSince: Date | undefined;
   async recentSubmissions(_u: string, since: Date) { this.submissionsSince = since; return this.submissions; }
   async skillNames() { return new Map([["java.loops", "Loops"]]); }
+  session: SessionView | undefined;
+  completedItems: string[] = [];
+  async completeSessionItem(_u: string, itemId: string) { this.completedItems.push(itemId); return { completed: true, sessionCompleted: true }; }
 }
 
 function result(outcome: ExecutionResult["outcome"] = "succeeded"): ExecutionResult {
@@ -469,6 +472,96 @@ describe("LearningService.insights", () => {
     await service(store).insights(USER);
 
     expect(store.submissionsSince).toEqual(new Date("2026-09-07T12:00:00Z"));
+  });
+});
+
+describe("LearningService practice in sessions", () => {
+  const SESSION_ID = "55555555-5555-4555-8555-555555555555";
+  const ITEM_ID = "66666666-6666-4666-8666-666666666666";
+  const SET = {
+    kind: "exercise-set" as const,
+    contentVersionId: "77777777-7777-4777-8777-777777777777",
+    contentId: "java.maps",
+    version: 1,
+    status: "draft" as const,
+    title: "Maps",
+    summary: "Maps.",
+    world: { id: "world.java-awakening", order: 1 },
+    estimatedMinutes: 5,
+    questions: [
+      { id: "a", type: "true_false" as const, prompt: "True or false?" },
+      { id: "b", type: "true_false" as const, prompt: "True or false again?" },
+    ],
+  };
+
+  function practice(answered: string[] = [], passed = new Map<string, Set<string>>()) {
+    return {
+      listVisibleSets: async () => [SET],
+      passedQuestions: async () => passed,
+      skillsOf: async () => new Map([[SET.contentVersionId, ["java.collections"]]]),
+      answeredSince: async () => new Set(answered),
+      worlds: async () => [{ id: "world.java-awakening", number: 1, name: "Java", summary: "Java.", available: true }],
+    };
+  }
+
+  function storeWithItem(kind: "practice" | "quest" = "practice"): FakeStore {
+    const store = new FakeStore();
+    store.session = {
+      id: SESSION_ID,
+      budgetMinutes: 5,
+      state: "active",
+      startedAt: "2026-10-07T11:00:00Z",
+      reasonCodes: [],
+      items: [{ id: ITEM_ID, kind, contentVersionId: SET.contentVersionId, ordinal: 0, state: "pending", estimatedMinutes: 5, title: "Maps" }],
+    };
+    return store;
+  }
+
+  function practiceService(store: FakeStore, deps = practice()) {
+    return new LearningService({ store, practice: deps, executor: new ScriptedExecutor(), limits: { maxSourceFiles: 20, maxTotalSourceBytes: 200_000 }, clock: () => NOW });
+  }
+
+  it("createSession_fiveMinutes_plansOnlyAPracticeSet", async () => {
+    const store = new FakeStore();
+    let planned: ReadonlyArray<{ contentVersionId: string }> = [];
+    store.createSession = async (_u: string, _b: number, _k: string, _p: string, items: ReadonlyArray<{ contentVersionId: string; estimatedMinutes: number }>) => {
+      planned = items;
+      return "session-1";
+    };
+
+    const { plan } = await practiceService(store).createSession(USER, { budgetMinutes: 5, clientRequestKey: "key-12345678" });
+
+    expect([plan.items.map((item) => item.kind), planned.map((item) => item.contentVersionId)]).toEqual([["practice"], [SET.contentVersionId]]);
+  });
+
+  it("createSession_fifteenMinutes_addsPracticeBeforeTheQuest", async () => {
+    const { plan } = await practiceService(new FakeStore()).createSession(USER, { budgetMinutes: 15, clientRequestKey: "key-12345678" });
+
+    expect(plan.items.map((item) => item.kind)).toEqual(["practice", "quest"]);
+  });
+
+  it("completePracticeItem_unansweredQuestions_is409AndCompletesNothing", async () => {
+    const store = storeWithItem();
+
+    const error = await apiError(practiceService(store, practice(["a"])).completePracticeItem(USER, SESSION_ID, ITEM_ID));
+
+    expect([error.status, error.message, store.completedItems]).toEqual([409, "Answer the remaining 1 question to finish this item.", []]);
+  });
+
+  it("completePracticeItem_everyQuestionAnswered_completesTheItem", async () => {
+    const store = storeWithItem();
+
+    const result = await practiceService(store, practice(["a", "b"])).completePracticeItem(USER, SESSION_ID, ITEM_ID);
+
+    expect([result.sessionCompleted, store.completedItems]).toEqual([true, [ITEM_ID]]);
+  });
+
+  it("completePracticeItem_questItem_is409", async () => {
+    expect((await apiError(practiceService(storeWithItem("quest"), practice(["a", "b"])).completePracticeItem(USER, SESSION_ID, ITEM_ID))).code).toBe("not_practice");
+  });
+
+  it("completePracticeItem_someoneElsesSession_is404", async () => {
+    expect((await apiError(practiceService(new FakeStore()).completePracticeItem(USER, SESSION_ID, ITEM_ID))).status).toBe(404);
   });
 });
 

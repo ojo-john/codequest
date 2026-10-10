@@ -29,6 +29,16 @@ export default async function PracticePage() {
           <h1 className="text-2xl font-semibold tracking-tight">Practice</h1>
           <p className="text-neutral-600 dark:text-neutral-400">Short question sets: read code, predict output, size up complexity, pick an approach.</p>
         </div>
+        {sets.length > 0 && (
+          <Card className="flex flex-wrap items-center gap-3">
+            <p className="flex-1 text-sm">
+              <span className="font-medium">Mixed practice:</span> questions from every area, shuffled and unlabelled.
+            </p>
+            <Link href="/practice/mixed" className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+              Start mixed practice
+            </Link>
+          </Card>
+        )}
         {sets.length === 0 ? (
           <Card>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">No published practice sets yet. Turn on unreviewed drafts on the home page to see drafts.</p>

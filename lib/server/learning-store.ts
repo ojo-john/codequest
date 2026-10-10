@@ -133,6 +133,8 @@ export interface JobView {
 }
 
 export interface SessionItemView {
+  /** A coding quest or a practice (exercise) set. */
+  readonly kind: "quest" | "practice";
   readonly id: string;
   readonly contentVersionId: string;
   readonly ordinal: number;
@@ -202,6 +204,8 @@ export interface LearningStore {
   followUpContext(userId: string, jobId: string): Promise<FollowUpContext | undefined>;
   /** Atomic; throws FollowUpsAlreadyAnsweredError if any was answered before (nothing recorded). */
   recordFollowUpAnswers(input: FollowUpAnswersInput): Promise<void>;
+  /** Marks a session item completed (and the session, if it was the last open item). */
+  completeSessionItem(userId: string, itemId: string): Promise<{ completed: boolean; sessionCompleted: boolean }>;
   /** Skill id → display name. */
   skillNames(): Promise<Map<string, string>>;
   /** Graded submissions since `since`, newest first, with their per-check results (for insights). */
@@ -365,7 +369,7 @@ export class SupabaseLearningStore implements LearningStore {
       await this.db.from("sessions").select("id, budget_minutes, state, started_at, session_items(id, content_version_id, ordinal, state, estimated_minutes, content_versions(payload))").eq("id", sessionId).eq("user_id", userId).maybeSingle(),
     ) as unknown as {
       id: string; budget_minutes: number; state: string; started_at: string;
-      session_items: Array<{ id: string; content_version_id: string; ordinal: number; state: string; estimated_minutes: number; content_versions: { payload: { title?: string } } | null }>;
+      session_items: Array<{ id: string; content_version_id: string; ordinal: number; state: string; estimated_minutes: number; content_versions: { payload: { title?: string; kind?: string } } | null }>;
     } | null;
     if (session === null) return undefined;
     const recommendations = check("get_recommendations", await this.db.from("recommendations").select("reason_codes").eq("session_id", sessionId).eq("user_id", userId)) ?? [];
@@ -384,6 +388,7 @@ export class SupabaseLearningStore implements LearningStore {
           state: item.state,
           estimatedMinutes: item.estimated_minutes,
           title: item.content_versions?.payload.title ?? "Untitled",
+          kind: (item.content_versions?.payload.kind === "exercise-set" ? "practice" : "quest") as "quest" | "practice",
         })),
     };
   }
@@ -510,5 +515,12 @@ export class SupabaseLearningStore implements LearningStore {
   async skillNames(): Promise<Map<string, string>> {
     const rows = check("skill_names", await this.db.from("skills").select("id, name")) as Array<{ id: string; name: string }>;
     return new Map(rows.map((row) => [row.id, row.name]));
+  }
+
+  async completeSessionItem(userId: string, itemId: string): Promise<{ completed: boolean; sessionCompleted: boolean }> {
+    const row = z
+      .object({ completed: z.boolean(), session_completed: z.boolean() })
+      .parse(check("complete_session_item", await this.db.rpc("complete_session_item", { p_user_id: userId, p_item_id: itemId })));
+    return { completed: row.completed, sessionCompleted: row.session_completed };
   }
 }

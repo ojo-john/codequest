@@ -43,6 +43,12 @@ export interface ExerciseStore {
   /** Best outcome so far per question of this set version ("pass" beats "partial" beats "fail"). */
   bestOutcomes(userId: string, contentVersionId: string): Promise<Map<string, string>>;
   recordAttempt(input: ExerciseAttemptInput): Promise<RecordedExerciseAttempt>;
+  /** Per set version: the questions this learner has answered correctly (for planning). */
+  passedQuestions(userId: string): Promise<Map<string, Set<string>>>;
+  /** Questions of this set version answered (any outcome) since `since`. */
+  answeredSince(userId: string, contentVersionId: string, since: Date): Promise<Set<string>>;
+  /** Skill ids each set version is tagged with. */
+  skillsOf(contentVersionIds: readonly string[]): Promise<Map<string, string[]>>;
 }
 
 const rowSchema = z.object({
@@ -139,5 +145,39 @@ export class SupabaseExerciseStore implements ExerciseStore {
     );
     const row = recordedSchema.parse(data);
     return { attemptId: row.attempt_id, awardedXp: row.awarded_xp, replayed: row.replayed };
+  }
+
+  async passedQuestions(userId: string): Promise<Map<string, Set<string>>> {
+    const rows = check(
+      "passed_questions",
+      await this.db.from("attempts").select("content_version_id, response").eq("user_id", userId).eq("state", "graded").eq("outcome", "succeeded").is("execution_job_id", null),
+    ) as Array<{ content_version_id: string; response: { questionId?: string } | null }>;
+    const passed = new Map<string, Set<string>>();
+    for (const row of rows) {
+      const questionId = row.response?.questionId;
+      if (questionId === undefined) continue;
+      passed.set(row.content_version_id, (passed.get(row.content_version_id) ?? new Set()).add(questionId));
+    }
+    return passed;
+  }
+
+  async answeredSince(userId: string, contentVersionId: string, since: Date): Promise<Set<string>> {
+    const rows = check(
+      "answered_since",
+      await this.db.from("attempts").select("response").eq("user_id", userId).eq("content_version_id", contentVersionId).eq("state", "graded").gte("created_at", since.toISOString()),
+    ) as Array<{ response: { questionId?: string } | null }>;
+    return new Set(rows.flatMap((row) => (row.response?.questionId ? [row.response.questionId] : [])));
+  }
+
+  async skillsOf(contentVersionIds: readonly string[]): Promise<Map<string, string[]>> {
+    if (contentVersionIds.length === 0) return new Map();
+    const rows = check("set_skills", await this.db.from("content_skill_tags").select("content_version_id, skill_id").in("content_version_id", [...contentVersionIds])) as Array<{ content_version_id: string; skill_id: string }>;
+    const skills = new Map<string, string[]>();
+    for (const row of rows) {
+      const list = skills.get(row.content_version_id) ?? [];
+      if (!list.includes(row.skill_id)) list.push(row.skill_id);
+      skills.set(row.content_version_id, list);
+    }
+    return skills;
   }
 }

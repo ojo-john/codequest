@@ -42,7 +42,30 @@ export function describeCorrect(question: PublicQuestion, correct: CorrectAnswer
   }
 }
 
-export function ExerciseRunner({ contentVersionId, title, questions, best }: { contentVersionId: string; title: string; questions: readonly PublicQuestion[]; best: Readonly<Record<string, string>> }) {
+/** One question and the set version it belongs to (mixed practice draws from several sets). */
+export interface RunnerItem {
+  readonly contentVersionId: string;
+  readonly question: PublicQuestion;
+}
+
+export function ExerciseRunner({
+  items,
+  title,
+  best = {},
+  session,
+  neutralNames = false,
+}: {
+  items: readonly RunnerItem[];
+  title: string;
+  best?: Readonly<Record<string, string>>;
+  /** Set when opened from a planned session: finishing completes that item. */
+  session?: { readonly id: string; readonly itemId: string };
+  /** Mixed mode: "Challenge n" instead of "Question n", no hints about where a question came from. */
+  neutralNames?: boolean;
+}) {
+  const questions = items.map((item) => item.question);
+  const [sessionDone, setSessionDone] = useState<"item" | "session" | undefined>();
+  const [completionError, setCompletionError] = useState<string | undefined>();
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState<ResponseValue>(() => initialValue(questions[0]));
   const [result, setResult] = useState<AnswerResult | undefined>();
@@ -62,7 +85,7 @@ export function ExerciseRunner({ contentVersionId, title, questions, best }: { c
         method: "POST",
         body: {
           requestKey: crypto.randomUUID(),
-          contentVersionId,
+          contentVersionId: items[index].contentVersionId,
           questionId: question.id,
           answer: value,
           activeSeconds: Math.min(3600, activeTime.take()),
@@ -77,8 +100,19 @@ export function ExerciseRunner({ contentVersionId, title, questions, best }: { c
     }
   }
 
+  async function completeSessionItem() {
+    if (!session) return;
+    try {
+      const response = await apiCall<{ sessionCompleted: boolean }>(`/api/v1/sessions/${session.id}/items/${session.itemId}/complete`, { method: "POST" });
+      setSessionDone(response.sessionCompleted ? "session" : "item");
+    } catch (caught) {
+      setCompletionError(caught instanceof ClientApiError ? caught.message : "Couldn't update your session.");
+    }
+  }
+
   function next() {
     const following = index + 1;
+    if (following >= questions.length) void completeSessionItem();
     setIndex(following);
     setResult(undefined);
     if (following < questions.length) setValue(initialValue(questions[following]));
@@ -92,10 +126,23 @@ export function ExerciseRunner({ contentVersionId, title, questions, best }: { c
           Set complete: {passed} of {questions.length} correct
         </h2>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">Each answer counted as evidence for its skill. Questions you missed come back in later reviews.</p>
+        {sessionDone === "session" && <p className="font-medium">🎉 Session complete.</p>}
+        {sessionDone === "item" && <p className="font-medium">✓ Done in your session.</p>}
+        {completionError && (
+          <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+            {completionError}
+          </p>
+        )}
         <div className="flex gap-2">
-          <Link href="/practice" className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
-            More practice
-          </Link>
+          {session ? (
+            <Link href={`/sessions/${session.id}`} className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+              Back to session
+            </Link>
+          ) : (
+            <Link href="/practice" className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+              More practice
+            </Link>
+          )}
           <Link href="/progress" className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm font-medium dark:border-neutral-700">
             See progress
           </Link>
@@ -108,9 +155,9 @@ export function ExerciseRunner({ contentVersionId, title, questions, best }: { c
     <section aria-labelledby="question-prompt" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
         <span>
-          Question {index + 1} of {questions.length}
+          {neutralNames ? "Challenge" : "Question"} {index + 1} of {questions.length}
         </span>
-        {best[question.id] === "succeeded" && <Badge tone="success">Answered correctly before</Badge>}
+        {!neutralNames && best[question.id] === "succeeded" && <Badge tone="success">Answered correctly before</Badge>}
         <span className="sr-only">in {title}</span>
       </div>
       <p id="question-prompt" className="font-medium">
