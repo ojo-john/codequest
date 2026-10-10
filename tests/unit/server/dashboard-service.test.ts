@@ -73,6 +73,6 @@ describe("DashboardService", () => {
   });
 
   it("dashboard_listsTheTracksThatArentAvailableYet", async () => {
-    expect((await service([]).dashboard("u")).unavailableTracks).toContain("System design");
+    expect((await service([]).dashboard("u")).unavailableTracks).toContain("Behavioral");
   });
 });

@@ -50,6 +50,8 @@ function checkAnswer(question: PublicQuestion, answer: PrivateAnswer): string | 
       if (!isPermutation) return "answer must list every step exactly once";
       return order.every((index, position) => index === position) ? "steps are already shown in the correct order" : undefined;
     }
+    case "numeric":
+      return undefined;
     case "fill_blank": {
       const blanks = countBlanks(question.code);
       const accepted = (answer as Extract<PrivateAnswer, { type: "fill_blank" }>).answer;

@@ -1,0 +1,88 @@
+{
+  "kind": "exercise-set",
+  "id": "sd.scenario-recognition",
+  "version": 1,
+  "title": "Scenario to component",
+  "summary": "Read a requirement and name the components worth considering, and know that a cue isn't proof.",
+  "world": {
+    "id": "world.system-design-city",
+    "order": 5
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "static-images",
+      "type": "pattern",
+      "prompt": "Millions of users repeatedly load the same product images.",
+      "options": [
+        "Serve them through a CDN",
+        "Shard the database",
+        "Add a message queue",
+        "Use WebSockets"
+      ]
+    },
+    {
+      "id": "video-encoding",
+      "type": "pattern",
+      "prompt": "Users upload videos that take minutes to encode into several formats.",
+      "options": [
+        "Accept the upload, queue an encoding job, and let workers process it asynchronously",
+        "Encode inside the upload request before responding",
+        "Cache the raw upload in a CDN",
+        "Use a bigger database"
+      ]
+    },
+    {
+      "id": "too-much-data",
+      "type": "pattern",
+      "prompt": "Data and write traffic have outgrown what one database server can hold.",
+      "options": [
+        "Partition (shard) the data across servers by a well-chosen key",
+        "Add read replicas",
+        "Add a CDN",
+        "Increase the cache TTL"
+      ]
+    },
+    {
+      "id": "read-heavy",
+      "type": "pattern",
+      "prompt": "A product page is read 1,000 times for every update, and reads are too slow.",
+      "options": [
+        "Cache the rendered data (cache-aside) or add read replicas",
+        "Shard by product id immediately",
+        "Move to UDP",
+        "Add a dead-letter queue"
+      ]
+    },
+    {
+      "id": "chat",
+      "type": "pattern",
+      "prompt": "Users in a chat room must see each other's messages within a second.",
+      "options": [
+        "Persistent connections (WebSockets) with a pub/sub fan-out",
+        "Each client polls the server every minute",
+        "Email notifications",
+        "A nightly batch job"
+      ]
+    },
+    {
+      "id": "exactly-once-charges",
+      "type": "pattern",
+      "prompt": "A payment must never be charged twice, even if the client retries after a timeout.",
+      "options": [
+        "An idempotency key stored with the charge, checked before charging",
+        "Retry until it succeeds",
+        "Cache the payment form",
+        "Add more servers"
+      ]
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
