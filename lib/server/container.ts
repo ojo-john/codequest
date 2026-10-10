@@ -12,6 +12,7 @@ import { SupabaseDatabaseSize, SupabaseExecutionUsageLedger } from "@/lib/execut
 import { loadVercelSandboxConfig, VercelSandboxProvider } from "@/lib/execution/vercel-sandbox-provider";
 import { createLogger } from "@/lib/observability/log";
 import { ArchiveService } from "./archive-service";
+import { DashboardService, SupabaseDashboardStore } from "./dashboard-service";
 import { ExerciseService } from "./exercise-service";
 import { SupabaseExerciseStore } from "./exercise-store";
 import { JournalService } from "./journal-service";
@@ -126,4 +127,13 @@ export function skillTreeService(): SkillTreeService {
   const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
   skillTree = new SkillTreeService({ store: new SupabaseSkillTreeStore(db), learning: new SupabaseLearningStore(db), exercises: new SupabaseExerciseStore(db) });
   return skillTree;
+}
+
+let dashboard: DashboardService | undefined;
+
+export function dashboardService(): DashboardService {
+  if (dashboard) return dashboard;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
+  dashboard = new DashboardService({ store: new SupabaseDashboardStore(db), skills: new SupabaseSkillTreeStore(db), learning: new SupabaseLearningStore(db) });
+  return dashboard;
 }

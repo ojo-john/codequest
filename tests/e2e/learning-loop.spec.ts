@@ -90,4 +90,8 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   // Code evidence (implementation) and answer evidence (complexity) are tracked separately.
   await expect(page.getByRole("row", { name: /^Loops implementation/ })).toBeVisible(FIRST_LOAD);
   await expect(page.getByRole("row", { name: /^Loops complexity/ })).toBeVisible();
+  // Readiness is never invented from one quest: not enough evidence yet.
+  await expect(page.getByRole("heading", { name: "Interview readiness" })).toBeVisible();
+  await expect(page.getByText(/Not enough evidence yet/).first()).toBeVisible();
+  await expect(page.getByText("1 of 1 attempted")).toBeVisible();
 });
