@@ -1,0 +1,884 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "new": "workshop.JobQueue",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "email",
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "payment",
+              5
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "report",
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "payment"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "email"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "report"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": null
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "new": "workshop.JobQueue",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "pending",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "fifo-among-equals",
+        "steps": [
+          {
+            "new": "workshop.JobQueue",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-0",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-1",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-2",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-3",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-4",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-5",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-6",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-7",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-8",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-9",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-10",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-11",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-12",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-13",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-14",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-15",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-16",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-17",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-18",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "job-19",
+              3
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-0"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-1"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-2"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-3"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-4"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-5"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-6"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-7"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-8"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-9"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-10"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-11"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-12"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-13"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-14"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-15"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-16"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-17"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-18"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "job-19"
+            }
+          }
+        ]
+      },
+      {
+        "id": "negative-priorities",
+        "steps": [
+          {
+            "new": "workshop.JobQueue",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "low",
+              -5
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "zero",
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "lower",
+              -10
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "zero"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "low"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "lower"
+            }
+          }
+        ]
+      },
+      {
+        "id": "interleaved",
+        "steps": [
+          {
+            "new": "workshop.JobQueue",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "a",
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "b",
+              2
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "b"
+            }
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "c",
+              2
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "d",
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "c"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "a"
+            }
+          },
+          {
+            "call": "pending",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "d"
+            }
+          },
+          {
+            "call": "pending",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "blank-name",
+        "steps": [
+          {
+            "new": "workshop.JobQueue",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "  ",
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "pending",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "null-name",
+        "steps": [
+          {
+            "new": "workshop.JobQueue",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              null,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "extreme-priorities",
+        "steps": [
+          {
+            "new": "workshop.JobQueue",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "min",
+              -2147483648
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "submit",
+            "target": "x",
+            "args": [
+              "max",
+              2147483647
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int"
+            ]
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "max"
+            }
+          },
+          {
+            "call": "next",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": "min"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Write the contract's edge cases as examples first (empty, boundary, invalid input), then pick the structure that makes each operation's cost match the requirement."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "empty",
+      "fifo-among-equals",
+      "blank-name",
+      "null-name",
+      "extreme-priorities"
+    ],
+    "followUps": [
+      {
+        "id": "stable-heap",
+        "criterion": "explanation",
+        "skill": "ds.heaps",
+        "prompt": "How do you make a binary heap return equal priorities in submission order?",
+        "options": [
+          "Store a sequence number with each job and break priority ties by it",
+          "Use a bigger heap",
+          "Sort the heap after every insert",
+          "Heaps are always stable"
+        ],
+        "answer": 0,
+        "why": "Heaps don't preserve insertion order. Adding an increasing sequence number as a tie-breaker makes the ordering total and fair. (Comparing with priority subtraction could overflow; compare with Integer.compare or comparingInt.)"
+      }
+    ]
+  }
+}

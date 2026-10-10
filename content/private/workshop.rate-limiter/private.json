@@ -1,0 +1,586 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "new": "workshop.RateLimiter",
+            "args": [
+              2,
+              1000,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "long",
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              999
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "available",
+            "target": "x",
+            "args": [
+              1000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "refills-to-capacity",
+        "steps": [
+          {
+            "new": "workshop.RateLimiter",
+            "args": [
+              3,
+              100,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "long",
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "available",
+            "target": "x",
+            "args": [
+              250
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 2
+            }
+          },
+          {
+            "call": "available",
+            "target": "x",
+            "args": [
+              10000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "no-banking-while-full",
+        "steps": [
+          {
+            "new": "workshop.RateLimiter",
+            "args": [
+              2,
+              100,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "long",
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "available",
+            "target": "x",
+            "args": [
+              1000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 2
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1050
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "available",
+            "target": "x",
+            "args": [
+              1100
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "partial-intervals-carry",
+        "steps": [
+          {
+            "new": "workshop.RateLimiter",
+            "args": [
+              1,
+              100,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "long",
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              60
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              120
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              199
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              200
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "time-backwards",
+        "steps": [
+          {
+            "new": "workshop.RateLimiter",
+            "args": [
+              1,
+              100,
+              500
+            ],
+            "paramTypes": [
+              "int",
+              "long",
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              400
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "large-clock",
+        "steps": [
+          {
+            "new": "workshop.RateLimiter",
+            "args": [
+              5,
+              60000,
+              1700000000000
+            ],
+            "paramTypes": [
+              "int",
+              "long",
+              "long"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1700000000000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1700000000000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1700000000000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1700000000000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1700000000000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1700000059999
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "tryAcquire",
+            "target": "x",
+            "args": [
+              1700000060000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "available",
+            "target": "x",
+            "args": [
+              1700000300000
+            ],
+            "paramTypes": [
+              "long"
+            ],
+            "expect": {
+              "value": 4
+            }
+          }
+        ]
+      },
+      {
+        "id": "zero-capacity",
+        "steps": [
+          {
+            "new": "workshop.RateLimiter",
+            "args": [
+              0,
+              100,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "long",
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "zero-interval",
+        "steps": [
+          {
+            "new": "workshop.RateLimiter",
+            "args": [
+              1,
+              0,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "long",
+              "long"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Write the contract's edge cases as examples first (empty, boundary, invalid input), then pick the structure that makes each operation's cost match the requirement."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "no-banking-while-full",
+      "partial-intervals-carry",
+      "time-backwards",
+      "zero-capacity",
+      "zero-interval"
+    ],
+    "followUps": [
+      {
+        "id": "bucket-vs-window",
+        "criterion": "explanation",
+        "skill": "practical.rate-limiting",
+        "prompt": "What does a token bucket allow that a fixed one-minute window counter doesn't handle well?",
+        "options": [
+          "Controlled bursts up to the capacity while holding the long-run rate, without a burst of double traffic at window edges",
+          "Unlimited requests",
+          "Exactly one request per second, never more",
+          "Rate limiting across many servers with no shared state"
+        ],
+        "answer": 0,
+        "why": "Fixed windows let a client send a full quota at the end of one window and again at the start of the next. A bucket smooths that while still allowing bounded bursts. Distributed limiting still needs shared state."
+      }
+    ]
+  }
+}

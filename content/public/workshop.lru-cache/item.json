@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "workshop.lru-cache",
+  "version": 1,
+  "title": "LRU cache",
+  "summary": "Build the cache every interviewer asks about: fixed capacity, O(1) get and put, least recently used entry evicted first.",
+  "campaign": {
+    "id": "practical.workshop",
+    "order": 1
+  },
+  "stage": "independent",
+  "estimatedMinutes": 30,
+  "skills": [
+    {
+      "skill": "practical.caching",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "ds.hash-tables",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
