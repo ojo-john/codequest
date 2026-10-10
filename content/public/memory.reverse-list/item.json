@@ -1,0 +1,35 @@
+{
+  "kind": "quest",
+  "id": "memory.reverse-list",
+  "version": 1,
+  "title": "From memory: reverse a linked list",
+  "summary": "Reverse a singly linked list in place by re-pointing next references, from a blank method body.",
+  "campaign": {
+    "id": "problems.from-memory",
+    "order": 4
+  },
+  "stage": "delayed_transfer",
+  "family": "reverse-list",
+  "estimatedMinutes": 10,
+  "skills": [
+    {
+      "skill": "ds.stacks-queues",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.classes",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

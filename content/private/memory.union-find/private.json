@@ -1,0 +1,405 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "new": "problems.UnionFind",
+            "args": [
+              4
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "u"
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              0,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "connected",
+            "target": "u",
+            "args": [
+              0,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "connected",
+            "target": "u",
+            "args": [
+              0,
+              2
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "components",
+            "target": "u",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 3
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "union-twice",
+        "steps": [
+          {
+            "new": "problems.UnionFind",
+            "args": [
+              3
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "u"
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              0,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              1,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "components",
+            "target": "u",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "transitive",
+        "steps": [
+          {
+            "new": "problems.UnionFind",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "u"
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              0,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              1,
+              2
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "connected",
+            "target": "u",
+            "args": [
+              0,
+              2
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "components",
+            "target": "u",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "all-merged",
+        "steps": [
+          {
+            "new": "problems.UnionFind",
+            "args": [
+              4
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "u"
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              0,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              2,
+              3
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              1,
+              3
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "components",
+            "target": "u",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "self",
+        "steps": [
+          {
+            "new": "problems.UnionFind",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "u"
+          },
+          {
+            "call": "connected",
+            "target": "u",
+            "args": [
+              1,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              1,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "out-of-range",
+        "steps": [
+          {
+            "new": "problems.UnionFind",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "u"
+          },
+          {
+            "call": "union",
+            "target": "u",
+            "args": [
+              0,
+              2
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "negative-size",
+        "steps": [
+          {
+            "new": "problems.UnionFind",
+            "args": [
+              -1
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "new": "problems.UnionFind",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "u"
+          },
+          {
+            "call": "components",
+            "target": "u",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Say the invariant out loud before you write the loop: what is true at every step, and what makes you stop?"
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "union-twice",
+      "self",
+      "out-of-range",
+      "negative-size",
+      "empty"
+    ],
+    "followUps": [
+      {
+        "id": "path-compression",
+        "criterion": "explanation",
+        "skill": "ds.graphs",
+        "prompt": "What does path compression do?",
+        "options": [
+          "After finding an element's root, it points the visited elements straight at the root so later finds are shorter",
+          "It merges the two smallest sets",
+          "It removes elements from the structure",
+          "It sorts the parent array"
+        ],
+        "answer": 0,
+        "why": "Flattening the paths it walks keeps trees shallow; with union by size it makes operations nearly O(1) amortized."
+      }
+    ]
+  }
+}

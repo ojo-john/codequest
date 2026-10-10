@@ -1,0 +1,31 @@
+{
+  "kind": "quest",
+  "id": "memory.lower-bound",
+  "version": 1,
+  "title": "From memory: binary search",
+  "summary": "Write a lower-bound binary search from a blank editor: the first index whose value is at least the target.",
+  "campaign": {
+    "id": "problems.from-memory",
+    "order": 1
+  },
+  "stage": "delayed_transfer",
+  "family": "lower-bound",
+  "estimatedMinutes": 10,
+  "skills": [
+    {
+      "skill": "patterns.binary-search",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

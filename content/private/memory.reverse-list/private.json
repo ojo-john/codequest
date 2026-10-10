@@ -1,0 +1,158 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "call": "reversedValues",
+            "static": "problems.ReverseList",
+            "args": [
+              [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": [
+                5,
+                4,
+                3,
+                2,
+                1
+              ]
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "call": "reversedValues",
+            "static": "problems.ReverseList",
+            "args": [
+              []
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "single",
+        "steps": [
+          {
+            "call": "reversedValues",
+            "static": "problems.ReverseList",
+            "args": [
+              [
+                9
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": [
+                9
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "two",
+        "steps": [
+          {
+            "call": "reversedValues",
+            "static": "problems.ReverseList",
+            "args": [
+              [
+                1,
+                2
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": [
+                2,
+                1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "duplicates",
+        "steps": [
+          {
+            "call": "reversedValues",
+            "static": "problems.ReverseList",
+            "args": [
+              [
+                3,
+                3,
+                1
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": [
+                1,
+                3,
+                3
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Say the invariant out loud before you write the loop: what is true at every step, and what makes you stop?"
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "empty",
+      "single",
+      "two"
+    ],
+    "followUps": [
+      {
+        "id": "three-pointers",
+        "criterion": "explanation",
+        "skill": "ds.stacks-queues",
+        "prompt": "Why do you need to save current.next before re-pointing current.next?",
+        "options": [
+          "Re-pointing it to the previous node loses the only reference to the rest of the list",
+          "Java requires a temporary variable for every assignment",
+          "To make the list doubly linked",
+          "You don't need to"
+        ],
+        "answer": 0,
+        "why": "Once current.next points backwards, nothing else points at the remainder of the list. Saving it first lets the walk continue."
+      }
+    ]
+  }
+}
