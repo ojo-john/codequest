@@ -1,0 +1,148 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "nickname",
+        "steps": [
+          {
+            "call": "displayName",
+            "static": "problems.Greeting",
+            "args": [
+              "  Ada  ",
+              "Ada Lovelace"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "Ada"
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "blank",
+        "steps": [
+          {
+            "call": "displayName",
+            "static": "problems.Greeting",
+            "args": [
+              "   ",
+              "Ada Lovelace"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "Ada Lovelace"
+            }
+          }
+        ]
+      },
+      {
+        "id": "missing",
+        "steps": [
+          {
+            "call": "displayName",
+            "static": "problems.Greeting",
+            "args": [
+              null,
+              "Ada Lovelace"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "Ada Lovelace"
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "call": "displayName",
+            "static": "problems.Greeting",
+            "args": [
+              "",
+              "Grace Hopper"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "Grace Hopper"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "The crash is a NullPointerException for users with no nickname. What is nickname then, and what's called on it?"
+    },
+    {
+      "tier": "pattern",
+      "text": "Calling a method on a null reference throws. Check for null before calling isBlank()."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "blank",
+      "missing",
+      "empty"
+    ],
+    "followUps": [
+      {
+        "id": "diagnosis",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "What was the root cause?",
+        "options": [
+          "nickname.isBlank() was called when nickname was null",
+          "fullName was null",
+          "trim() removed the whole nickname",
+          "isBlank() throws on empty strings"
+        ],
+        "answer": 0,
+        "why": "A missing nickname arrives as null, and calling any method on null throws a NullPointerException. Check nickname == null first (|| short-circuits)."
+      },
+      {
+        "id": "prevention",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "Which inputs belong in the tests for a method that takes optional text?",
+        "options": [
+          "null, empty, only spaces, and a normal value with surrounding spaces",
+          "Only a normal value",
+          "Only very long strings",
+          "Only values from production logs"
+        ],
+        "answer": 0,
+        "why": "Each of those takes a different branch. Optional text has at least three kinds of 'nothing': null, \"\", and \"   \"."
+      }
+    ]
+  },
+  "testQuality": {
+    "target": "src/main/java/problems/Greeting.java",
+    "passRatio": 1,
+    "referenceTestsDir": "reference-tests",
+    "mutants": [
+      {
+        "id": "original-bug",
+        "description": "the original bug from the report",
+        "file": "mutants/original-bug.java"
+      }
+    ]
+  }
+}

@@ -86,6 +86,8 @@ export const exerciseSetManifestSchema = z
     questions: z.array(publicQuestionSchema).min(1).max(40),
     /** Optional grouping (e.g. the diagnostic's areas); each question in exactly one section, easiest first. */
     sections: z.array(sectionSchema).max(10).optional(),
+    /** A world's mastery exam (spec §53): each section is passed on its own at this share. */
+    boss: z.object({ passShare: z.number().gt(0).lte(1) }).strict().optional(),
     review: reviewSchema,
     provenance: provenanceSchema,
   })
@@ -106,6 +108,7 @@ export const exerciseSetPayloadSchema = z.object({
   estimatedMinutes: z.number().int(),
   questions: z.array(publicQuestionSchema),
   sections: z.array(sectionSchema).optional(),
+  boss: z.object({ passShare: z.number() }).optional(),
 });
 
 export type ExerciseSetPayload = z.infer<typeof exerciseSetPayloadSchema>;

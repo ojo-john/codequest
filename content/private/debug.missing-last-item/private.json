@@ -1,0 +1,171 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "call": "sumAll",
+            "static": "problems.Stats",
+            "args": [
+              [
+                1,
+                2,
+                3
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": 6
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "single",
+        "steps": [
+          {
+            "call": "sumAll",
+            "static": "problems.Stats",
+            "args": [
+              [
+                5
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": 5
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "call": "sumAll",
+            "static": "problems.Stats",
+            "args": [
+              []
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "negatives",
+        "steps": [
+          {
+            "call": "sumAll",
+            "static": "problems.Stats",
+            "args": [
+              [
+                -4,
+                10,
+                -1
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": 5
+            }
+          }
+        ]
+      },
+      {
+        "id": "large-values",
+        "steps": [
+          {
+            "call": "sumAll",
+            "static": "problems.Stats",
+            "args": [
+              [
+                2147483647,
+                2147483647
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": 4294967294
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Which elements does the loop actually visit? Try it by hand on a 1-element array."
+    },
+    {
+      "tier": "pattern",
+      "text": "Off-by-one errors live in loop bounds: compare the last index visited with the last index that exists."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "single",
+      "empty",
+      "large-values"
+    ],
+    "followUps": [
+      {
+        "id": "diagnosis",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "What was the root cause?",
+        "options": [
+          "The loop stopped one element early, so the last value was never added",
+          "The total should have been an int",
+          "The array was sorted in the wrong order",
+          "Java arrays start at 1"
+        ],
+        "answer": 0,
+        "why": "i < values.length - 1 visits indices 0 … length − 2, skipping the last one. The fix is i < values.length (or a for-each loop, which can't get this wrong)."
+      },
+      {
+        "id": "prevention",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "Which test is most likely to catch this kind of bug early?",
+        "options": [
+          "A one-element input, where skipping the last element means skipping everything",
+          "A test with a thousand random values",
+          "A test that only checks the method doesn't throw",
+          "No test can catch it"
+        ],
+        "answer": 0,
+        "why": "Boundary inputs (empty, one element) make off-by-one errors obvious: here a single item summed to 0."
+      }
+    ]
+  },
+  "testQuality": {
+    "target": "src/main/java/problems/Stats.java",
+    "passRatio": 1,
+    "referenceTestsDir": "reference-tests",
+    "mutants": [
+      {
+        "id": "original-bug",
+        "description": "the original bug from the report",
+        "file": "mutants/original-bug.java"
+      }
+    ]
+  }
+}

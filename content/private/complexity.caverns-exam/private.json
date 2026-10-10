@@ -1,0 +1,67 @@
+{
+  "answers": {
+    "three-nested": {
+      "type": "big_o",
+      "answer": "O(n^3)",
+      "why": "Three nested loops, each running n times: n × n × n.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "sqrt-loop": {
+      "type": "big_o",
+      "answer": "O(sqrt n)",
+      "why": "The loop stops once i² passes n, so it runs about √n times: slower-growing than n, faster than log n.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "halving-inner": {
+      "type": "big_o",
+      "answer": "O(n log n)",
+      "why": "The inner loop halves j, so it runs about log₂ n times for each of the n outer iterations.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "rows-and-columns": {
+      "type": "big_o",
+      "answer": "O(r * c)",
+      "why": "Every cell is visited once. r and c are independent, so neither can be replaced by the other.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "shrinking-window": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "left only moves forward, at most n times in total, and each map operation is O(1) on average.",
+      "skill": "bigo.loops",
+      "dimension": "complexity"
+    },
+    "halving-recursion": {
+      "type": "big_o",
+      "answer": "O(log n)",
+      "why": "One call per halving: about log₂ n calls, each doing constant work.",
+      "skill": "bigo.recursion",
+      "dimension": "complexity"
+    },
+    "linear-recursion-space": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "The calls nest n deep before any returns, so n frames are on the stack at once.",
+      "skill": "bigo.space",
+      "dimension": "complexity"
+    },
+    "permutations": {
+      "type": "big_o",
+      "answer": "O(n!)",
+      "why": "There are n! orderings, so producing them is at least n! work: an output-sensitive bound.",
+      "skill": "bigo.recursion",
+      "dimension": "complexity"
+    },
+    "copy-then-scan": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "The copy is n extra ints, however fast the rest of the method is.",
+      "skill": "bigo.space",
+      "dimension": "complexity"
+    }
+  }
+}

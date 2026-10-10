@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "debug.average-overflow",
+  "version": 1,
+  "title": "The negative average",
+  "summary": "An average of two large positive numbers comes out negative. Find out why.",
+  "campaign": {
+    "id": "problems.debug-dungeon",
+    "order": 2
+  },
+  "stage": "independent",
+  "estimatedMinutes": 15,
+  "skills": [
+    {
+      "skill": "debug.diagnosis",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "debug.diagnosis",
+      "dimension": "explanation"
+    },
+    {
+      "skill": "java.unit-testing",
+      "dimension": "testing"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

@@ -20,6 +20,13 @@
       "summary": "Classic interview problems solved with hashing, sliding windows, binary search and graph search.",
       "world": "world.pattern-kingdom",
       "kind": "problems"
+    },
+    {
+      "id": "problems.debug-dungeon",
+      "title": "Debug Dungeon",
+      "summary": "Broken code with a bug report: find the root cause, fix it minimally, and prove it with a test that fails before the fix.",
+      "world": "world.debug-dungeon",
+      "kind": "problems"
     }
   ]
 }
