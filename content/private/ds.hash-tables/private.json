@@ -1,0 +1,69 @@
+{
+  "answers": {
+    "why-degrade": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "A lookup hashes the key to a bucket and searches only that bucket. If many keys collide into one bucket, that search grows. (Java 8+ turns a crowded bucket into a balanced tree when keys are Comparable.)",
+      "skill": "ds.hash-tables",
+      "dimension": "concept"
+    },
+    "equals-hashcode": {
+      "type": "true_false",
+      "answer": true,
+      "why": "That's the contract hash tables rely on: they find the bucket by hashCode first, then compare with equals. Equal objects with different hash codes would be looked for in the wrong bucket.",
+      "skill": "ds.hash-tables",
+      "dimension": "concept"
+    },
+    "record-keys": {
+      "type": "predict_output",
+      "answer": "2",
+      "why": "Records generate equals and hashCode from their components, so the two Point(1, 2) objects are the same element. Point(2, 1) is different.",
+      "skill": "ds.hash-tables",
+      "dimension": "concept"
+    },
+    "missing-hashcode": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Object's hashCode is (almost always) different for different objects, so the second add looks in a different bucket and never finds the first. Always override both together.",
+      "skill": "ds.hash-tables",
+      "dimension": "concept"
+    },
+    "resizing": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Each resize is expensive, but doubling means it happens after n, then 2n, then 4n inserts. Spread over all inserts, the total rehashing work is linear, so each put is amortized O(1).",
+      "skill": "ds.hash-tables",
+      "dimension": "complexity"
+    },
+    "group-anagrams": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Anagrams share the same sorted letters, so that's a natural key: one pass, grouping in a map. Comparing every pair works but is quadratic in the number of words.",
+      "skill": "patterns.hashing",
+      "dimension": "recognition"
+    },
+    "merge-count": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "merge"
+        ]
+      ],
+      "why": "Map.merge puts 1 for a new key, or combines the old value with 1 using Integer::sum for an existing one.",
+      "skill": "patterns.hashing",
+      "dimension": "implementation"
+    },
+    "duplicates-set": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "Each add is O(1) on average, done at most n times. The price is O(n) extra space for the set.",
+      "skill": "patterns.hashing",
+      "dimension": "complexity"
+    }
+  }
+}

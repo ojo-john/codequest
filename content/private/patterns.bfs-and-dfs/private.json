@@ -1,0 +1,56 @@
+{
+  "answers": {
+    "bfs-order": {
+      "type": "predict_output",
+      "answer": "0 1 2 3",
+      "why": "BFS visits by distance: 0, then its neighbours 1 and 2, then 3 (queued once, by 1, and skipped when 2 finds it already seen).",
+      "skill": "patterns.graph-search",
+      "dimension": "concept"
+    },
+    "dfs-order": {
+      "type": "predict_output",
+      "answer": "0 1 3 2",
+      "why": "DFS goes as deep as it can first: 0, then 1, then 1's neighbour 3. It backs up to 0 and visits 2, whose neighbour 3 is already seen.",
+      "skill": "patterns.graph-search",
+      "dimension": "concept"
+    },
+    "mark-when-queued": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Marking on enqueue guarantees each node enters the queue once, which keeps BFS at O(V + E).",
+      "skill": "patterns.graph-search",
+      "dimension": "explanation"
+    },
+    "bfs-cost": {
+      "type": "big_o",
+      "answer": "O(V + E)",
+      "why": "Each vertex is dequeued once and each adjacency list is scanned once.",
+      "skill": "patterns.graph-search",
+      "dimension": "complexity"
+    },
+    "islands": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Each flood fill marks one whole island, and every cell is visited once: O(rows × columns). Union-find also works with a bit more machinery.",
+      "skill": "patterns.graph-search",
+      "dimension": "recognition"
+    },
+    "bfs-steps": {
+      "type": "order",
+      "answer": [
+        1,
+        0,
+        2,
+        3
+      ],
+      "why": "Seed the queue with the start, then repeatedly take the front node and queue its unseen neighbours until nothing is left.",
+      "skill": "patterns.graph-search",
+      "dimension": "implementation"
+    }
+  }
+}

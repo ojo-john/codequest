@@ -1,0 +1,74 @@
+{
+  "kind": "exercise-set",
+  "id": "ds.trees",
+  "version": 1,
+  "title": "Trees and traversals",
+  "summary": "Binary trees and BSTs: traversal orders, height, and why balance matters.",
+  "world": {
+    "id": "world.data-structure-forge",
+    "order": 4
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "inorder",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    record Node(int value, Node left, Node right) {\n    }\n\n    static void inorder(Node node, StringBuilder out) {\n        if (node == null) {\n            return;\n        }\n        inorder(node.left(), out);\n        out.append(node.value()).append(' ');\n        inorder(node.right(), out);\n    }\n\n    public static void main(String[] args) {\n        Node root = new Node(4, new Node(2, new Node(1, null, null), new Node(3, null, null)), new Node(6, null, new Node(7, null, null)));\n        StringBuilder out = new StringBuilder();\n        inorder(root, out);\n        System.out.println(out.toString().trim());\n    }\n}\n"
+    },
+    {
+      "id": "preorder",
+      "type": "predict_output",
+      "prompt": "Same tree, pre-order this time. What does this program print?",
+      "code": "public class Main {\n    record Node(int value, Node left, Node right) {\n    }\n\n    static void preorder(Node node, StringBuilder out) {\n        if (node == null) {\n            return;\n        }\n        out.append(node.value()).append(' ');\n        preorder(node.left(), out);\n        preorder(node.right(), out);\n    }\n\n    public static void main(String[] args) {\n        Node root = new Node(4, new Node(2, new Node(1, null, null), new Node(3, null, null)), new Node(6, null, new Node(7, null, null)));\n        StringBuilder out = new StringBuilder();\n        preorder(root, out);\n        System.out.println(out.toString().trim());\n    }\n}\n"
+    },
+    {
+      "id": "why-sorted",
+      "type": "single_choice",
+      "prompt": "Why does an in-order traversal of a binary search tree visit the values in sorted order?",
+      "options": [
+        "Every value in a left subtree is smaller and every value in a right subtree is larger, and in-order visits left, node, right",
+        "Because trees are always stored sorted in memory",
+        "Because in-order sorts the values as it goes",
+        "It doesn't; that's pre-order"
+      ]
+    },
+    {
+      "id": "degenerate",
+      "type": "big_o",
+      "prompt": "You insert 1, 2, 3, …, n in that order into a plain (unbalanced) binary search tree, then search for n. What is the time complexity of that search?",
+      "ask": "time"
+    },
+    {
+      "id": "treemap-get",
+      "type": "big_o",
+      "prompt": "What is the time complexity of TreeMap.get with n keys?",
+      "ask": "time"
+    },
+    {
+      "id": "level-order",
+      "type": "single_choice",
+      "prompt": "A level-order (breadth-first) traversal of a binary tree is usually implemented with which structure?",
+      "options": [
+        "A queue",
+        "A stack",
+        "A heap",
+        "A hash map"
+      ]
+    },
+    {
+      "id": "height",
+      "type": "fill_blank",
+      "prompt": "Complete the recursive height of a binary tree (an empty tree has height 0).",
+      "code": "static int height(Node node) {\n    if (node == null) {\n        return 0;\n    }\n    return 1 + Math.____(height(node.left()), height(node.right()));\n}"
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
