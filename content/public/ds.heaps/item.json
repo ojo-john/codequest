@@ -1,0 +1,73 @@
+{
+  "kind": "exercise-set",
+  "id": "ds.heaps",
+  "version": 1,
+  "title": "Heaps and priority queues",
+  "summary": "Always get the smallest (or largest) next, in O(log n): priority queues, Top K and k-way merges.",
+  "world": {
+    "id": "world.data-structure-forge",
+    "order": 3
+  },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "poll-order",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.List;\nimport java.util.PriorityQueue;\n\npublic class Main {\n    public static void main(String[] args) {\n        PriorityQueue<Integer> heap = new PriorityQueue<>(List.of(5, 1, 4, 2));\n        StringBuilder out = new StringBuilder();\n        while (!heap.isEmpty()) {\n            out.append(heap.poll()).append(' ');\n        }\n        System.out.println(out.toString().trim());\n    }\n}\n"
+    },
+    {
+      "id": "max-heap",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.Comparator;\nimport java.util.PriorityQueue;\n\npublic class Main {\n    public static void main(String[] args) {\n        PriorityQueue<Integer> heap = new PriorityQueue<>(Comparator.reverseOrder());\n        heap.add(3);\n        heap.add(9);\n        heap.add(1);\n        System.out.println(heap.poll());\n        System.out.println(heap.peek());\n    }\n}\n"
+    },
+    {
+      "id": "top-k-cost",
+      "type": "big_o",
+      "prompt": "You keep the k largest of n numbers with a min-heap that never holds more than k elements. What is the time complexity?",
+      "ask": "time",
+      "options": [
+        "O(n)",
+        "O(n log k)",
+        "O(n log n)",
+        "O(k log n)"
+      ]
+    },
+    {
+      "id": "top-k-heap",
+      "type": "single_choice",
+      "prompt": "To keep the k largest numbers seen so far, which heap do you use and why?",
+      "options": [
+        "A min-heap of size k: its smallest element is the one to evict when a larger number arrives",
+        "A max-heap of size k, evicting its largest",
+        "A max-heap holding every number",
+        "A sorted array, re-sorted after every number"
+      ]
+    },
+    {
+      "id": "iteration-order",
+      "type": "true_false",
+      "prompt": "True or false: iterating over a PriorityQueue with a for-each loop visits the elements in priority order."
+    },
+    {
+      "id": "merge-k",
+      "type": "pattern",
+      "prompt": "Merge k sorted lists into one sorted list. Which approach?",
+      "options": [
+        "A min-heap holding the current first element of each list",
+        "Concatenate everything, then sort",
+        "Scan all k list heads to find the smallest, every time",
+        "A stack"
+      ]
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

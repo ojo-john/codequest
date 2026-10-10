@@ -1,0 +1,63 @@
+{
+  "answers": {
+    "stack-order": {
+      "type": "predict_output",
+      "answer": "3\n2",
+      "why": "push adds to the top and pop removes from the top: last in, first out. peek looks at the new top without removing it.",
+      "skill": "ds.stacks-queues",
+      "dimension": "concept"
+    },
+    "queue-order": {
+      "type": "predict_output",
+      "answer": "a\n[b, c]",
+      "why": "A queue is first in, first out: poll removes the oldest element, \"a\", leaving b and c in order.",
+      "skill": "ds.stacks-queues",
+      "dimension": "concept"
+    },
+    "brackets": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "The most recently opened bracket must close first: that's last in, first out. A counter can't tell \"([)]\" (unbalanced) from \"([])\", and a queue checks in the wrong order.",
+      "skill": "ds.stacks-queues",
+      "dimension": "recognition"
+    },
+    "why-arraydeque": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Stack pays for synchronization nobody needs here and inherits Vector's index-based methods. ArrayDeque is the documented replacement. (It does not accept null elements.)",
+      "skill": "ds.stacks-queues",
+      "dimension": "concept"
+    },
+    "bracket-steps": {
+      "type": "order",
+      "answer": [
+        3,
+        1,
+        2,
+        0
+      ],
+      "why": "Create the stack, scan the characters (pushing openers, matching closers), then make sure nothing was left open.",
+      "skill": "ds.stacks-queues",
+      "dimension": "implementation"
+    },
+    "monotonic-stack": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "Every index is pushed once and popped at most once, so the inner loop runs at most n times in total across the whole scan.",
+      "skill": "ds.stacks-queues",
+      "dimension": "complexity"
+    },
+    "queue-removes": {
+      "type": "true_false",
+      "answer": false,
+      "why": "That's a stack. A queue removes the oldest element first (first in, first out).",
+      "skill": "ds.stacks-queues",
+      "dimension": "concept"
+    }
+  }
+}

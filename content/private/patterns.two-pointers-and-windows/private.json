@@ -1,0 +1,67 @@
+{
+  "answers": {
+    "sorted-pair": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "valid",
+        "incorrect"
+      ],
+      "why": "Sorted order tells you which pointer to move: too small, move left up; too big, move right down. O(n) time and O(1) space. A hash set is O(n) time but O(n) space; every pair is O(n²). A window is for contiguous ranges, not pairs.",
+      "skill": "patterns.two-pointers",
+      "dimension": "recognition"
+    },
+    "palindrome": {
+      "type": "predict_output",
+      "answer": "true\nfalse\ntrue",
+      "why": "The pointers compare matching characters from both ends. \"abca\" fails at b vs c. For the empty string, right starts at -1, the loop never runs, and it returns true.",
+      "skill": "patterns.two-pointers",
+      "dimension": "concept"
+    },
+    "fixed-window": {
+      "type": "predict_output",
+      "answer": "9",
+      "why": "The window sums are 2+1+5 = 8, 1+5+1 = 7, 5+1+3 = 9 and 1+3+2 = 6. Sliding adds the new element and removes the one leaving, instead of re-adding all k.",
+      "skill": "patterns.sliding-window",
+      "dimension": "concept"
+    },
+    "window-fill": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "k"
+        ]
+      ],
+      "why": "a[i] enters the window and a[i - k], the element k places back, leaves it.",
+      "skill": "patterns.sliding-window",
+      "dimension": "implementation"
+    },
+    "move-zeros": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Two pointers moving in the same direction (read and write) do it in one pass with O(1) space. A new array works but isn't in place. Sorting changes the other numbers' order, and counts lose it entirely.",
+      "skill": "patterns.two-pointers",
+      "dimension": "recognition"
+    },
+    "window-negatives": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "The grow/shrink rule relies on sums only rising as the window grows. Negative numbers break that monotonicity; prefix sums with a sorted structure or a different technique is needed then.",
+      "skill": "patterns.sliding-window",
+      "dimension": "explanation"
+    },
+    "pointers-cost": {
+      "type": "big_o",
+      "answer": "O(n)",
+      "why": "Every iteration moves one pointer one step closer to the other, so there are fewer than n iterations.",
+      "skill": "patterns.two-pointers",
+      "dimension": "complexity"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "kind": "exercise-set",
+  "id": "patterns.two-pointers-and-windows",
+  "version": 1,
+  "title": "Two pointers and windows",
+  "summary": "Solve pair, palindrome and subarray problems in one pass by moving indices instead of nesting loops.",
+  "world": {
+    "id": "world.pattern-kingdom",
+    "order": 2
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "sorted-pair",
+      "type": "pattern",
+      "prompt": "In a sorted array, find two numbers that add up to a target, using O(1) extra space. Which approach?",
+      "options": [
+        "Two pointers from both ends, moving inward depending on the sum",
+        "A hash set of values seen so far",
+        "Check every pair",
+        "A sliding window"
+      ]
+    },
+    {
+      "id": "palindrome",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    static boolean isPalindrome(String s) {\n        int left = 0;\n        int right = s.length() - 1;\n        while (left < right) {\n            if (s.charAt(left) != s.charAt(right)) {\n                return false;\n            }\n            left++;\n            right--;\n        }\n        return true;\n    }\n\n    public static void main(String[] args) {\n        System.out.println(isPalindrome(\"racecar\"));\n        System.out.println(isPalindrome(\"abca\"));\n        System.out.println(isPalindrome(\"\"));\n    }\n}\n"
+    },
+    {
+      "id": "fixed-window",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "public class Main {\n    public static void main(String[] args) {\n        int[] a = {2, 1, 5, 1, 3, 2};\n        int k = 3;\n        int window = 0;\n        for (int i = 0; i < k; i++) {\n            window += a[i];\n        }\n        int best = window;\n        for (int i = k; i < a.length; i++) {\n            window += a[i] - a[i - k];\n            best = Math.max(best, window);\n        }\n        System.out.println(best);\n    }\n}\n"
+    },
+    {
+      "id": "window-fill",
+      "type": "fill_blank",
+      "prompt": "Complete the line that slides a fixed window of size k one step to the right.",
+      "code": "window += a[i] - a[i - ____];"
+    },
+    {
+      "id": "move-zeros",
+      "type": "pattern",
+      "prompt": "Move all zeros in an array to the end, keeping the other numbers in their original order, in place. Which approach?",
+      "options": [
+        "A write pointer that copies each non-zero forward, then fills the rest with zeros",
+        "Copy the non-zeros into a new array",
+        "Sort the array",
+        "A hash map from value to count"
+      ]
+    },
+    {
+      "id": "window-negatives",
+      "type": "single_choice",
+      "prompt": "A variable-size sliding window finds the longest subarray with sum at most k. Why does it assume the numbers are non-negative?",
+      "options": [
+        "With negatives, adding an element can lower the sum and removing one can raise it, so 'shrink while too big' no longer works",
+        "It doesn't need that assumption",
+        "Java arrays can't hold negative numbers",
+        "Only fixed-size windows need non-negative numbers"
+      ]
+    },
+    {
+      "id": "pointers-cost",
+      "type": "big_o",
+      "prompt": "What is the time complexity of this loop over an array of length n?",
+      "code": "int left = 0;\nint right = n - 1;\nwhile (left < right) {\n    if (a[left] + a[right] < target) {\n        left++;\n    } else {\n        right--;\n    }\n}",
+      "ask": "time"
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

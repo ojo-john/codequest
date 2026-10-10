@@ -1,0 +1,79 @@
+{
+  "kind": "exercise-set",
+  "id": "patterns.bfs-and-dfs",
+  "version": 1,
+  "title": "BFS and DFS",
+  "summary": "Explore graphs and grids: breadth-first for shortest steps, depth-first for reachability.",
+  "world": {
+    "id": "world.pattern-kingdom",
+    "order": 4
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "bfs-order",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.ArrayDeque;\nimport java.util.Deque;\nimport java.util.List;\n\npublic class Main {\n    public static void main(String[] args) {\n        List<List<Integer>> graph = List.of(List.of(1, 2), List.of(3), List.of(3), List.of());\n        boolean[] seen = new boolean[graph.size()];\n        Deque<Integer> queue = new ArrayDeque<>();\n        queue.add(0);\n        seen[0] = true;\n        StringBuilder order = new StringBuilder();\n        while (!queue.isEmpty()) {\n            int node = queue.poll();\n            order.append(node).append(' ');\n            for (int next : graph.get(node)) {\n                if (!seen[next]) {\n                    seen[next] = true;\n                    queue.add(next);\n                }\n            }\n        }\n        System.out.println(order.toString().trim());\n    }\n}\n"
+    },
+    {
+      "id": "dfs-order",
+      "type": "predict_output",
+      "prompt": "Same graph, depth-first. What does this program print?",
+      "code": "import java.util.List;\n\npublic class Main {\n    static void dfs(List<List<Integer>> graph, int node, boolean[] seen, StringBuilder order) {\n        seen[node] = true;\n        order.append(node).append(' ');\n        for (int next : graph.get(node)) {\n            if (!seen[next]) {\n                dfs(graph, next, seen, order);\n            }\n        }\n    }\n\n    public static void main(String[] args) {\n        List<List<Integer>> graph = List.of(List.of(1, 2), List.of(3), List.of(3), List.of());\n        StringBuilder order = new StringBuilder();\n        dfs(graph, 0, new boolean[graph.size()], order);\n        System.out.println(order.toString().trim());\n    }\n}\n"
+    },
+    {
+      "id": "mark-when-queued",
+      "type": "single_choice",
+      "prompt": "In BFS, why mark a node as seen when it's added to the queue rather than when it's taken out?",
+      "options": [
+        "Otherwise several neighbours can queue the same node before it's processed, wasting work",
+        "It makes no difference",
+        "Because Java queues reject duplicates",
+        "So the queue stays sorted"
+      ]
+    },
+    {
+      "id": "bfs-cost",
+      "type": "big_o",
+      "prompt": "BFS over a graph stored as adjacency lists, with V vertices and E edges. What is its time complexity?",
+      "ask": "time",
+      "options": [
+        "O(V)",
+        "O(E)",
+        "O(V + E)",
+        "O(V * E)"
+      ]
+    },
+    {
+      "id": "islands",
+      "type": "pattern",
+      "prompt": "Count the islands (connected groups of 1s) in a grid of 0s and 1s. Which approach?",
+      "options": [
+        "Scan the grid; from each unvisited 1, flood-fill its island with BFS or DFS and count it",
+        "Union-find over neighbouring 1s",
+        "Binary search on the number of islands",
+        "Sort the cells"
+      ]
+    },
+    {
+      "id": "bfs-steps",
+      "type": "order",
+      "prompt": "Put the steps of breadth-first search in order.",
+      "steps": [
+        "Take the next node from the front of the queue",
+        "Put the start node in a queue and mark it seen",
+        "Add each unseen neighbour to the queue and mark it seen",
+        "Repeat until the queue is empty"
+      ]
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

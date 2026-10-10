@@ -1,0 +1,90 @@
+{
+  "kind": "exercise-set",
+  "id": "ds.hash-tables",
+  "version": 1,
+  "title": "Hash tables",
+  "summary": "Buckets, collisions, resizing and the equals/hashCode contract behind O(1) lookups.",
+  "world": {
+    "id": "world.data-structure-forge",
+    "order": 1
+  },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "why-degrade",
+      "type": "single_choice",
+      "prompt": "Hash-table lookups are O(1) on average. What makes them slower in bad cases?",
+      "options": [
+        "Many keys landing in the same bucket, which then has to be searched",
+        "The table re-sorting itself on every insert",
+        "Hashing a key taking time proportional to the number of entries",
+        "Every lookup scanning the whole table"
+      ]
+    },
+    {
+      "id": "equals-hashcode",
+      "type": "true_false",
+      "prompt": "True or false: if two objects are equal according to equals, they must return the same hashCode."
+    },
+    {
+      "id": "record-keys",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.HashSet;\nimport java.util.Set;\n\npublic class Main {\n    record Point(int x, int y) {\n    }\n\n    public static void main(String[] args) {\n        Set<Point> points = new HashSet<>();\n        points.add(new Point(1, 2));\n        points.add(new Point(1, 2));\n        points.add(new Point(2, 1));\n        System.out.println(points.size());\n    }\n}\n"
+    },
+    {
+      "id": "missing-hashcode",
+      "type": "single_choice",
+      "prompt": "A class overrides equals but not hashCode. Two equal instances are added to a HashSet. What usually happens?",
+      "options": [
+        "The set keeps both: their default hash codes differ, so they land in different buckets and equals is never compared",
+        "The set keeps one, because equals is always checked first",
+        "It doesn't compile",
+        "It throws an exception on the second add"
+      ]
+    },
+    {
+      "id": "resizing",
+      "type": "single_choice",
+      "prompt": "A HashMap grows when its size passes capacity × load factor (0.75 by default). Why is put still O(1) on average despite occasional resizing?",
+      "options": [
+        "Resizing rehashes every entry, O(n), but the table doubles each time, so that cost spreads out to O(1) amortized per put",
+        "Resizing is O(1) because entries move lazily",
+        "Java never resizes a HashMap",
+        "It isn't: put is O(log n) because of resizing"
+      ]
+    },
+    {
+      "id": "group-anagrams",
+      "type": "pattern",
+      "prompt": "Group a list of words so that anagrams (like 'listen' and 'silent') end up together. Which approach?",
+      "options": [
+        "A HashMap from each word's sorted letters to its group",
+        "Compare every pair of words",
+        "Binary search",
+        "A stack"
+      ]
+    },
+    {
+      "id": "merge-count",
+      "type": "fill_blank",
+      "prompt": "Complete the line so it counts how many times each word appears.",
+      "code": "counts.____(word, 1, Integer::sum);"
+    },
+    {
+      "id": "duplicates-set",
+      "type": "big_o",
+      "prompt": "What is the average time complexity of this duplicate check for an array of length n?",
+      "code": "Set<Integer> seen = new HashSet<>();\nfor (int x : a) {\n    if (!seen.add(x)) {\n        return true;\n    }\n}\nreturn false;",
+      "ask": "time"
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
