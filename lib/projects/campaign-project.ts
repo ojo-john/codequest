@@ -38,7 +38,8 @@ export async function openQuestProject(
   return openCampaignProject(userId, quest.campaignId, campaign?.title ?? quest.campaignId, quest.starter);
 }
 
-async function openProblemProject(userId: string, contentId: string, title: string, starter: ReadonlyArray<{ path: string; content: string }>): Promise<CampaignProject> {
+/** A standalone project keyed by content id: a problem's code, or a design challenge's documents. */
+export async function openProblemProject(userId: string, contentId: string, title: string, starter: ReadonlyArray<{ path: string; content: string }>): Promise<CampaignProject> {
   const supabase = await createUserClient();
   const find = () => supabase.from("projects").select("id").eq("content_id", contentId).is("campaign_id", null).maybeSingle();
   let { data: project, error } = await find();

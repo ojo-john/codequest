@@ -94,6 +94,7 @@ function exerciseSetPayload(set: LoadedExerciseSet): ExerciseSetPayload {
     // Omitted when absent, so sets without sections keep the payload they were synced with.
     ...(manifest.sections && { sections: manifest.sections }),
     ...(manifest.boss && { boss: manifest.boss }),
+    ...(manifest.design && { design: manifest.design }),
   };
 }
 
@@ -241,7 +242,7 @@ export async function syncContent(sql: postgres.Sql, content: LoadedContent): Pr
         kind: "question",
         payload: exerciseSetPayload(set),
         tags: exerciseSetTags(set),
-        hiddenGrading: { answers: set.privateData.answers },
+        hiddenGrading: { answers: set.privateData.answers, ...(set.privateData.considerations && { considerations: set.privateData.considerations }) },
         referenceSolution: {},
       }, progress);
     }

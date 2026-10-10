@@ -19,10 +19,11 @@ export const TRACKS = [
   { id: "data-structures", name: "Data structures", categories: ["data-structures"] },
   { id: "patterns", name: "Patterns and recognition", categories: ["patterns"] },
   { id: "debugging", name: "Debugging", categories: ["debugging"] },
+  { id: "system-design", name: "System design", categories: ["system-design"] },
 ] as const;
 
 /** Tracks the spec asks for whose content doesn't exist yet: shown, never scored. */
-export const UNAVAILABLE_TRACKS = ["System design", "Low-level design", "Behavioral", "Mock interviews"] as const;
+export const UNAVAILABLE_TRACKS = ["Low-level design", "Behavioral", "Mock interviews"] as const;
 
 export type ReadinessLevel = "building" | "developing" | "strong";
 

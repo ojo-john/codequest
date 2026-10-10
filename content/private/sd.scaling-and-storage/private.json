@@ -1,0 +1,53 @@
+{
+  "answers": {
+    "stateless": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "With state kept in shared stores (database, cache), servers are interchangeable. Session state in server memory ties users to one machine.",
+      "skill": "sd.scaling-storage",
+      "dimension": "concept"
+    },
+    "sticky-sessions": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Pinning users to servers makes them unequal and fragile. Moving session state to a shared store avoids it.",
+      "skill": "sd.scaling-storage",
+      "dimension": "concept"
+    },
+    "replica-lag": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Async replicas trail the primary. Read-your-writes can be ensured by reading recent writers from the primary or waiting for the replica.",
+      "skill": "sd.scaling-storage",
+      "dimension": "concept"
+    },
+    "index-cost": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Every write must also update the index, and the index takes space. Index what you query.",
+      "skill": "sd.scaling-storage",
+      "dimension": "concept"
+    },
+    "hot-partition": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "A partition key with skewed traffic defeats the point of sharding. Pick keys that spread load (e.g. a hash of the order id).",
+      "skill": "sd.scaling-storage",
+      "dimension": "concept"
+    },
+    "transactions": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Relational databases give ACID transactions across rows. Many NoSQL stores trade that for scale; payments usually want it.",
+      "skill": "sd.scaling-storage",
+      "dimension": "concept"
+    },
+    "vertical-limit": {
+      "type": "true_false",
+      "answer": true,
+      "why": "Bigger boxes are easy until they aren't; horizontal scaling adds capacity and redundancy at the cost of distribution.",
+      "skill": "sd.scaling-storage",
+      "dimension": "concept"
+    }
+  }
+}

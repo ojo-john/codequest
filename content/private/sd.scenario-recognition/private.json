@@ -1,0 +1,76 @@
+{
+  "answers": {
+    "static-images": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Repeated static content is the textbook CDN cue: edge caching cuts latency and origin load.",
+      "skill": "sd.recognition",
+      "dimension": "recognition"
+    },
+    "video-encoding": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Long work belongs in background jobs. Encoding in the request 'works' but ties up connections and fails on timeouts.",
+      "skill": "sd.recognition",
+      "dimension": "recognition"
+    },
+    "too-much-data": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Partitioning spreads storage and writes. Replicas help reads, not write volume or size limits.",
+      "skill": "sd.recognition",
+      "dimension": "recognition"
+    },
+    "read-heavy": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "A high read-to-write ratio suggests caching or replicas. Sharding could help eventually but is heavier than the problem needs. A cue suggests a component; requirements decide.",
+      "skill": "sd.recognition",
+      "dimension": "recognition"
+    },
+    "chat": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Low-latency two-way messaging fits WebSockets; fan-out goes through pub/sub. Minute-level polling misses the latency target.",
+      "skill": "sd.recognition",
+      "dimension": "recognition"
+    },
+    "exactly-once-charges": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Retries are inevitable; idempotency keys make a repeated request return the original result instead of charging again.",
+      "skill": "sd.recognition",
+      "dimension": "recognition"
+    }
+  }
+}

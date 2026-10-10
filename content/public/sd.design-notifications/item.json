@@ -1,0 +1,116 @@
+{
+  "kind": "exercise-set",
+  "id": "sd.design-notifications",
+  "version": 1,
+  "title": "Design a notification system",
+  "summary": "Design a service that sends email, SMS and push notifications reliably, then answer follow-ups on fan-out, duplicates, outages and quiet hours.",
+  "world": {
+    "id": "world.system-design-city",
+    "order": 7
+  },
+  "estimatedMinutes": 35,
+  "questions": [
+    {
+      "id": "fan-out",
+      "type": "pattern",
+      "prompt": "1 million notifications must go out for an announcement. How do you deliver them?",
+      "options": [
+        "Put a message per recipient (or per batch) on a queue; separate worker pools per channel send them at the providers' rate limits",
+        "Send them all synchronously inside the API request that triggered the announcement",
+        "One server loops over all users and sends sequentially",
+        "Email everyone in one message with a million recipients"
+      ]
+    },
+    {
+      "id": "no-duplicates",
+      "type": "single_choice",
+      "prompt": "A worker sends an email, then crashes before acknowledging the message, so it's delivered again. How do you avoid a duplicate email?",
+      "options": [
+        "Give each notification an idempotency key and record it as sent before acknowledging; skip keys already recorded",
+        "Make the queue deliver exactly once",
+        "Never retry failed messages",
+        "Ask users to ignore duplicates"
+      ]
+    },
+    {
+      "id": "provider-outage",
+      "type": "single_choice",
+      "prompt": "The SMS provider starts failing. What should the system do?",
+      "options": [
+        "Retry with exponential backoff and jitter, fail over to a second provider if available, and move messages that keep failing to a dead-letter queue",
+        "Retry immediately in a tight loop until it works",
+        "Drop SMS messages until the provider recovers",
+        "Switch every user to email silently"
+      ]
+    },
+    {
+      "id": "quiet-hours",
+      "type": "single_choice",
+      "prompt": "A non-urgent notification is due during a user's quiet hours. What happens?",
+      "options": [
+        "It's scheduled for the end of their quiet hours (a delayed queue or scheduler), while urgent security alerts can bypass it",
+        "It's dropped",
+        "It's sent anyway",
+        "The user is asked to change their settings"
+      ]
+    },
+    {
+      "id": "spike-rate",
+      "type": "numeric",
+      "prompt": "1 million notifications must go out within 1 minute. What average send rate does that need?",
+      "unit": "notifications/s"
+    }
+  ],
+  "design": {
+    "scenario": "Design a notification service used by other teams: they send it events (\"order shipped\", \"new login\", \"weekly digest\") and it delivers notifications by email, SMS or push according to each user's preferences.\n\nWrite your design in the sections on the right, then answer the interviewer's follow-up questions.",
+    "requirements": [
+      "Deliver by email, SMS and push via external providers",
+      "Respect each user's channel preferences and quiet hours",
+      "Never send the same notification twice, even when things are retried",
+      "Handle spikes such as 1 million announcement notifications within a minute",
+      "Keep working when one provider is down",
+      "Templates per notification type and language"
+    ],
+    "sections": [
+      {
+        "id": "requirements",
+        "title": "Requirements and assumptions",
+        "guidance": "Restate what you'll build, what you won't, and the numbers you're assuming. Ask the questions you'd ask an interviewer."
+      },
+      {
+        "id": "api",
+        "title": "API",
+        "guidance": "The main endpoints or calls: inputs, outputs, errors."
+      },
+      {
+        "id": "data-model",
+        "title": "Data model",
+        "guidance": "What you store, the keys, and why this storage fits the access patterns."
+      },
+      {
+        "id": "architecture",
+        "title": "Architecture",
+        "guidance": "Components and how a request flows through them (a list or arrows in text is fine)."
+      },
+      {
+        "id": "estimates",
+        "title": "Estimates",
+        "guidance": "QPS, storage and bandwidth from your stated assumptions."
+      },
+      {
+        "id": "tradeoffs",
+        "title": "Trade-offs and failure",
+        "guidance": "What you chose over what, what breaks first, and how the design degrades."
+      }
+    ],
+    "timeMinutes": 35
+  },
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

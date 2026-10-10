@@ -36,6 +36,8 @@ export interface ExerciseServiceDeps {
 
 export interface ExerciseSetSummary {
   readonly contentVersionId: string;
+  /** Plain practice, a design challenge (its own workspace) or a world's mastery exam. */
+  readonly kind: "practice" | "design" | "boss";
   readonly title: string;
   readonly summary: string;
   readonly world: { readonly id: string; readonly order: number };
@@ -86,6 +88,19 @@ export class ExerciseService {
     this.random = deps.random ?? Math.random;
   }
 
+  /**
+   * A design challenge's key considerations, for self-review (spec §29). Revealed only once every
+   * follow-up probe has been answered in this sitting, so they can't be read first and parroted.
+   */
+  async designReview(userId: string, contentVersionId: string, since: Date): Promise<{ considerations: string[] }> {
+    const set = await this.requireSet(userId, contentVersionId);
+    if (set.design === undefined) throw new ApiError(409, "not_a_design", "That set isn't a design challenge.");
+    const answered = await this.store.answeredSince(userId, contentVersionId, since);
+    const missing = set.questions.filter((question) => !answered.has(question.id)).length;
+    if (missing > 0) throw new ApiError(409, "answer_the_probes", `Answer the remaining ${missing} follow-up question${missing === 1 ? "" : "s"} first.`);
+    return { considerations: await this.store.getConsiderations(contentVersionId) };
+  }
+
   /** Start of a boss sitting: answers from here on count. The margin absorbs clock skew with the database. */
   sittingStart(): Date {
     return new Date(this.clock().getTime() - SITTING_MARGIN_MS);
@@ -126,7 +141,8 @@ export class ExerciseService {
   async mixed(userId: string): Promise<MixedItem[]> {
     const [sets, passed] = await Promise.all([this.store.listVisibleSets(userId), this.store.passedQuestions(userId)]);
     const sources = sets
-      .filter((set) => set.world.id !== DIAGNOSTIC_WORLD)
+      // Design probes only make sense next to their scenario.
+      .filter((set) => set.world.id !== DIAGNOSTIC_WORLD && set.design === undefined)
       .map((set) => ({ contentVersionId: set.contentVersionId, questions: set.questions, passed: passed.get(set.contentVersionId) ?? new Set<string>() }));
     return selectMixed(sources, this.random);
   }
@@ -138,6 +154,7 @@ export class ExerciseService {
       .filter((set) => set.world.id !== DIAGNOSTIC_WORLD)
       .map((set) => ({
         contentVersionId: set.contentVersionId,
+        kind: set.design ? ("design" as const) : set.boss ? ("boss" as const) : ("practice" as const),
         title: set.title,
         summary: set.summary,
         world: set.world,

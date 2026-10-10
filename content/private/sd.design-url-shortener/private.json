@@ -1,0 +1,54 @@
+{
+  "answers": {
+    "key-generation": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "valid",
+        "incorrect"
+      ],
+      "why": "ID blocks avoid both collisions and per-request coordination. Hash-and-retry works with care. A single locked counter is correct but becomes the bottleneck. Three characters of base62 (238,328 codes) run out almost immediately.",
+      "skill": "sd.design",
+      "dimension": "design"
+    },
+    "fast-redirects": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "The mapping is tiny and almost immutable: ideal for caching. The database stays the source of truth.",
+      "skill": "sd.design",
+      "dimension": "design"
+    },
+    "analytics": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Writes on the hot read path add latency and contention. Events plus async aggregation keep redirects fast; the requirement allows minutes of lag.",
+      "skill": "sd.design",
+      "dimension": "design"
+    },
+    "write-rate": {
+      "type": "numeric",
+      "answer": 38.6,
+      "tolerance": 0.15,
+      "why": "100,000,000 ÷ (30 × 86,400) ≈ 38.6 per second on average: writes are modest; reads are the scaling problem.",
+      "skill": "sd.capacity",
+      "dimension": "implementation"
+    },
+    "duplicate-long-url": {
+      "type": "true_false",
+      "answer": true,
+      "why": "It's a product decision: reuse saves space; separate links allow per-user analytics and deletion. Saying which you chose, and why, is the point.",
+      "skill": "sd.design",
+      "dimension": "design"
+    }
+  },
+  "considerations": [
+    "Restated requirements and asked about custom aliases, expiry and analytics freshness",
+    "Estimated write QPS (~40/s) and read QPS (~400/s average) and the storage per year",
+    "A short-code scheme that avoids collisions (ID blocks + base62, or hash with retry) and its length",
+    "A key-value or relational table keyed by short code, with the long URL and owner",
+    "A cache on the redirect path, and 301 vs 302 chosen deliberately (302 keeps analytics accurate)",
+    "Asynchronous click analytics via events and aggregation",
+    "What happens when the cache or database is down, and how to avoid a single point of failure"
+  ]
+}

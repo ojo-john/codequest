@@ -40,6 +40,8 @@ export interface ExerciseStore {
   getVisibleSet(userId: string, contentVersionId: string): Promise<ExerciseSetRecord | undefined>;
   /** Canonical answers (server only). */
   getAnswers(contentVersionId: string): Promise<Record<string, PrivateAnswer>>;
+  /** A design challenge's key considerations (server only; empty for other sets). */
+  getConsiderations(contentVersionId: string): Promise<string[]>;
   /** Best outcome so far per question of this set version ("pass" beats "partial" beats "fail"). */
   bestOutcomes(userId: string, contentVersionId: string): Promise<Map<string, string>>;
   recordAttempt(input: ExerciseAttemptInput): Promise<RecordedExerciseAttempt>;
@@ -60,7 +62,7 @@ const rowSchema = z.object({
   status: z.enum(["draft", "ai_reviewed", "human_reviewed", "published", "deprecated"]),
   payload: z.unknown(),
 });
-const answersSchema = z.object({ answers: z.record(z.string(), privateAnswerSchema) });
+const answersSchema = z.object({ answers: z.record(z.string(), privateAnswerSchema), considerations: z.array(z.string()).optional() });
 const recordedSchema = z.object({ attempt_id: z.string(), awarded_xp: z.number().int().nonnegative(), replayed: z.boolean() });
 
 const OUTCOME_RANK: Record<string, number> = { succeeded: 3, partial: 2, "wrong-answer": 1 };
@@ -113,6 +115,11 @@ export class SupabaseExerciseStore implements ExerciseStore {
   async getAnswers(contentVersionId: string): Promise<Record<string, PrivateAnswer>> {
     const data = check("get_exercise_answers", await this.db.rpc("get_content_grading", { p_content_version_id: contentVersionId }));
     return answersSchema.parse(data).answers;
+  }
+
+  async getConsiderations(contentVersionId: string): Promise<string[]> {
+    const data = check("get_considerations", await this.db.rpc("get_content_grading", { p_content_version_id: contentVersionId }));
+    return answersSchema.parse(data).considerations ?? [];
   }
 
   async bestOutcomes(userId: string, contentVersionId: string): Promise<Map<string, string>> {
