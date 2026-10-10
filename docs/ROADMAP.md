@@ -23,7 +23,17 @@ optional timer (lands with interview mode, §34).
 | 2.7 Readiness and dashboard ✅ | §40, §41 | Readiness separate from XP: breadth/depth, retention, unseen problems, assistance, with "insufficient evidence" instead of invented confidence. |
 | 2.8 Debug dungeon, template memory, blank page, bosses, transfer ✅ (first content) | §11, §17, §53, §57, §59 | Built on the exercise engine and coding quests. |
 
-## Phase 3+ (outline)
+## Phase 3 — interview breadth
 
-System design, LLD, interview communication, mocks, streaks/achievements, notifications,
-search, cheat sheets — see the matrix. AI tutoring (§16) is Phase 4 and never overrides tests.
+| Slice | Spec | What ships |
+|---|---|---|
+| 3.1 System Design City: concepts and recognition | §26, §27, §28 | Concept practice sets (networking, performance, scaling, storage, caching, queues, consistency); scenario-to-component recognition graded optimal/valid/incorrect with "a cue is not proof" explanations; a numeric question type for capacity estimates (value, unit, stated tolerance and assumptions). |
+| 3.2 Design workspace | §29, §30, §59 | A text-first structured design workspace (requirements, APIs, data model, components, trade-offs, calculations) with a requirements checklist and follow-up probes (growth, fan-out, cache failure, duplicates); graded against requirements, not one drawing. Canvas later, always with a text alternative. |
+| 3.3 Low-level design | §31 | Behaviour-graded OOD quests (vending machine, parking lot, …) plus change requests that test extensibility rather than pattern names. |
+| 3.4 Practical Java | §32 | LRU/TTL cache, rate limiter, thread-safe counter, producer/consumer, key-value store, job queue: explicit contracts, meaningful tests, concurrency caveats stated. |
+| 3.5 Interview communication and mocks | §33, §34 | A workflow mode (clarify → examples → brute force → optimize → code → test → complexity) and timed mock sessions that hide study aids and hints, scored on the rubric with evidence; any hire-style label stated as a practice rubric, not a prediction. |
+| 3.6 Behavioral | §35 | A STAR story workspace for the learner's true stories, with a checklist; never fabricates achievements or metrics. |
+| 3.7 Streaks and achievements | §37, §38 | Timezone-aware streaks kept by a meaningful 5-minute session, two freezes a month, vacation/busy-week modes, supportive copy; achievements tied to independent evidence. |
+| 3.8 Utilities | §49–52, §54, §55 | Notification preferences (no guilt copy), search, flashcards from notes, versioned cheat sheets hidden in interview mode, endgame session mix, configurable interview-ready criteria with minimum evidence. |
+
+AI tutoring (§16) is Phase 4 and never overrides tests.
