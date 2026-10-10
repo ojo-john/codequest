@@ -1,0 +1,454 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "push-pop-order",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              1
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              3
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 3
+            }
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 2
+            }
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "peek-keeps-top",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              7
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "peek",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 7
+            }
+          },
+          {
+            "call": "size",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "new-stack-is-empty",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "isEmpty",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "size",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "pop-empty-throws",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "throws": "java.lang.IllegalStateException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "peek-empty-throws",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "peek",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "throws": "java.lang.IllegalStateException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "pop-after-emptying-throws",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 5
+            }
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "throws": "java.lang.IllegalStateException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "grows-past-four",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              1
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              3
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              4
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              6
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "size",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 6
+            }
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 6
+            }
+          },
+          {
+            "call": "peek",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 5
+            }
+          }
+        ]
+      },
+      {
+        "id": "not-empty-after-push",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "isEmpty",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": false
+            }
+          }
+        ]
+      },
+      {
+        "id": "negative-and-zero-values",
+        "steps": [
+          {
+            "new": "problems.IntStack",
+            "args": [],
+            "paramTypes": [],
+            "as": "s"
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              -3
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "push",
+            "target": "s",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "pop",
+            "target": "s",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": -3
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "size is both the number of items and the index where the next push goes."
+    },
+    {
+      "tier": "pattern",
+      "text": "peek and pop share the empty check; pop can call peek and then shrink size."
+    },
+    {
+      "tier": "key_insight",
+      "text": "When size equals items.length, copy into an array twice as big (Arrays.copyOf does this) before storing."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "pop-empty-throws",
+      "peek-empty-throws",
+      "pop-after-emptying-throws",
+      "grows-past-four",
+      "new-stack-is-empty"
+    ],
+    "followUps": [
+      {
+        "id": "why-double",
+        "criterion": "time_complexity",
+        "skill": "ds.stacks-queues",
+        "prompt": "Why does the array double when it's full instead of growing by one slot?",
+        "options": [
+          "Doubling makes copying rare, so push stays O(1) amortized; growing by one would copy every time, making n pushes O(n²)",
+          "Doubling uses less memory",
+          "Java arrays can only double",
+          "Growing by one doesn't compile"
+        ],
+        "answer": 0,
+        "why": "Copies happen at sizes 4, 8, 16, …; their total is under 2n, so each push costs O(1) on average. Growing by one copies the whole array on every push."
+      },
+      {
+        "id": "why-throw",
+        "criterion": "explanation",
+        "skill": "ds.stacks-queues",
+        "prompt": "Why throw an exception from pop() on an empty stack instead of returning 0?",
+        "options": [
+          "0 could be a real value on the stack, so returning it would hide the bug from the caller",
+          "Exceptions are faster than return values",
+          "Java requires methods to throw on empty collections",
+          "Returning 0 doesn't compile"
+        ],
+        "answer": 0,
+        "why": "A sentinel only works if it can't be a real value. For an int stack any int is valid, so failing loudly is the honest contract."
+      }
+    ]
+  }
+}

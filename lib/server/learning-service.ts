@@ -123,12 +123,14 @@ export class LearningService {
 
   async createSession(userId: string, request: z.infer<typeof createSessionSchema>): Promise<{ sessionId: string; plan: SessionPlan }> {
     const now = this.clock();
-    const [quests, completed, states, insights] = await Promise.all([
+    const [quests, completed, states, insights, campaigns] = await Promise.all([
       this.store.listVisibleQuests(userId),
       this.store.completedContentIds(userId),
       this.store.skillStates(userId),
       this.insights(userId),
+      this.store.listCampaigns(),
     ]);
+    const rank = new Map(campaigns.map((campaign) => [campaign.id, campaign.worldNumber]));
     const plan = planSession(
       request.budgetMinutes,
       quests.map((quest) => ({
@@ -136,6 +138,8 @@ export class LearningService {
         contentId: quest.contentId,
         title: quest.title,
         campaignOrder: quest.campaign.order,
+        // An unknown campaign (content synced without it) sorts last rather than first.
+        trackRank: rank.get(quest.campaign.id) ?? Number.MAX_SAFE_INTEGER,
         estimatedMinutes: quest.estimatedMinutes,
         completed: completed.has(quest.contentId),
         skills: quest.skills.map((tag) => tag.skill),
@@ -408,20 +412,41 @@ export class LearningService {
 
   async getProgress(userId: string) {
     const now = this.clock();
-    const [quests, completed, states, xp] = await Promise.all([
+    const [quests, completed, states, xp, campaigns] = await Promise.all([
       this.store.listVisibleQuests(userId),
       this.store.completedContentIds(userId),
       this.store.skillStates(userId),
       this.store.xpTotal(userId),
+      this.store.listCampaigns(),
     ]);
+    const views = quests
+      .sort((a, b) => a.campaign.order - b.campaign.order)
+      .map((quest) => ({
+        contentVersionId: quest.contentVersionId,
+        contentId: quest.contentId,
+        campaignId: quest.campaign.id,
+        title: quest.title,
+        order: quest.campaign.order,
+        status: quest.status,
+        completed: completed.has(quest.contentId),
+      }));
     return {
       xp,
-      campaign: quests
-        .sort((a, b) => a.campaign.order - b.campaign.order)
-        .map((quest) => ({ contentVersionId: quest.contentVersionId, contentId: quest.contentId, title: quest.title, order: quest.campaign.order, status: quest.status, completed: completed.has(quest.contentId) })),
+      /** Every visible quest, across campaigns. */
+      campaign: views,
+      /** Quests grouped by campaign, in world order; campaigns without visible quests are left out. */
+      campaigns: campaigns
+        .map((campaign) => ({ id: campaign.id, title: campaign.title, summary: campaign.summary, kind: campaign.kind, quests: views.filter((quest) => quest.campaignId === campaign.id) }))
+        .filter((campaign) => campaign.quests.length > 0),
       skills: states.map((state) => ({ ...state, reviewDueAt: state.reviewDueAt.toISOString(), state: masteryState(state, now) })),
     };
   }
+
+  /** A quest's campaign (title and kind), for opening its project. */
+  async campaignOf(campaignId: string) {
+    return (await this.store.listCampaigns()).find((campaign) => campaign.id === campaignId);
+  }
+
 
   private async requireQuest(userId: string, contentVersionId: string): Promise<QuestRecord> {
     const quest = await this.store.getVisibleQuest(userId, contentVersionId);

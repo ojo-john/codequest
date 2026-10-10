@@ -1,0 +1,257 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "S.#",
+                "..#",
+                "..E"
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": 4
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "around-wall",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "S..",
+                "##.",
+                "E.."
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": 6
+            }
+          }
+        ]
+      },
+      {
+        "id": "adjacent",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "SE"
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "walled-off",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "S#E"
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "enclosed-start",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "S#.",
+                "##.",
+                "..E"
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": -1
+            }
+          }
+        ]
+      },
+      {
+        "id": "straight-line",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "S...E"
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": 4
+            }
+          }
+        ]
+      },
+      {
+        "id": "column",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "S",
+                ".",
+                ".",
+                "E"
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "maze",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "S.#....",
+                "..#.##.",
+                ".##.#..",
+                "....#E#",
+                "##....."
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "open-field",
+        "steps": [
+          {
+            "call": "shortest",
+            "static": "problems.GridPath",
+            "args": [
+              [
+                "S....",
+                ".....",
+                ".....",
+                "....E"
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]"
+            ],
+            "expect": {
+              "value": 7
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "With equal move costs, the cells reachable in k moves are exactly the next ring after those in k − 1."
+    },
+    {
+      "tier": "pattern",
+      "text": "Breadth-first search from S with a queue, recording each cell's distance when it's first reached."
+    },
+    {
+      "tier": "key_insight",
+      "text": "Mark a cell (set its distance) when you add it to the queue, so it's never queued twice; return as soon as you take E off the queue."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "adjacent",
+      "walled-off",
+      "enclosed-start",
+      "column"
+    ],
+    "followUps": [
+      {
+        "id": "grid-time",
+        "criterion": "time_complexity",
+        "skill": "patterns.graph-search",
+        "prompt": "For a grid with R rows and C columns, what is the time complexity of the BFS?",
+        "options": [
+          "O(R * C)",
+          "O((R * C)^2)",
+          "O(R + C)",
+          "O(log(R * C))"
+        ],
+        "answer": 0,
+        "why": "Each cell is queued at most once and checks 4 neighbours."
+      },
+      {
+        "id": "grid-why-bfs",
+        "criterion": "explanation",
+        "skill": "patterns.graph-search",
+        "prompt": "Why does BFS find the shortest route here, while DFS might not?",
+        "options": [
+          "BFS reaches cells in order of distance, so the first time it reaches E is via a shortest route; DFS follows one path deep and can reach E by a long detour first",
+          "DFS can't handle walls",
+          "BFS is always faster",
+          "DFS needs a priority queue"
+        ],
+        "answer": 0,
+        "why": "BFS explores level by level. That ordering is exactly \"fewest moves first\" when every move costs the same."
+      }
+    ]
+  }
+}

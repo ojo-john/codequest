@@ -12,6 +12,8 @@ export interface QuestCandidate {
   readonly contentId: string;
   readonly title: string;
   readonly campaignOrder: number;
+  /** Where the quest's campaign sits in the game (its world number); lower comes first. */
+  readonly trackRank: number;
   readonly estimatedMinutes: number;
   readonly completed: boolean;
   /** Skills this quest exercises (for matching due reviews). */
@@ -75,7 +77,7 @@ export function planSession(
   practice: readonly PracticeCandidate[] = [],
 ): SessionPlan {
   if (quests.length === 0 && practice.length === 0) return { items: [], policyVersion: SESSION_POLICY_VERSION, emptyReason: "no_content" };
-  const ordered = [...quests].sort((a, b) => a.campaignOrder - b.campaignOrder);
+  const ordered = [...quests].sort((a, b) => a.trackRank - b.trackRank || a.campaignOrder - b.campaignOrder);
   const items: PlannedItem[] = [];
   let remaining = budget;
 

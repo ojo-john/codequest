@@ -1,0 +1,25 @@
+{
+  "campaigns": [
+    {
+      "id": "campaign.shopping-cart",
+      "title": "Shopping cart",
+      "summary": "Build one shop project quest by quest: totals, classes, encapsulation, interfaces, inheritance, streams, testing and a change request.",
+      "world": "world.java-awakening",
+      "kind": "project"
+    },
+    {
+      "id": "problems.data-structures",
+      "title": "Data structure problems",
+      "summary": "Implement structures from scratch and use the right one for the job.",
+      "world": "world.data-structure-forge",
+      "kind": "problems"
+    },
+    {
+      "id": "problems.patterns",
+      "title": "Pattern problems",
+      "summary": "Classic interview problems solved with hashing, sliding windows, binary search and graph search.",
+      "world": "world.pattern-kingdom",
+      "kind": "problems"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "kind": "quest",
+  "id": "problems.pattern-lower-bound",
+  "version": 1,
+  "title": "First at least",
+  "summary": "Binary search a sorted array for the first position whose value is at least a target.",
+  "campaign": {
+    "id": "problems.patterns",
+    "order": 3
+  },
+  "stage": "independent",
+  "estimatedMinutes": 15,
+  "skills": [
+    {
+      "skill": "patterns.binary-search",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

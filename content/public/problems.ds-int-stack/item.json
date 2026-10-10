@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "problems.ds-int-stack",
+  "version": 1,
+  "title": "Build a stack",
+  "summary": "Implement a stack of ints from scratch on a growable array: push, pop, peek, isEmpty and size, with clear failures on an empty stack.",
+  "campaign": {
+    "id": "problems.data-structures",
+    "order": 1
+  },
+  "stage": "independent",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "ds.stacks-queues",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.classes",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
