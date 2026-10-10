@@ -76,6 +76,15 @@ export function validateExerciseSets(sets: readonly LoadedExerciseSet[], skillId
       if (problem) issues.push({ item, message: `question ${question.id} ${problem}` });
       if (!skillIds.has(answer.skill)) issues.push({ item, message: `question ${question.id} names unknown skill ${answer.skill}` });
     }
+    if (manifest.sections) {
+      const placed = manifest.sections.flatMap((section) => section.questions);
+      if (new Set(manifest.sections.map((section) => section.id)).size !== manifest.sections.length) issues.push({ item, message: "section ids repeat" });
+      for (const id of placed) if (!ids.includes(id)) issues.push({ item, message: `section lists unknown question ${id}` });
+      for (const id of ids) {
+        const count = placed.filter((entry) => entry === id).length;
+        if (count !== 1) issues.push({ item, message: `question ${id} is in ${count} sections (needs exactly one)` });
+      }
+    }
     for (const id of Object.keys(privateData.answers)) {
       if (!ids.includes(id)) issues.push({ item, message: `answer ${id} has no question` });
     }

@@ -61,6 +61,18 @@ export const privateAnswerSchema = z.discriminatedUnion("type", [
 
 export type PrivateAnswer = z.infer<typeof privateAnswerSchema>;
 
+export const sectionSchema = z
+  .object({
+    id: QUESTION_ID,
+    name: z.string().min(1).max(60),
+    /** The world this section places you in (diagnostic). */
+    world: contentIdSchema.optional(),
+    questions: z.array(QUESTION_ID).min(1),
+  })
+  .strict();
+
+export type ExerciseSection = z.infer<typeof sectionSchema>;
+
 export const exerciseSetManifestSchema = z
   .object({
     kind: z.literal("exercise-set"),
@@ -71,7 +83,9 @@ export const exerciseSetManifestSchema = z
     /** World (spec §2) and position within it. */
     world: z.object({ id: contentIdSchema, order: z.number().int().min(1) }).strict(),
     estimatedMinutes: z.number().int().min(1).max(30),
-    questions: z.array(publicQuestionSchema).min(1).max(20),
+    questions: z.array(publicQuestionSchema).min(1).max(40),
+    /** Optional grouping (e.g. the diagnostic's areas); each question in exactly one section, easiest first. */
+    sections: z.array(sectionSchema).max(10).optional(),
     review: reviewSchema,
     provenance: provenanceSchema,
   })
@@ -91,6 +105,7 @@ export const exerciseSetPayloadSchema = z.object({
   world: z.object({ id: z.string(), order: z.number().int() }),
   estimatedMinutes: z.number().int(),
   questions: z.array(publicQuestionSchema),
+  sections: z.array(sectionSchema).optional(),
 });
 
 export type ExerciseSetPayload = z.infer<typeof exerciseSetPayloadSchema>;
