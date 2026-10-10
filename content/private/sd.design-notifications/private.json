@@ -1,0 +1,55 @@
+{
+  "answers": {
+    "fan-out": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "valid",
+        "incorrect"
+      ],
+      "why": "A queue absorbs the spike and lets each channel scale and respect rate limits independently. A single sequential sender works but takes far too long; a synchronous request times out.",
+      "skill": "sd.design",
+      "dimension": "design"
+    },
+    "no-duplicates": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Queues give at-least-once delivery; idempotency keys make the second attempt a no-op.",
+      "skill": "sd.design",
+      "dimension": "design"
+    },
+    "provider-outage": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Backoff avoids hammering a struggling provider, failover keeps delivery going, and a dead-letter queue keeps poison messages from blocking the rest.",
+      "skill": "sd.design",
+      "dimension": "design"
+    },
+    "quiet-hours": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Honour preferences by deferring rather than dropping; define which categories may override them.",
+      "skill": "sd.design",
+      "dimension": "design"
+    },
+    "spike-rate": {
+      "type": "numeric",
+      "answer": 16667,
+      "tolerance": 0.1,
+      "why": "1,000,000 ÷ 60 ≈ 16,667 per second, which is why it has to be spread over workers and providers.",
+      "skill": "sd.capacity",
+      "dimension": "implementation"
+    }
+  },
+  "considerations": [
+    "Clarified channels, preference rules, priorities (urgent vs bulk) and delivery guarantees",
+    "An ingestion API that validates and records events, then enqueues per-recipient work",
+    "Per-channel queues and worker pools with provider rate limits",
+    "Preferences and quiet hours checked before sending; deferral via a scheduler",
+    "Idempotency keys so retries never send duplicates",
+    "Retries with backoff, provider failover and a dead-letter queue",
+    "Templates stored and versioned per type and language",
+    "Estimated peak throughput (~16,700/s for the spike) and how the queue absorbs it"
+  ]
+}

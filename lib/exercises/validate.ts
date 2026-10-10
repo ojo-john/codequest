@@ -50,6 +50,8 @@ function checkAnswer(question: PublicQuestion, answer: PrivateAnswer): string | 
       if (!isPermutation) return "answer must list every step exactly once";
       return order.every((index, position) => index === position) ? "steps are already shown in the correct order" : undefined;
     }
+    case "numeric":
+      return undefined;
     case "fill_blank": {
       const blanks = countBlanks(question.code);
       const accepted = (answer as Extract<PrivateAnswer, { type: "fill_blank" }>).answer;
@@ -76,6 +78,10 @@ export function validateExerciseSets(sets: readonly LoadedExerciseSet[], skillId
       if (problem) issues.push({ item, message: `question ${question.id} ${problem}` });
       if (!skillIds.has(answer.skill)) issues.push({ item, message: `question ${question.id} names unknown skill ${answer.skill}` });
     }
+    if (!manifest.design && manifest.estimatedMinutes > 30) issues.push({ item, message: "practice sets take at most 30 minutes; only design challenges run longer" });
+    if (manifest.design && (privateData.considerations ?? []).length === 0) issues.push({ item, message: "a design challenge needs considerations for self-review" });
+    if (!manifest.design && privateData.considerations) issues.push({ item, message: "considerations only belong to design challenges" });
+    if (manifest.design && new Set(manifest.design.sections.map((section) => section.id)).size !== manifest.design.sections.length) issues.push({ item, message: "design section ids repeat" });
     if (manifest.boss && !manifest.sections) issues.push({ item, message: "a boss exam needs sections (each is passed on its own)" });
     if (manifest.sections) {
       const placed = manifest.sections.flatMap((section) => section.questions);

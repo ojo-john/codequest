@@ -36,10 +36,13 @@ class FakeExerciseStore implements ExerciseStore {
   async getAnswers() { return this.answers; }
   async bestOutcomes() { return new Map([["get-or-default", "succeeded"]]); }
   async passedQuestions() { return new Map<string, Set<string>>(); }
-  async answeredSince() { return new Set<string>(); }
+  async answeredSince() { return this.answered; }
   async skillsOf() { return new Map<string, string[]>(); }
   outcomes = new Map<string, string>();
   async outcomesSince() { return this.outcomes; }
+  considerations: string[] = [];
+  answered = new Set<string>();
+  async getConsiderations() { return this.considerations; }
   async recordAttempt(input: ExerciseAttemptInput): Promise<RecordedExerciseAttempt> {
     if (this.keys.has(input.requestKey)) return { attemptId: "a1", awardedXp: 0, replayed: true };
     this.keys.add(input.requestKey);
@@ -125,7 +128,7 @@ describe("ExerciseService.answer", () => {
 describe("ExerciseService reads", () => {
   it("listSets_summarisesWithoutQuestions", async () => {
     expect(await service().listSets(USER)).toEqual([
-      { contentVersionId: SET_ID, title: "Maps", summary: "Map basics.", world: { id: "world-1", order: 1 }, estimatedMinutes: 5, status: "draft", questionCount: 1 },
+      { contentVersionId: SET_ID, kind: "practice", title: "Maps", summary: "Map basics.", world: { id: "world-1", order: 1 }, estimatedMinutes: 5, status: "draft", questionCount: 1 },
     ]);
   });
 
@@ -225,5 +228,48 @@ describe("ExerciseService.bossResult", () => {
 
   it("sittingStart_isSlightlyBeforeNowToAbsorbClockSkew", () => {
     expect(service().sittingStart()).toEqual(new Date(NOW.getTime() - 5000));
+  });
+});
+
+describe("ExerciseService design challenges", () => {
+  const DESIGN: ExerciseSetRecord = {
+    ...SET,
+    contentVersionId: "99999999-9999-4999-8999-999999999999",
+    contentId: "sd.design-x",
+    design: { scenario: "Design something useful for testing.", requirements: ["Works"], sections: [{ id: "api", title: "API", guidance: "The endpoints." }], timeMinutes: 35 },
+  };
+
+  function designStore(): FakeExerciseStore {
+    const store = new FakeExerciseStore();
+    store.sets = [DESIGN, SET];
+    store.considerations = ["Covers caching"];
+    return store;
+  }
+
+  it("designReview_beforeTheProbesAreAnswered_is409AndRevealsNothing", async () => {
+    const error = await apiError(service(designStore()).designReview(USER, DESIGN.contentVersionId, NOW));
+
+    expect([error.status, error.code]).toEqual([409, "answer_the_probes"]);
+  });
+
+  it("designReview_afterEveryProbe_revealsTheConsiderations", async () => {
+    const store = designStore();
+    store.answered = new Set(["get-or-default"]);
+
+    expect(await service(store).designReview(USER, DESIGN.contentVersionId, NOW)).toEqual({ considerations: ["Covers caching"] });
+  });
+
+  it("designReview_ordinarySet_is409", async () => {
+    expect((await apiError(service(designStore()).designReview(USER, SET_ID, NOW))).code).toBe("not_a_design");
+  });
+
+  it("listSets_marksDesignChallenges", async () => {
+    expect((await service(designStore()).listSets(USER)).map((set) => set.kind)).toEqual(["design", "practice"]);
+  });
+
+  it("mixed_neverIncludesDesignProbes", async () => {
+    const items = await new ExerciseService({ store: designStore(), skills: { skillStates: async () => [] }, random: () => 0.5 }).mixed(USER);
+
+    expect(items.every((item) => item.contentVersionId === SET_ID)).toBe(true);
   });
 });

@@ -15,6 +15,7 @@ import { remapArchiveIds } from "@/lib/archive/remap";
 import type { ExecutionLimits } from "@/lib/execution/limits";
 import { validateSourceFiles, type SourceFile } from "@/lib/execution/source-files";
 import type { Logger } from "@/lib/observability/log";
+import { isDesignDocument } from "@/lib/exercises/design";
 import { ApiError } from "./http";
 
 /**
@@ -156,6 +157,8 @@ export class ArchiveService {
   private assertProjectsRunnable(data: ArchiveData): void {
     const byProject = new Map<string, SourceFile[]>();
     for (const file of data.project_files) {
+      // Design documents are prose, never compiled; the database check still bounds their paths.
+      if (isDesignDocument(file.path)) continue;
       const files = byProject.get(file.project_id) ?? [];
       files.push({ path: file.path, content: file.source });
       byProject.set(file.project_id, files);

@@ -1,0 +1,75 @@
+{
+  "kind": "exercise-set",
+  "id": "sd.capacity-estimation",
+  "version": 1,
+  "title": "Capacity estimation",
+  "summary": "Back-of-the-envelope numbers with stated assumptions: QPS, storage, bandwidth and cache size.",
+  "world": {
+    "id": "world.system-design-city",
+    "order": 4
+  },
+  "estimatedMinutes": 12,
+  "questions": [
+    {
+      "id": "average-qps",
+      "type": "numeric",
+      "prompt": "100 million active users each make 20 requests per day. What is the average number of requests per second? (A day has 86,400 seconds.)",
+      "unit": "requests/s"
+    },
+    {
+      "id": "peak-qps",
+      "type": "numeric",
+      "prompt": "Using the same 23,148 average requests per second, and an assumed peak factor of 3, what is the peak rate?",
+      "unit": "requests/s"
+    },
+    {
+      "id": "daily-storage",
+      "type": "numeric",
+      "prompt": "10 million new posts are created each day, about 1 KB each (1 KB = 1,000 bytes). How much new storage per day?",
+      "unit": "GB/day"
+    },
+    {
+      "id": "yearly-storage",
+      "type": "numeric",
+      "prompt": "At 10 GB of new data per day, how much in a year of 365 days?",
+      "unit": "TB/year"
+    },
+    {
+      "id": "bandwidth",
+      "type": "numeric",
+      "prompt": "23,148 requests per second each return a 10 KB response (1 KB = 1,000 bytes). What outbound bandwidth is that?",
+      "unit": "MB/s"
+    },
+    {
+      "id": "cache-size",
+      "type": "numeric",
+      "prompt": "You want to cache the 1 million hottest items, about 2 KB each (1 KB = 1,000 bytes). Roughly how much memory?",
+      "unit": "GB"
+    },
+    {
+      "id": "uploads-per-second",
+      "type": "numeric",
+      "prompt": "5 million videos are uploaded per day. How many uploads per second is that on average?",
+      "unit": "uploads/s"
+    },
+    {
+      "id": "state-assumptions",
+      "type": "single_choice",
+      "prompt": "Why should an estimate state its peak factor instead of just quoting a peak number?",
+      "options": [
+        "The factor is an assumption that changes the answer; stating it lets others check and adjust it",
+        "Interviewers only care about averages",
+        "Peak numbers are always 3× the average",
+        "It doesn't matter"
+      ]
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

@@ -7,7 +7,7 @@
     { "id": "world.pattern-kingdom", "number": 4, "name": "Pattern Kingdom", "summary": "Algorithmic patterns and recognising when to use them.", "available": true },
     { "id": "world.algorithm-arena", "number": 5, "name": "Algorithm Arena", "summary": "Mixed problems without topic labels.", "available": false },
     { "id": "world.debug-dungeon", "number": 6, "name": "Debug Dungeon", "summary": "Broken-code challenges: diagnose, fix minimally, prove it with a test.", "available": true },
-    { "id": "world.system-design-city", "number": 7, "name": "System Design City", "summary": "Architecture and trade-offs.", "available": false },
+    { "id": "world.system-design-city", "number": 7, "name": "System Design City", "summary": "Architecture and trade-offs.", "available": true },
     { "id": "world.backend-workshop", "number": 8, "name": "Backend Workshop", "summary": "Practical Java and low-level design.", "available": false },
     { "id": "world.interview-arena", "number": 9, "name": "Interview Arena", "summary": "Realistic interviews.", "available": false },
     { "id": "world.mastery-league", "number": 10, "name": "Mastery League", "summary": "Targeted interview preparation.", "available": false }
@@ -275,6 +275,56 @@
       "definition": "Go from a symptom to a root cause, make the smallest fix that removes it, and pin it down with a test that failed before the fix.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "java.unit-testing", "kind": "recommended" }, { "skill": "java.methods", "kind": "recommended" }]
+    },
+    {
+      "id": "sd.networking",
+      "category": "system-design",
+      "name": "Networking",
+      "world": "world.system-design-city",
+      "definition": "Clients and servers, DNS, TCP and UDP, HTTP methods and status codes, REST, WebSockets and server-sent events, proxies and CDNs.",
+      "difficulty": 2,
+      "prerequisites": []    },
+    {
+      "id": "sd.scaling-storage",
+      "category": "system-design",
+      "name": "Scaling and storage",
+      "world": "world.system-design-city",
+      "definition": "Vertical and horizontal scaling, stateless services and load balancing; SQL and NoSQL, indexes, replication and partitioning, with their trade-offs.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "sd.networking", "kind": "recommended" }]    },
+    {
+      "id": "sd.caching-queues",
+      "category": "system-design",
+      "name": "Caching and queues",
+      "world": "world.system-design-city",
+      "definition": "Cache-aside, TTLs and invalidation, write strategies, stampedes; message queues for decoupling, at-least-once delivery and idempotent consumers.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "sd.scaling-storage", "kind": "recommended" }]    },
+    {
+      "id": "sd.capacity",
+      "category": "system-design",
+      "name": "Capacity estimation",
+      "world": "world.system-design-city",
+      "definition": "Turn users and behaviour into QPS, storage, bandwidth and cache size with stated assumptions and units.",
+      "difficulty": 2,
+      "prerequisites": []    },
+    {
+      "id": "sd.recognition",
+      "category": "system-design",
+      "name": "Design recognition",
+      "world": "world.system-design-city",
+      "definition": "Map requirements to candidate components (CDN, cache, queue, partitioning, replicas) and justify them with trade-offs rather than cues alone.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "sd.caching-queues", "kind": "recommended" }, { "skill": "sd.capacity", "kind": "recommended" }]
+    },
+    {
+      "id": "sd.design",
+      "category": "system-design",
+      "name": "Design reasoning",
+      "world": "world.system-design-city",
+      "definition": "Turn requirements into a design and defend it under follow-up: growth, read and write paths, fan-out, failure, duplicates and cost, with explicit trade-offs.",
+      "difficulty": 4,
+      "prerequisites": [{ "skill": "sd.recognition", "kind": "recommended" }, { "skill": "sd.capacity", "kind": "recommended" }]
     }
   ]
 }

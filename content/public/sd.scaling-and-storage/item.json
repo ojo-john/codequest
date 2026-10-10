@@ -1,0 +1,93 @@
+{
+  "kind": "exercise-set",
+  "id": "sd.scaling-and-storage",
+  "version": 1,
+  "title": "Scaling and storage",
+  "summary": "Scale out without surprises: stateless services, load balancers, replicas, indexes and partitioning, and what each costs.",
+  "world": {
+    "id": "world.system-design-city",
+    "order": 2
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "stateless",
+      "type": "single_choice",
+      "prompt": "Why do stateless application servers make horizontal scaling easy?",
+      "options": [
+        "Any server can handle any request, so a load balancer can add or remove servers freely",
+        "They use less memory",
+        "They don't need a database",
+        "They can't crash"
+      ]
+    },
+    {
+      "id": "sticky-sessions",
+      "type": "single_choice",
+      "prompt": "What's the main drawback of sticky sessions?",
+      "options": [
+        "Load spreads unevenly and a server's failure loses its users' sessions",
+        "They make TLS impossible",
+        "They double database writes",
+        "They only work with UDP"
+      ]
+    },
+    {
+      "id": "replica-lag",
+      "type": "single_choice",
+      "prompt": "Reads go to asynchronous read replicas. A user updates their profile and immediately sees the old one. Why?",
+      "options": [
+        "Replication lag: the replica hasn't applied the write yet",
+        "The cache is full",
+        "The primary rejected the write",
+        "Indexes are missing"
+      ]
+    },
+    {
+      "id": "index-cost",
+      "type": "single_choice",
+      "prompt": "Adding an index on a column usually…",
+      "options": [
+        "Speeds up reads that filter on it and slows down writes a little",
+        "Speeds up both reads and writes",
+        "Has no cost",
+        "Only matters for NoSQL"
+      ]
+    },
+    {
+      "id": "hot-partition",
+      "type": "single_choice",
+      "prompt": "Orders are sharded by country. Most orders are from one country. What goes wrong?",
+      "options": [
+        "One shard becomes a hot spot while others sit idle",
+        "Orders get lost",
+        "Queries become impossible",
+        "Nothing"
+      ]
+    },
+    {
+      "id": "transactions",
+      "type": "single_choice",
+      "prompt": "A payments ledger needs multi-row transactions and strong consistency. Which storage fits first?",
+      "options": [
+        "A relational database",
+        "A key-value cache",
+        "A CDN",
+        "Log files"
+      ]
+    },
+    {
+      "id": "vertical-limit",
+      "type": "true_false",
+      "prompt": "True or false: vertical scaling (a bigger machine) is simple but eventually hits a hardware ceiling and leaves a single point of failure."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

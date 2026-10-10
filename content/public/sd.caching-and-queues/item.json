@@ -1,0 +1,93 @@
+{
+  "kind": "exercise-set",
+  "id": "sd.caching-and-queues",
+  "version": 1,
+  "title": "Caching and queues",
+  "summary": "Make reads fast and work asynchronous, and handle the failure modes that come with both.",
+  "world": {
+    "id": "world.system-design-city",
+    "order": 3
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "cache-aside",
+      "type": "order",
+      "prompt": "Order the steps of a cache-aside read.",
+      "steps": [
+        "Return the value",
+        "Look the key up in the cache",
+        "On a miss, read from the database",
+        "Store the value in the cache with a TTL"
+      ]
+    },
+    {
+      "id": "stampede",
+      "type": "single_choice",
+      "prompt": "A popular key expires and thousands of requests hit the database at once. What is this, and one fix?",
+      "options": [
+        "A cache stampede; let one request recompute while others wait (or refresh before expiry)",
+        "Replication lag; add replicas",
+        "A deadlock; add indexes",
+        "Normal behaviour; do nothing"
+      ]
+    },
+    {
+      "id": "write-back-risk",
+      "type": "single_choice",
+      "prompt": "What does a write-back (write-behind) cache risk that write-through doesn't?",
+      "options": [
+        "Losing recent writes if the cache fails before flushing them",
+        "Slower writes",
+        "Stale reads from the database",
+        "Higher read latency"
+      ]
+    },
+    {
+      "id": "why-queue",
+      "type": "single_choice",
+      "prompt": "Why put a message queue between an upload service and a slow video encoder?",
+      "options": [
+        "Uploads return immediately and encoders work at their own pace, absorbing spikes",
+        "Queues make encoding faster",
+        "Queues remove the need for storage",
+        "To guarantee exactly-once encoding"
+      ]
+    },
+    {
+      "id": "duplicates",
+      "type": "single_choice",
+      "prompt": "A queue delivers at least once. What must consumers be?",
+      "options": [
+        "Idempotent: processing the same message twice has the same effect as once",
+        "Single-threaded",
+        "Stateless and memoryless",
+        "Faster than the producer"
+      ]
+    },
+    {
+      "id": "dead-letter",
+      "type": "single_choice",
+      "prompt": "What is a dead-letter queue for?",
+      "options": [
+        "Holding messages that keep failing, so they don't block the queue and can be inspected",
+        "Deleting old messages",
+        "Encrypting messages",
+        "Speeding up delivery"
+      ]
+    },
+    {
+      "id": "ttl-staleness",
+      "type": "true_false",
+      "prompt": "True or false: a cache entry with a TTL can serve stale data until it expires unless something invalidates it."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

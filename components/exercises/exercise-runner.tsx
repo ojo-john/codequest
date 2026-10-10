@@ -8,7 +8,7 @@ import { useActiveSeconds } from "@/lib/client/use-active-seconds";
 import type { CorrectAnswer, ExerciseOutcome } from "@/lib/exercises/grade";
 import type { PublicQuestion } from "@/lib/exercises/schema";
 import { BossResult } from "./boss-result";
-import { initialValue, isComplete, QuestionCode, QuestionInput, type ResponseValue } from "./question-input";
+import { initialValue, isComplete, QuestionCode, QuestionInput, responseFor, type ResponseValue } from "./question-input";
 
 interface AnswerResult {
   readonly outcome: ExerciseOutcome;
@@ -40,6 +40,8 @@ export function describeCorrect(question: PublicQuestion, correct: CorrectAnswer
       return question.type === "order" ? correct.order.map((index, position) => `${position + 1}. ${question.steps[index]}`) : [];
     case "blanks":
       return correct.accepted.map((accepted, index) => `Blank ${index + 1}: ${accepted.join(" or ")}`);
+    case "number":
+      return [`About ${correct.value.toLocaleString("en")} ${correct.unit} (within ${Math.round(correct.tolerance * 100)}% counts as right)`];
   }
 }
 
@@ -56,6 +58,7 @@ export function ExerciseRunner({
   session,
   neutralNames = false,
   boss,
+  onFinished,
 }: {
   items: readonly RunnerItem[];
   title: string;
@@ -66,6 +69,8 @@ export function ExerciseRunner({
   neutralNames?: boolean;
   /** A mastery exam: show the per-section result for this sitting at the end. */
   boss?: { readonly contentVersionId: string; readonly sittingStartedAt: string };
+  /** Called once the last question has been answered and the learner moves on. */
+  onFinished?: () => void;
 }) {
   const questions = items.map((item) => item.question);
   const [sessionDone, setSessionDone] = useState<"item" | "session" | undefined>();
@@ -91,7 +96,7 @@ export function ExerciseRunner({
           requestKey: crypto.randomUUID(),
           contentVersionId: items[index].contentVersionId,
           questionId: question.id,
-          answer: value,
+          answer: responseFor(question, value),
           activeSeconds: Math.min(3600, activeTime.take()),
         },
       });
@@ -116,7 +121,10 @@ export function ExerciseRunner({
 
   function next() {
     const following = index + 1;
-    if (following >= questions.length) void completeSessionItem();
+    if (following >= questions.length) {
+      void completeSessionItem();
+      onFinished?.();
+    }
     setIndex(following);
     setResult(undefined);
     if (following < questions.length) setValue(initialValue(questions[following]));

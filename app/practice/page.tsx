@@ -52,10 +52,12 @@ export default async function PracticePage() {
                   .filter((set) => set.world.id === world)
                   .map((set) => (
                     <li key={set.contentVersionId} className="flex flex-wrap items-center gap-3 py-2.5">
-                      <Link href={`/practice/${set.contentVersionId}`} className="font-medium hover:underline">
+                      <Link href={set.kind === "design" ? `/design/${set.contentVersionId}` : `/practice/${set.contentVersionId}`} className="font-medium hover:underline">
                         {set.title}
                       </Link>
                       <UnreviewedBadge status={set.status} />
+                      {set.kind === "design" && <Badge tone="info">Design challenge</Badge>}
+                      {set.kind === "boss" && <Badge tone="warning">Mastery exam</Badge>}
                       <Badge>
                         {set.questionCount} questions · ≈ {set.estimatedMinutes} min
                       </Badge>

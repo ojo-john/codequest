@@ -76,6 +76,25 @@ describe("validateExerciseSets", () => {
     expect(messages([set([CHOICE], { c: { type: "single_choice", answer: 0, ...BASE } })], ["java.set"]).join()).toMatch(/also used by a quest/);
   });
 
+  it("validate_designWithoutConsiderations_isReported", () => {
+    const plain = set([CHOICE], { c: { type: "single_choice", answer: 0, ...BASE } });
+    const design = { ...plain, manifest: { ...plain.manifest, design: { scenario: "A scenario long enough.", requirements: ["r"], sections: [{ id: "api", title: "API", guidance: "The API." }], timeMinutes: 35 } } };
+
+    expect(messages([design]).join()).toMatch(/needs considerations/);
+  });
+
+  it("validate_longPracticeSet_isReported", () => {
+    const plain = set([CHOICE], { c: { type: "single_choice", answer: 0, ...BASE } });
+
+    expect(messages([{ ...plain, manifest: { ...plain.manifest, estimatedMinutes: 45 } }]).join()).toMatch(/at most 30 minutes/);
+  });
+
+  it("validate_considerationsOnAPracticeSet_areReported", () => {
+    const plain = set([CHOICE], { c: { type: "single_choice", answer: 0, ...BASE } });
+
+    expect(messages([{ ...plain, privateData: { ...plain.privateData, considerations: ["A point to cover."] } }]).join()).toMatch(/only belong to design challenges/);
+  });
+
   it("validate_bossWithoutSections_isReported", () => {
     const boss = set([CHOICE], { c: { type: "single_choice", answer: 0, ...BASE } });
     const withBoss = { ...boss, manifest: { ...boss.manifest, boss: { passShare: 0.7 } } };

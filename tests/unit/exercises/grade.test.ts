@@ -95,6 +95,35 @@ describe("gradeAnswer: by type", () => {
   });
 });
 
+describe("gradeAnswer: numeric estimates", () => {
+  const q: PublicQuestion = { id: "qps", type: "numeric", prompt: "Average QPS?", unit: "QPS" };
+  const a: PrivateAnswer = { type: "numeric", answer: 23148, tolerance: 0.1, ...BASE };
+
+  it("numeric_withinTolerance_passes", () => {
+    expect([grade(q, a, { value: 23000 }), grade(q, a, { value: 25000 })]).toEqual(["pass", "pass"]);
+  });
+
+  it("numeric_withinTwiceTheTolerance_isPartial", () => {
+    expect(grade(q, a, { value: 27000 })).toBe("partial");
+  });
+
+  it("numeric_farOff_fails", () => {
+    expect([grade(q, a, { value: 2315 }), grade(q, a, { value: 231480 })]).toEqual(["fail", "fail"]);
+  });
+
+  it("numeric_zeroAnswer_usesAbsoluteError", () => {
+    expect(grade(q, { ...a, answer: 0, tolerance: 0.5 } as PrivateAnswer, { value: 0.4 })).toBe("pass");
+  });
+
+  it("numeric_nonNumberResponse_isInvalid", () => {
+    expect(() => gradeAnswer(q, a, { value: "23k" })).toThrow(InvalidResponseError);
+  });
+
+  it("numeric_correctAnswer_carriesUnitAndTolerance", () => {
+    expect(gradeAnswer(q, a, { value: 1 }).correct).toEqual({ type: "number", value: 23148, unit: "QPS", tolerance: 0.1 });
+  });
+});
+
 describe("normalizers", () => {
   it("normalizeOutput_emptyOutput_isEmpty", () => {
     expect(normalizeOutput("\n\n")).toBe("");

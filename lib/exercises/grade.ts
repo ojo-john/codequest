@@ -21,7 +21,8 @@ export type CorrectAnswer =
   | { readonly type: "text"; readonly value: string }
   | { readonly type: "approaches"; readonly grades: readonly ("optimal" | "valid" | "incorrect")[] }
   | { readonly type: "order"; readonly order: readonly number[] }
-  | { readonly type: "blanks"; readonly accepted: readonly (readonly string[])[] };
+  | { readonly type: "blanks"; readonly accepted: readonly (readonly string[])[] }
+  | { readonly type: "number"; readonly value: number; readonly unit: string; readonly tolerance: number };
 
 export class InvalidResponseError extends Error {
   constructor(message: string) {
@@ -29,6 +30,9 @@ export class InvalidResponseError extends Error {
     this.name = "InvalidResponseError";
   }
 }
+
+/** Within this many times the tolerance, an estimate earns partial credit (right approach, rough numbers). */
+const NUMERIC_PARTIAL_FACTOR = 2;
 
 /** Share of correctly placed steps that still earns partial credit for an ordering. */
 const ORDER_PARTIAL_SHARE = 0.6;
@@ -42,6 +46,7 @@ const responseSchemas = {
   pattern: z.object({ choice: z.number().int().min(0) }).strict(),
   order: z.object({ order: z.array(z.number().int().min(0)).max(8) }).strict(),
   fill_blank: z.object({ blanks: z.array(z.string().max(200)).max(20) }).strict(),
+  numeric: z.object({ value: z.number().finite() }).strict(),
 } as const;
 
 function parse<T extends keyof typeof responseSchemas>(type: T, response: unknown): z.infer<(typeof responseSchemas)[T]> {
@@ -132,6 +137,13 @@ export function gradeAnswer(question: PublicQuestion, answer: PrivateAnswer, res
       const right = blanks.filter((value, index) => accepted[index].some((option) => normalizeFragment(option) === normalizeFragment(value))).length;
       const outcome: ExerciseOutcome = right === accepted.length ? "pass" : right > 0 ? "partial" : "fail";
       return { outcome, correct: { type: "blanks", accepted } };
+    }
+    case "numeric": {
+      const { value } = parse("numeric", response);
+      const key = answer as Extract<PrivateAnswer, { type: "numeric" }>;
+      const error = key.answer === 0 ? Math.abs(value) : Math.abs(value - key.answer) / Math.abs(key.answer);
+      const outcome: ExerciseOutcome = error <= key.tolerance ? "pass" : error <= key.tolerance * NUMERIC_PARTIAL_FACTOR ? "partial" : "fail";
+      return { outcome, correct: { type: "number", value: key.answer, unit: question.unit, tolerance: key.tolerance } };
     }
   }
 }
