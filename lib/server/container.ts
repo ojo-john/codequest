@@ -51,7 +51,20 @@ export function learningService(): LearningService {
     limits,
     logger,
   });
-  service = new LearningService({ store: new SupabaseLearningStore(db), executor, limits });
+  const exerciseStore = new SupabaseExerciseStore(db);
+  const skillTreeStore = new SupabaseSkillTreeStore(db);
+  service = new LearningService({
+    store: new SupabaseLearningStore(db),
+    practice: {
+      listVisibleSets: (userId) => exerciseStore.listVisibleSets(userId),
+      passedQuestions: (userId) => exerciseStore.passedQuestions(userId),
+      skillsOf: (ids) => exerciseStore.skillsOf(ids),
+      answeredSince: (userId, id, since) => exerciseStore.answeredSince(userId, id, since),
+      worlds: () => skillTreeStore.worlds(),
+    },
+    executor,
+    limits,
+  });
   return service;
 }
 
