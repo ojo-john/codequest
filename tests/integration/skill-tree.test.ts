@@ -75,6 +75,23 @@ describe("skill tree", () => {
     ]);
   });
 
+  it("listCampaigns_comeInWorldOrderWithTheirKind", async () => {
+    const real = new Set(loadContent(CONTENT).campaigns?.campaigns.map((campaign) => campaign.id));
+    const campaigns = (await new SupabaseLearningStore(serviceClient()).listCampaigns()).filter((campaign) => real.has(campaign.id));
+
+    expect(campaigns.map((campaign) => [campaign.id, campaign.kind, campaign.worldNumber])).toEqual([
+      ["campaign.shopping-cart", "project", 1],
+      ["problems.data-structures", "problems", 3],
+      ["problems.patterns", "problems", 4],
+    ]);
+  });
+
+  it("campaigns_areReadableBySignedInLearners", async () => {
+    const { data } = await alice.client.from("campaigns").select("id");
+
+    expect(data?.map((row) => row.id)).toEqual(expect.arrayContaining(["campaign.shopping-cart", "problems.data-structures", "problems.patterns"]));
+  });
+
   it("skill_unknownId_isUndefined", async () => {
     expect(await service.skill(alice.id, "java.nothing")).toBeUndefined();
   });

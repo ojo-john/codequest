@@ -40,6 +40,10 @@ beforeEach(() => {
   testId = `test.sync-${crypto.randomUUID().slice(0, 8)}`;
   root = mkdtempSync(join(tmpdir(), "codequest-content-"));
   cpSync(join(REAL_CONTENT, "skills.json"), join(root, "skills.json"));
+  writeFileSync(
+    join(root, "campaigns.json"),
+    JSON.stringify({ campaigns: [{ id: "campaign.test-sync", title: "Sync test", summary: "A campaign for sync tests.", world: "world.java-awakening", kind: "project" }] }),
+  );
   cpSync(join(REAL_CONTENT, "public", SOURCE_ID), join(root, "public", testId), { recursive: true });
   cpSync(join(REAL_CONTENT, "private", SOURCE_ID), join(root, "private", testId), { recursive: true });
   editManifest((manifest) => {

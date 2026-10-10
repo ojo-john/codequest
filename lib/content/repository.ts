@@ -4,6 +4,8 @@ import type { SourceFile } from "@/lib/execution/source-files";
 import type { Mutant } from "@/lib/execution/test-quality";
 import { exerciseSetManifestSchema, exerciseSetPrivateSchema, type ExerciseSetManifest, type ExerciseSetPrivate } from "@/lib/exercises/schema";
 import {
+  campaignsFileSchema,
+  type CampaignsFile,
   questManifestSchema,
   questPrivateSchema,
   skillsFileSchema,
@@ -46,6 +48,7 @@ export interface ContentLoadIssue {
 
 export interface LoadedContent {
   readonly skills: SkillsFile | undefined;
+  readonly campaigns: CampaignsFile | undefined;
   readonly quests: readonly LoadedQuest[];
   readonly exerciseSets: readonly LoadedExerciseSet[];
   readonly issues: readonly ContentLoadIssue[];
@@ -85,6 +88,13 @@ export function loadContent(contentRoot: string): LoadedContent {
     skills = skillsFileSchema.parse(readJson(join(contentRoot, "skills.json")));
   } catch (error) {
     issues.push({ item: "skills.json", message: describe(error) });
+  }
+
+  let campaigns: CampaignsFile | undefined;
+  try {
+    campaigns = campaignsFileSchema.parse(readJson(join(contentRoot, "campaigns.json")));
+  } catch (error) {
+    issues.push({ item: "campaigns.json", message: describe(error) });
   }
 
   const publicRoot = join(contentRoot, "public");
@@ -140,5 +150,5 @@ export function loadContent(contentRoot: string): LoadedContent {
     }
   }
 
-  return { skills, quests, exerciseSets, issues, publicFiles };
+  return { skills, campaigns, quests, exerciseSets, issues, publicFiles };
 }

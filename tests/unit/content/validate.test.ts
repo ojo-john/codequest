@@ -50,8 +50,10 @@ function content(quests: LoadedQuest[], skillsFile: SkillsFile | undefined = ski
     publicFiles.set(`public/${q.manifest.id}/instructions.md`, q.instructions);
     for (const file of q.starter) publicFiles.set(`public/${q.manifest.id}/starter/${file.path}`, file.content);
   }
-  return { skills: skillsFile, quests, exerciseSets: [], issues: [], publicFiles };
+  return { skills: skillsFile, campaigns: CAMPAIGNS, quests, exerciseSets: [], issues: [], publicFiles };
 }
+
+const CAMPAIGNS = { campaigns: [{ id: "campaign.test", title: "Test campaign", summary: "A test campaign.", world: "world.test", kind: "project" as const }] };
 
 const messages = (c: LoadedContent) => validateContent(c, LIMITS).map((issue) => issue.message);
 
@@ -182,5 +184,20 @@ describe("validateContent worlds", () => {
     const broken = { ...file, worlds: [...file.worlds, { ...file.worlds[0], id: "world.other" }] };
 
     expect(messages(content([], broken)).join()).toMatch(/world numbers repeat/);
+  });
+});
+
+describe("validateContent campaigns", () => {
+  it("validateContent_questInUnknownCampaign_isReported", () => {
+    const base = quest();
+    const stray = { ...base, manifest: { ...base.manifest, campaign: { id: "campaign.nowhere", order: 1 } } };
+
+    expect(messages(content([stray])).join()).toMatch(/unknown campaign campaign.nowhere/);
+  });
+
+  it("validateContent_campaignInUnknownWorld_isReported", () => {
+    const broken = { ...content([]), campaigns: { campaigns: [{ ...CAMPAIGNS.campaigns[0], world: "world.nowhere" }] } };
+
+    expect(messages(broken).join()).toMatch(/campaign.test is in unknown world world.nowhere/);
   });
 });

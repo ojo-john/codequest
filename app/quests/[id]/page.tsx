@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { QuestWorkspace } from "@/components/workspace/quest-workspace";
 import { requirePageUser } from "@/lib/auth/dal";
-import { openCampaignProject } from "@/lib/projects/campaign-project";
+import { openQuestProject } from "@/lib/projects/campaign-project";
 import { journalService, learningService } from "@/lib/server/container";
 import { ApiError } from "@/lib/server/http";
 
@@ -14,7 +14,6 @@ function sessionRef(session: unknown, item: unknown): { id: string; itemId: stri
   return { id: session, itemId: item };
 }
 
-const CAMPAIGN_TITLES: Record<string, string> = { "campaign.shopping-cart": "Shopping cart" };
 
 export default async function QuestPage({ params, searchParams }: PageProps<"/quests/[id]">) {
   const { id } = await params;
@@ -29,7 +28,9 @@ export default async function QuestPage({ params, searchParams }: PageProps<"/qu
     throw error;
   }
   const [project, journal] = await Promise.all([
-    openCampaignProject(user.userId, quest.campaign.id, CAMPAIGN_TITLES[quest.campaign.id] ?? quest.campaign.id, quest.starter),
+    learningService()
+      .campaignOf(quest.campaign.id)
+      .then((campaign) => openQuestProject(user.userId, { contentId: quest.contentId, title: quest.title, campaignId: quest.campaign.id, starter: quest.starter }, campaign)),
     journalService().questJournal(user.userId, id),
   ]);
   const query = await searchParams;

@@ -158,6 +158,7 @@ describe("planSession", () => {
     contentId: `cart.q${order}`,
     title: `Quest ${order}`,
     campaignOrder: order,
+    trackRank: 1,
     estimatedMinutes: minutes,
     completed,
     skills,
@@ -172,6 +173,13 @@ describe("planSession", () => {
     skills: ["java.collections"],
     passedShare: 0,
     ...overrides,
+  });
+
+  it("planSession_nextQuest_comesFromTheEarliestWorldFirst", () => {
+    const problem = { ...quest(1, false), contentVersionId: "problem-1", trackRank: 4 };
+    const cartQuest = { ...quest(5, false), trackRank: 1 };
+
+    expect(planSession(30, [problem, cartQuest], [], NOW).items[0].contentVersionId).toBe("cv-5");
   });
 
   it("planSession_fiveMinutes_isOnlyAPracticeSetEvenWithReviewsDue", () => {

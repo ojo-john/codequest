@@ -177,6 +177,14 @@ export interface GradedAttemptOutcome {
   readonly sessionCompleted: boolean;
 }
 
+export interface CampaignRecord {
+  readonly id: string;
+  readonly title: string;
+  readonly summary: string;
+  readonly kind: "project" | "problems";
+  readonly worldNumber: number;
+}
+
 export interface ActiveSession {
   readonly id: string;
   readonly budgetMinutes: number;
@@ -206,6 +214,8 @@ export interface LearningStore {
   recordFollowUpAnswers(input: FollowUpAnswersInput): Promise<void>;
   /** Marks a session item completed (and the session, if it was the last open item). */
   completeSessionItem(userId: string, itemId: string): Promise<{ completed: boolean; sessionCompleted: boolean }>;
+  /** Campaigns in world order (shopping-cart project first, then problem tracks). */
+  listCampaigns(): Promise<CampaignRecord[]>;
   /** Skill id → display name. */
   skillNames(): Promise<Map<string, string>>;
   /** Graded submissions since `since`, newest first, with their per-check results (for insights). */
@@ -522,5 +532,14 @@ export class SupabaseLearningStore implements LearningStore {
       .object({ completed: z.boolean(), session_completed: z.boolean() })
       .parse(check("complete_session_item", await this.db.rpc("complete_session_item", { p_user_id: userId, p_item_id: itemId })));
     return { completed: row.completed, sessionCompleted: row.session_completed };
+  }
+
+  async listCampaigns(): Promise<CampaignRecord[]> {
+    const rows = z
+      .array(z.object({ id: z.string(), title: z.string(), summary: z.string(), kind: z.enum(["project", "problems"]), worlds: z.object({ number: z.number() }) }))
+      .parse(check("campaigns", await this.db.from("campaigns").select("id, title, summary, kind, worlds(number)")));
+    return rows
+      .map((row) => ({ id: row.id, title: row.title, summary: row.summary, kind: row.kind, worldNumber: row.worlds.number }))
+      .sort((a, b) => a.worldNumber - b.worldNumber || a.id.localeCompare(b.id));
   }
 }

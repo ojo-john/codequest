@@ -1,0 +1,311 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [
+                3,
+                1,
+                4,
+                1,
+                5
+              ],
+              2
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                5,
+                4
+              ]
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "all-equal",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [
+                2,
+                2,
+                2
+              ],
+              2
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                2,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "duplicates-count",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [
+                5,
+                5,
+                1
+              ],
+              2
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                5,
+                5
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "k-zero",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [
+                1,
+                2,
+                3
+              ],
+              0
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": []
+            }
+          }
+        ]
+      },
+      {
+        "id": "k-all",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [
+                4,
+                1,
+                3
+              ],
+              3
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                4,
+                3,
+                1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "negatives",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [
+                -5,
+                -1,
+                -3
+              ],
+              1
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                -1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "k-too-big",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [
+                1,
+                2
+              ],
+              3
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "k-negative",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [
+                1,
+                2
+              ],
+              -1
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "null-values",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              null,
+              1
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty-k-zero",
+        "steps": [
+          {
+            "call": "largest",
+            "static": "problems.TopK",
+            "args": [
+              [],
+              0
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": []
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "You only ever need to remember the k largest values seen so far."
+    },
+    {
+      "tier": "pattern",
+      "text": "A min-heap of size k: its smallest element is the one to evict when a bigger value arrives."
+    },
+    {
+      "tier": "key_insight",
+      "text": "Offer every value; whenever the heap holds more than k, poll. At the end, poll k times and fill the result from the back."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "k-zero",
+      "k-all",
+      "k-too-big",
+      "k-negative",
+      "null-values",
+      "empty-k-zero",
+      "duplicates-count"
+    ],
+    "followUps": [
+      {
+        "id": "topk-time",
+        "criterion": "time_complexity",
+        "skill": "ds.heaps",
+        "prompt": "What is the time complexity of the size-k min-heap approach for n values?",
+        "options": [
+          "O(n log k)",
+          "O(n log n)",
+          "O(n k)",
+          "O(k)"
+        ],
+        "answer": 0,
+        "why": "Each value costs at most an offer and a poll on a heap of at most k + 1 elements."
+      },
+      {
+        "id": "topk-space",
+        "criterion": "space_complexity",
+        "skill": "ds.heaps",
+        "prompt": "How much extra memory does it use, apart from the result?",
+        "options": [
+          "O(k): the heap never holds more than k + 1 values",
+          "O(n)",
+          "O(1)",
+          "O(n log k)"
+        ],
+        "answer": 0,
+        "why": "Only the current top k (plus the one being compared) are kept, however long the input is."
+      }
+    ]
+  }
+}
