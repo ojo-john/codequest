@@ -1,0 +1,62 @@
+{
+  "kind": "exercise-set",
+  "id": "ds.graph-representations",
+  "version": 1,
+  "title": "Graph representations",
+  "summary": "Adjacency lists, matrices and edge lists: what each costs and when to use it.",
+  "world": {
+    "id": "world.data-structure-forge",
+    "order": 5
+  },
+  "estimatedMinutes": 6,
+  "questions": [
+    {
+      "id": "sparse-graph",
+      "type": "single_choice",
+      "prompt": "A road network has 100,000 places and 300,000 roads. Which representation fits?",
+      "options": [
+        "An adjacency list: memory grows with places + roads",
+        "An adjacency matrix: a 100,000 × 100,000 grid",
+        "An edge list, searched in full for each place's neighbours",
+        "A single string"
+      ]
+    },
+    {
+      "id": "matrix-edge-check",
+      "type": "big_o",
+      "prompt": "With an adjacency matrix, how long does it take to check whether there is an edge from u to v?",
+      "ask": "time"
+    },
+    {
+      "id": "list-space",
+      "type": "big_o",
+      "prompt": "How much memory does an adjacency list need for V vertices and E edges?",
+      "ask": "space",
+      "options": [
+        "O(V)",
+        "O(E)",
+        "O(V + E)",
+        "O(V^2)"
+      ]
+    },
+    {
+      "id": "build-list",
+      "type": "predict_output",
+      "prompt": "What does this program print?",
+      "code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Main {\n    public static void main(String[] args) {\n        int[][] edges = {{0, 1}, {0, 2}, {2, 3}};\n        List<List<Integer>> graph = new ArrayList<>();\n        for (int i = 0; i < 4; i++) {\n            graph.add(new ArrayList<>());\n        }\n        for (int[] edge : edges) {\n            graph.get(edge[0]).add(edge[1]);\n            graph.get(edge[1]).add(edge[0]);\n        }\n        System.out.println(graph);\n    }\n}\n"
+    },
+    {
+      "id": "directed-undirected",
+      "type": "true_false",
+      "prompt": "True or false: in an undirected graph stored as an adjacency list, each edge usually appears twice."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

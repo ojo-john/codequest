@@ -1,0 +1,55 @@
+{
+  "answers": {
+    "iterative": {
+      "type": "predict_output",
+      "answer": "3\n-1",
+      "why": "7 is at index 3. For 4 the range shrinks until lo passes hi, and the method returns -1.",
+      "skill": "patterns.binary-search",
+      "dimension": "concept"
+    },
+    "loop-condition": {
+      "type": "fill_blank",
+      "answer": [
+        [
+          "<="
+        ]
+      ],
+      "why": "With inclusive bounds, lo == hi is still one candidate to check. lo < hi would skip it.",
+      "skill": "patterns.binary-search",
+      "dimension": "implementation"
+    },
+    "lower-bound": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "mid satisfies the condition, but an earlier index might too. Keep it as the best answer so far and look left for a smaller one.",
+      "skill": "patterns.binary-search",
+      "dimension": "implementation"
+    },
+    "on-the-answer": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "If a capacity works, every larger one does too: a monotone condition, so binary search on the answer applies. Trying every capacity is correct but slow, and reordering packages isn't allowed.",
+      "skill": "patterns.binary-search",
+      "dimension": "recognition"
+    },
+    "answer-cost": {
+      "type": "big_o",
+      "answer": "O(n log S)",
+      "why": "About log₂ S candidates are checked, each costing O(n).",
+      "skill": "patterns.binary-search",
+      "dimension": "complexity"
+    },
+    "needs-order": {
+      "type": "true_false",
+      "answer": false,
+      "why": "It needs a monotone condition (for arrays: sorted order) to know which half to throw away. On unsorted data it can discard the half that holds the value.",
+      "skill": "patterns.binary-search",
+      "dimension": "concept"
+    }
+  }
+}

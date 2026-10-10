@@ -1,0 +1,51 @@
+{
+  "answers": {
+    "poll-order": {
+      "type": "predict_output",
+      "answer": "1 2 4 5",
+      "why": "PriorityQueue is a min-heap by default: each poll removes the smallest remaining element.",
+      "skill": "ds.heaps",
+      "dimension": "concept"
+    },
+    "max-heap": {
+      "type": "predict_output",
+      "answer": "9\n3",
+      "why": "Comparator.reverseOrder() turns it into a max-heap: poll removes 9, and the largest left is 3.",
+      "skill": "ds.heaps",
+      "dimension": "concept"
+    },
+    "top-k-cost": {
+      "type": "big_o",
+      "answer": "O(n log k)",
+      "why": "Each of the n numbers costs at most one insert and one removal on a heap of size k, O(log k) each.",
+      "skill": "ds.heaps",
+      "dimension": "complexity"
+    },
+    "top-k-heap": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "The question you ask on each new number is \"is it bigger than the smallest of my top k?\", and a min-heap answers that with peek and evicts it with poll.",
+      "skill": "ds.heaps",
+      "dimension": "concept"
+    },
+    "iteration-order": {
+      "type": "true_false",
+      "answer": false,
+      "why": "The iterator walks the heap's internal array, which is only partially ordered. Only repeated poll() gives priority order.",
+      "skill": "ds.heaps",
+      "dimension": "concept"
+    },
+    "merge-k": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "valid",
+        "incorrect"
+      ],
+      "why": "The heap picks the next smallest of k heads in O(log k): O(n log k) overall. Sorting everything is O(n log n); scanning all heads every time is O(n·k). A stack can't pick a minimum.",
+      "skill": "ds.heaps",
+      "dimension": "recognition"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "answers": {
+    "sparse-graph": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "The matrix needs 10¹⁰ cells, almost all empty. An adjacency list stores only the roads that exist and lists a place's neighbours directly. An edge list is compact but needs a full scan to find neighbours.",
+      "skill": "ds.graphs",
+      "dimension": "recognition"
+    },
+    "matrix-edge-check": {
+      "type": "big_o",
+      "answer": "O(1)",
+      "why": "It's a single array lookup, matrix[u][v]. That speed is what the matrix's O(V²) memory buys.",
+      "skill": "ds.graphs",
+      "dimension": "complexity"
+    },
+    "list-space": {
+      "type": "big_o",
+      "answer": "O(V + E)",
+      "why": "One list per vertex, plus one entry per edge (two for an undirected edge).",
+      "skill": "ds.graphs",
+      "dimension": "complexity"
+    },
+    "build-list": {
+      "type": "predict_output",
+      "answer": "[[1, 2], [0], [0, 3], [2]]",
+      "why": "Each undirected edge is added in both directions, so vertex 0 lists 1 and 2, vertex 2 lists 0 and 3, and so on.",
+      "skill": "ds.graphs",
+      "dimension": "implementation"
+    },
+    "directed-undirected": {
+      "type": "true_false",
+      "answer": true,
+      "why": "An undirected edge u–v is stored in u's list and in v's list, so you can walk it from either end.",
+      "skill": "ds.graphs",
+      "dimension": "concept"
+    }
+  }
+}

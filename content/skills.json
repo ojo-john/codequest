@@ -3,7 +3,7 @@
     { "id": "world.base-camp", "number": 0, "name": "Base Camp", "summary": "Assessment and your personalised path.", "available": true },
     { "id": "world.java-awakening", "number": 1, "name": "Java Awakening", "summary": "Java fluency: methods, classes, collections, streams and tests.", "available": true },
     { "id": "world.complexity-caverns", "number": 2, "name": "Complexity Caverns", "summary": "Big-O and analysing code.", "available": true },
-    { "id": "world.data-structure-forge", "number": 3, "name": "Data Structure Forge", "summary": "Arrays, hash tables, lists, stacks, queues, heaps, trees and graphs.", "available": false },
+    { "id": "world.data-structure-forge", "number": 3, "name": "Data Structure Forge", "summary": "Arrays, hash tables, lists, stacks, queues, heaps, trees and graphs.", "available": true },
     { "id": "world.pattern-kingdom", "number": 4, "name": "Pattern Kingdom", "summary": "Algorithmic patterns and recognising when to use them.", "available": true },
     { "id": "world.algorithm-arena", "number": 5, "name": "Algorithm Arena", "summary": "Mixed problems without topic labels.", "available": false },
     { "id": "world.debug-dungeon", "number": 6, "name": "Debug Dungeon", "summary": "Broken-code challenges: diagnose, fix minimally, prove it with a test.", "available": false },
@@ -217,6 +217,55 @@
       "definition": "Choose and apply BFS or DFS on graphs and grids: shortest paths with equal costs, reachability, components and cycle detection.",
       "difficulty": 4,
       "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }, { "skill": "ds.choosing-structures", "kind": "recommended" }]
+    },
+    {
+      "id": "ds.hash-tables",
+      "category": "data-structures",
+      "name": "Hash tables",
+      "world": "world.data-structure-forge",
+      "definition": "How hashing, buckets, collisions, load factor and resizing give O(1) average operations, and the equals/hashCode contract that makes them work.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "ds.choosing-structures", "kind": "recommended" }]    },
+    {
+      "id": "ds.stacks-queues",
+      "category": "data-structures",
+      "name": "Stacks, queues and deques",
+      "world": "world.data-structure-forge",
+      "definition": "Last-in-first-out and first-in-first-out structures, Java's ArrayDeque, and problems they fit: matching brackets, undo, monotonic stacks, level-by-level processing.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "ds.choosing-structures", "kind": "recommended" }]    },
+    {
+      "id": "ds.heaps",
+      "category": "data-structures",
+      "name": "Heaps and priority queues",
+      "world": "world.data-structure-forge",
+      "definition": "Min- and max-heaps, PriorityQueue, O(log n) insert and remove-min, Top K and k-way merging.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }, { "skill": "ds.choosing-structures", "kind": "recommended" }]    },
+    {
+      "id": "ds.trees",
+      "category": "data-structures",
+      "name": "Trees and traversals",
+      "world": "world.data-structure-forge",
+      "definition": "Binary trees and binary search trees: terminology, recursive and level-order traversals, height, and why balance matters.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "bigo.recursion", "kind": "recommended" }, { "skill": "java.classes", "kind": "recommended" }]    },
+    {
+      "id": "ds.graphs",
+      "category": "data-structures",
+      "name": "Graph representations",
+      "world": "world.data-structure-forge",
+      "definition": "Represent graphs as adjacency lists, matrices or edge lists and choose by size and density.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "ds.choosing-structures", "kind": "recommended" }]    },
+    {
+      "id": "patterns.two-pointers",
+      "category": "patterns",
+      "name": "Two pointers",
+      "world": "world.pattern-kingdom",
+      "definition": "Move two indices through an array or string (towards each other or in the same direction) to solve pair, partition and palindrome problems in one pass.",
+      "difficulty": 2,
+      "prerequisites": [{ "skill": "bigo.loops", "kind": "strict" }]
     }
   ]
 }
