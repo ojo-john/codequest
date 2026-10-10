@@ -82,6 +82,7 @@ describe("skill tree", () => {
     expect(campaigns.map((campaign) => [campaign.id, campaign.kind, campaign.worldNumber])).toEqual([
       ["campaign.shopping-cart", "project", 1],
       ["problems.data-structures", "problems", 3],
+      ["problems.from-memory", "problems", 4],
       ["problems.patterns", "problems", 4],
       ["problems.debug-dungeon", "problems", 6],
     ]);

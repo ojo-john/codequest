@@ -9,6 +9,7 @@
     "order": 3
   },
   "stage": "independent",
+  "family": "lower-bound",
   "estimatedMinutes": 15,
   "skills": [
     {

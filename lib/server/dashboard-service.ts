@@ -15,6 +15,8 @@ const dashboardSchema = z.object({
   evidence_by_dimension: z.record(z.string(), z.object({ total: z.coerce.number(), passed: z.coerce.number() })),
   problems_attempted: z.coerce.number(),
   problems_solved: z.coerce.number(),
+  // Absent from databases that predate the solved-ids migration: treated as none.
+  solved_content_ids: z.array(z.string()).default([]),
   independent_solves: z.coerce.number(),
   first_attempt_passes: z.coerce.number(),
   median_solve_seconds: z.coerce.number().nullable(),
@@ -46,7 +48,7 @@ export interface Ratio {
 export interface DashboardView {
   readonly readiness: readonly TrackReadiness[];
   readonly unavailableTracks: readonly string[];
-  readonly problems: { readonly attempted: number; readonly solved: number; readonly independent: number; readonly firstAttempt: Ratio };
+  readonly problems: { readonly attempted: number; readonly solved: number; readonly families: number; readonly independent: number; readonly firstAttempt: Ratio };
   readonly medianSolveSeconds: { readonly value: number | null; readonly sample: number };
   readonly recognition: Ratio;
   readonly complexity: Ratio;
@@ -58,7 +60,7 @@ export interface DashboardView {
 export interface DashboardServiceDeps {
   readonly store: DashboardStore;
   readonly skills: Pick<SkillTreeStore, "skills">;
-  readonly learning: Pick<LearningStore, "skillStates">;
+  readonly learning: Pick<LearningStore, "skillStates" | "listVisibleQuests">;
   readonly clock?: () => Date;
 }
 
@@ -73,7 +75,15 @@ export class DashboardService {
   }
 
   async dashboard(userId: string): Promise<DashboardView> {
-    const [stats, skills, states] = await Promise.all([this.deps.store.stats(userId), this.deps.skills.skills(), this.deps.learning.skillStates(userId)]);
+    const [stats, skills, states, quests] = await Promise.all([
+      this.deps.store.stats(userId),
+      this.deps.skills.skills(),
+      this.deps.learning.skillStates(userId),
+      this.deps.learning.listVisibleQuests(userId),
+    ]);
+    // Variants of one problem share a family (spec §57); a quest no longer visible is its own family.
+    const familyOf = new Map(quests.map((quest) => [quest.contentId, quest.family ?? quest.contentId]));
+    const families = new Set(stats.solved_content_ids.map((id) => familyOf.get(id) ?? id)).size;
     const names = new Map(skills.map((skill) => [skill.id, skill.name]));
     // Rank skills only once they have enough evidence to mean something.
     const perSkill = [...new Set(states.map((state) => state.skillId))]
@@ -99,6 +109,7 @@ export class DashboardService {
       problems: {
         attempted: stats.problems_attempted,
         solved: stats.problems_solved,
+        families,
         independent: stats.independent_solves,
         firstAttempt: { count: stats.first_attempt_passes, outOf: stats.problems_attempted },
       },
