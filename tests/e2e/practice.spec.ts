@@ -55,3 +55,13 @@ test("a learner works through an exercise set: right, wrong, ordering, blanks an
   await page.goto("/progress");
   await expect(page.getByRole("row", { name: /^Loop analysis complexity/ })).toBeVisible(FIRST_LOAD);
 });
+
+test("mixed practice hides where each question comes from", async ({ page }) => {
+  await signInAsNewLearner(page, "mixed");
+  await page.getByLabel(/Show unreviewed drafts/).check();
+  await page.goto("/practice");
+  await page.getByRole("link", { name: "Start mixed practice" }).click(FIRST_LOAD);
+
+  await expect(page.getByText("Challenge 1 of 8")).toBeVisible(FIRST_LOAD);
+  await expect(page.getByText(/Maps and counting|Loop detective|Strings essentials/)).toHaveCount(0);
+});

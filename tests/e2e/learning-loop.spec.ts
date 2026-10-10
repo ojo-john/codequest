@@ -25,7 +25,8 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   // A 15-minute session continues the campaign at quest 1.
   await page.getByRole("button", { name: "15 min" }).click();
   await expect(page.getByRole("heading", { name: "Your 15-minute session" })).toBeVisible(FIRST_LOAD);
-  await page.getByRole("link", { name: "Start" }).first().click();
+  // The plan also includes a practice set; open the coding quest.
+  await page.getByRole("listitem").filter({ hasText: "Checkout totals" }).getByRole("link", { name: "Start" }).click();
   await expect(page.getByRole("heading", { name: "Checkout totals", level: 1 })).toBeVisible(FIRST_LOAD);
   await expect(page.getByRole("tab", { name: "Checkout.java" })).toBeVisible(FIRST_LOAD);
 
@@ -43,8 +44,6 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   await page.getByRole("button", { name: "Submit" }).click();
   await expect(page.getByTestId("results")).toContainText("All checks passed", { timeout: 180_000 });
   await expect(page.getByTestId("results")).toContainText("+30 XP");
-  // The 15-minute session held just this quest, so passing it completes the session.
-  await expect(page.getByTestId("results")).toContainText("Session complete");
 
   // Submitting the same pass again earns nothing new, and says so.
   await page.getByRole("button", { name: "Submit" }).click();
@@ -80,11 +79,12 @@ test("a learner opts into drafts, runs, gets a hint, submits a correct solution 
   await expect(page.getByTestId("results")).toContainText("All checks passed");
 
   await page.getByRole("link", { name: "← Back to session" }).click();
-  await expect(page.getByText("Session complete. Nice work.")).toBeVisible(FIRST_LOAD);
+  // The quest is done; the session's practice set is still open, so the session can be resumed.
+  await expect(page.getByRole("listitem").filter({ hasText: "Checkout totals" }).getByText("✓ Done")).toBeVisible(FIRST_LOAD);
 
-  // Home shows the XP and the quest as done (no session left to resume); progress shows the evidence.
+  // Home shows the XP and the quest as done, and offers to resume the session; progress shows the evidence.
   await page.goto("/");
-  await expect(page.getByText("Pick up where you left off")).toHaveCount(0);
+  await expect(page.getByText("Pick up where you left off")).toBeVisible();
   await expect(page.getByTestId("xp-total")).toHaveText("30");
   await page.goto("/progress");
   // Code evidence (implementation) and answer evidence (complexity) are tracked separately.
