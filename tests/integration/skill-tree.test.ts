@@ -83,6 +83,7 @@ describe("skill tree", () => {
       ["campaign.shopping-cart", "project", 1],
       ["problems.data-structures", "problems", 3],
       ["problems.patterns", "problems", 4],
+      ["problems.debug-dungeon", "problems", 6],
     ]);
   });
 

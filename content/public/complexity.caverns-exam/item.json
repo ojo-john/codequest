@@ -1,0 +1,121 @@
+{
+  "kind": "exercise-set",
+  "id": "complexity.caverns-exam",
+  "version": 1,
+  "title": "Complexity Caverns exam",
+  "summary": "The world's mastery exam: analyse loops, recursion and space you haven't seen before. Each section needs 70% on its own.",
+  "world": {
+    "id": "world.complexity-caverns",
+    "order": 9
+  },
+  "estimatedMinutes": 15,
+  "questions": [
+    {
+      "id": "three-nested",
+      "type": "big_o",
+      "prompt": "What is the time complexity?",
+      "ask": "time",
+      "code": "for (int i = 0; i < n; i++) {\n    for (int j = 0; j < n; j++) {\n        for (int k = 0; k < n; k++) {\n            count++;\n        }\n    }\n}"
+    },
+    {
+      "id": "sqrt-loop",
+      "type": "big_o",
+      "prompt": "What is the time complexity in terms of n?",
+      "ask": "time",
+      "code": "for (int i = 1; i * i <= n; i++) {\n    count++;\n}",
+      "options": [
+        "O(log n)",
+        "O(sqrt n)",
+        "O(n)",
+        "O(n^2)"
+      ]
+    },
+    {
+      "id": "halving-inner",
+      "type": "big_o",
+      "prompt": "What is the time complexity?",
+      "ask": "time",
+      "code": "for (int i = 0; i < n; i++) {\n    for (int j = n; j > 1; j /= 2) {\n        count++;\n    }\n}"
+    },
+    {
+      "id": "rows-and-columns",
+      "type": "big_o",
+      "prompt": "grid has r rows and c columns. What is the time complexity?",
+      "ask": "time",
+      "code": "for (int row = 0; row < r; row++) {\n    for (int col = 0; col < c; col++) {\n        sum += grid[row][col];\n    }\n}",
+      "options": [
+        "O(r + c)",
+        "O(r * c)",
+        "O(r^2)",
+        "O(max(r, c))"
+      ]
+    },
+    {
+      "id": "shrinking-window",
+      "type": "big_o",
+      "prompt": "a has n elements. What is the time complexity?",
+      "ask": "time",
+      "code": "int left = 0;\nint best = 0;\nfor (int right = 0; right < n; right++) {\n    seen.merge(a[right], 1, Integer::sum);\n    while (seen.get(a[right]) > 1) {\n        seen.merge(a[left], -1, Integer::sum);\n        left++;\n    }\n    best = Math.max(best, right - left + 1);\n}"
+    },
+    {
+      "id": "halving-recursion",
+      "type": "big_o",
+      "prompt": "What is the time complexity of g(n)?",
+      "ask": "time",
+      "code": "static int g(int n) {\n    if (n <= 1) {\n        return 0;\n    }\n    return 1 + g(n / 2);\n}"
+    },
+    {
+      "id": "linear-recursion-space",
+      "type": "big_o",
+      "prompt": "What is the auxiliary space of count(n), counting the call stack?",
+      "ask": "space",
+      "code": "static int count(int n) {\n    return n == 0 ? 0 : 1 + count(n - 1);\n}"
+    },
+    {
+      "id": "permutations",
+      "type": "big_o",
+      "prompt": "How long does it take to generate (and store) every ordering of n distinct items?",
+      "ask": "time"
+    },
+    {
+      "id": "copy-then-scan",
+      "type": "big_o",
+      "prompt": "A method copies an array of n ints into a new array, then scans the copy once. What is its auxiliary space?",
+      "ask": "space"
+    }
+  ],
+  "sections": [
+    {
+      "id": "loops",
+      "name": "Loops",
+      "questions": [
+        "three-nested",
+        "sqrt-loop",
+        "halving-inner",
+        "rows-and-columns",
+        "shrinking-window"
+      ]
+    },
+    {
+      "id": "recursion",
+      "name": "Recursion and space",
+      "questions": [
+        "halving-recursion",
+        "linear-recursion-space",
+        "permutations",
+        "copy-then-scan"
+      ]
+    }
+  ],
+  "boss": {
+    "passShare": 0.7
+  },
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

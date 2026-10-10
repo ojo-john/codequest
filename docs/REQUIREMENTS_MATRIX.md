@@ -23,7 +23,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 14 | Code grader rubric | P1 | `lib/grading` | Tests decide correctness; incomplete ≠ zero | **Done (rules-v1)** — `rubric-v1` with the spec's weights: correctness from hidden checks, edge cases from tagged checks, explanation + time/space complexity from follow-up questions with canonical answers; algorithm choice and code quality shown as *not assessed* (never zero); score over the assessed share; stored on the attempt and the job result (unit + integration + e2e). Reviewed reasoning for the rest: P4 |
 | 15 | Hints (superseded by §70 for XP) | P1 | `hint_requests`, `/api/v1/quests/:id/hints` | Hint level recorded; no XP deduction | **Done (server)** — curated tiers served one at a time, recorded server-side, change independence only |
 | 16 | Socratic AI tutor | P4 | optional | Server-side reveal policy | Not started |
-| 17 | Debug Dungeon | P2 | content | Diagnosis + minimal fix + failing test | Not started |
+| 17 | Debug Dungeon | P2 | content | Diagnosis + minimal fix + failing test | **In progress** — 5 draft bug hunts (off-by-one, int overflow, mutating state, comparator overflow, null handling): bug report → minimal fix (hidden contract) → diagnosis question → a learner test graded against the original bug as a mutant (the gate proves reference tests catch it). Infinite loops, recursion base cases, complexity regressions and concurrency still to come |
 | 18 | Code reading mode | P2 | question types | Predict-output items graded deterministically | **In progress** — predict-output items graded deterministically, canonical outputs proven by execution in the content gate; more reading items with 2.3 content |
 | 19 | Edge-case trainer | P2 | test-authoring UI | Learner tests executed | **In progress** — learners add JUnit test files (＋ Test file); Run shows their results; Submit grades them against the reference and planted-bug variants (quest 8: 6 mutants, all caught by reference tests in the content gate); testing-dimension evidence + XP from test quality. Checklist/selection mode P2 |
 | 20 | Solution comparison | P2 | content | Claims account for copying/sorting impl | Not started |
@@ -55,7 +55,7 @@ mocks · **P4** advanced ML + optional tutor.
 | 50 | Search | P3 | — | Personal data owner-scoped | Not started |
 | 51 | Notes | P3 | `notes` | User statements not canonical | **In progress** — per-quest notes saved as typed, labelled as your own words and never checked (unit + integration + e2e); flashcards from notes P3 |
 | 52 | Cheat sheets | P3 | content | Hidden in interview mode | Not started |
-| 53 | Mastery exams | P2 | boss flows | Targeted remediation | Not started |
+| 53 | Mastery exams | P2 | boss flows | Targeted remediation | **In progress** — exercise-set bosses with per-section pass shares (70 %, partial = half, unanswered = wrong) judged per sitting; remediation names practice sets for the weak sections' skills. Complexity Caverns and Data Structure Forge exams (draft; the latter in the spec's 5/5/3/3/4 mix). Unseen-form rotation still to come |
 | 54 | Endgame mix | P3 | session policy | — | Not started |
 | 55 | Interview-ready criteria | P3 | readiness | Minimum-evidence rule | Not started |
 | 56 | Reflection card | P1 | `reflections` | Revisited as retrieval | **Done** — four versioned prompts after a passing submission, one per attempt (unique index); after 7 days the quest asks you to recall before revealing what you wrote (unit + integration + e2e) |

@@ -1,0 +1,38 @@
+{
+  "kind": "quest",
+  "id": "debug.leaderboard-mutation",
+  "version": 1,
+  "title": "The reshuffled leaderboard",
+  "summary": "Asking for the top three scores scrambles the leaderboard. Find the side effect.",
+  "campaign": {
+    "id": "problems.debug-dungeon",
+    "order": 3
+  },
+  "stage": "independent",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "debug.diagnosis",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "debug.diagnosis",
+      "dimension": "explanation"
+    },
+    {
+      "skill": "java.unit-testing",
+      "dimension": "testing"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

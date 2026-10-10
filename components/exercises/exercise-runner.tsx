@@ -7,6 +7,7 @@ import { apiCall, ClientApiError } from "@/lib/client/api";
 import { useActiveSeconds } from "@/lib/client/use-active-seconds";
 import type { CorrectAnswer, ExerciseOutcome } from "@/lib/exercises/grade";
 import type { PublicQuestion } from "@/lib/exercises/schema";
+import { BossResult } from "./boss-result";
 import { initialValue, isComplete, QuestionCode, QuestionInput, type ResponseValue } from "./question-input";
 
 interface AnswerResult {
@@ -54,6 +55,7 @@ export function ExerciseRunner({
   best = {},
   session,
   neutralNames = false,
+  boss,
 }: {
   items: readonly RunnerItem[];
   title: string;
@@ -62,6 +64,8 @@ export function ExerciseRunner({
   session?: { readonly id: string; readonly itemId: string };
   /** Mixed mode: "Challenge n" instead of "Question n", no hints about where a question came from. */
   neutralNames?: boolean;
+  /** A mastery exam: show the per-section result for this sitting at the end. */
+  boss?: { readonly contentVersionId: string; readonly sittingStartedAt: string };
 }) {
   const questions = items.map((item) => item.question);
   const [sessionDone, setSessionDone] = useState<"item" | "session" | undefined>();
@@ -125,6 +129,7 @@ export function ExerciseRunner({
         <h2 id="summary-title" className="text-lg font-semibold">
           Set complete: {passed} of {questions.length} correct
         </h2>
+        {boss && <BossResult contentVersionId={boss.contentVersionId} since={boss.sittingStartedAt} />}
         <p className="text-sm text-neutral-600 dark:text-neutral-400">Each answer counted as evidence for its skill. Questions you missed come back in later reviews.</p>
         {sessionDone === "session" && <p className="font-medium">🎉 Session complete.</p>}
         {sessionDone === "item" && <p className="font-medium">✓ Done in your session.</p>}

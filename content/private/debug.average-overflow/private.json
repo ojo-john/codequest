@@ -1,0 +1,169 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "small",
+        "steps": [
+          {
+            "call": "mean",
+            "static": "problems.Averages",
+            "args": [
+              [
+                2,
+                4
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": 3.0
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "two-maxima",
+        "steps": [
+          {
+            "call": "mean",
+            "static": "problems.Averages",
+            "args": [
+              [
+                2147483647,
+                2147483647
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": 2147483647.0
+            }
+          }
+        ]
+      },
+      {
+        "id": "mixed-signs",
+        "steps": [
+          {
+            "call": "mean",
+            "static": "problems.Averages",
+            "args": [
+              [
+                -2147483648,
+                -2147483648
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": -2147483648.0
+            }
+          }
+        ]
+      },
+      {
+        "id": "single",
+        "steps": [
+          {
+            "call": "mean",
+            "static": "problems.Averages",
+            "args": [
+              [
+                7
+              ]
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "value": 7.0
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty-rejected",
+        "steps": [
+          {
+            "call": "mean",
+            "static": "problems.Averages",
+            "args": [
+              []
+            ],
+            "paramTypes": [
+              "int[]"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "The answer is right for small numbers and wrong for huge ones. What has a size limit here?"
+    },
+    {
+      "tier": "pattern",
+      "text": "int arithmetic wraps around silently past Integer.MAX_VALUE; check the type that holds the running total."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "two-maxima",
+      "mixed-signs",
+      "empty-rejected"
+    ],
+    "followUps": [
+      {
+        "id": "diagnosis",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "What was the root cause?",
+        "options": [
+          "The running total was an int, which overflowed and wrapped around to a negative number",
+          "Dividing by values.length lost precision",
+          "The cast to double happened too late to matter",
+          "Doubles can't hold large numbers"
+        ],
+        "answer": 0,
+        "why": "Two maximum ints sum to more than an int can hold, so the total wrapped to -2. A long total has room for any sum of up to billions of ints."
+      },
+      {
+        "id": "prevention",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "Besides a long total, what else would have surfaced this immediately?",
+        "options": [
+          "Math.addExact, which throws on overflow instead of wrapping",
+          "Using float instead of double",
+          "Sorting the values first",
+          "Catching every exception"
+        ],
+        "answer": 0,
+        "why": "Exact arithmetic turns silent wrong answers into loud failures. A test at Integer.MAX_VALUE does the same at test time."
+      }
+    ]
+  },
+  "testQuality": {
+    "target": "src/main/java/problems/Averages.java",
+    "passRatio": 1,
+    "referenceTestsDir": "reference-tests",
+    "mutants": [
+      {
+        "id": "original-bug",
+        "description": "the original bug from the report",
+        "file": "mutants/original-bug.java"
+      }
+    ]
+  }
+}

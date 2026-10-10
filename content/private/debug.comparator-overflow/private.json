@@ -1,0 +1,211 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "everyday",
+        "steps": [
+          {
+            "call": "byScore",
+            "static": "problems.Ranking",
+            "args": [
+              [
+                "ana",
+                "bo",
+                "cy"
+              ],
+              [
+                10,
+                30,
+                20
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": [
+                "bo",
+                "cy",
+                "ana"
+              ]
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "extremes",
+        "steps": [
+          {
+            "call": "byScore",
+            "static": "problems.Ranking",
+            "args": [
+              [
+                "low",
+                "high"
+              ],
+              [
+                -2147483648,
+                2147483647
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": [
+                "high",
+                "low"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "extreme-and-zero",
+        "steps": [
+          {
+            "call": "byScore",
+            "static": "problems.Ranking",
+            "args": [
+              [
+                "zero",
+                "min"
+              ],
+              [
+                0,
+                -2147483648
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": [
+                "zero",
+                "min"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "ties-keep-order",
+        "steps": [
+          {
+            "call": "byScore",
+            "static": "problems.Ranking",
+            "args": [
+              [
+                "a",
+                "b",
+                "c"
+              ],
+              [
+                5,
+                5,
+                9
+              ]
+            ],
+            "paramTypes": [
+              "java.lang.String[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": [
+                "c",
+                "a",
+                "b"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "call": "byScore",
+            "static": "problems.Ranking",
+            "args": [
+              [],
+              []
+            ],
+            "paramTypes": [
+              "java.lang.String[]",
+              "int[]"
+            ],
+            "expect": {
+              "value": []
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "It only goes wrong for scores near the int limits. What does the comparator compute with them?"
+    },
+    {
+      "tier": "pattern",
+      "text": "A comparator that subtracts can overflow: MAX − MIN doesn't fit in an int and wraps to a negative number."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "extremes",
+      "extreme-and-zero",
+      "ties-keep-order",
+      "empty"
+    ],
+    "followUps": [
+      {
+        "id": "diagnosis",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "What was the root cause?",
+        "options": [
+          "The comparator subtracted scores, and the subtraction overflowed for extreme values, flipping the sign of the comparison",
+          "List.sort is unstable",
+          "The stream reversed the order",
+          "Records can't be compared"
+        ],
+        "answer": 0,
+        "why": "b − a overflows when the scores are far apart, so a 'greater' comparison reads as 'less'. Integer.compare never overflows."
+      },
+      {
+        "id": "prevention",
+        "criterion": "explanation",
+        "skill": "debug.diagnosis",
+        "prompt": "What's the safe way to write a comparator on int fields?",
+        "options": [
+          "Integer.compare or Comparator.comparingInt (reversed for descending)",
+          "Subtract the fields, but in long",
+          "Subtract and hope the values stay small",
+          "Convert to strings and compare those"
+        ],
+        "answer": 0,
+        "why": "The library comparators handle every int correctly and read clearly. (Comparing as strings would put 10 before 9.)"
+      }
+    ]
+  },
+  "testQuality": {
+    "target": "src/main/java/problems/Ranking.java",
+    "passRatio": 1,
+    "referenceTestsDir": "reference-tests",
+    "mutants": [
+      {
+        "id": "original-bug",
+        "description": "the original bug from the report",
+        "file": "mutants/original-bug.java"
+      }
+    ]
+  }
+}
