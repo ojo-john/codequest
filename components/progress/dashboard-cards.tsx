@@ -59,6 +59,7 @@ export function ReadinessCard({ view }: { view: DashboardView }) {
 export function StatsCard({ view }: { view: DashboardView }) {
   const rows: Array<[string, string]> = [
     ["Coding problems solved", `${view.problems.solved} of ${view.problems.attempted} attempted`],
+    ["Distinct problems solved", `${view.problems.families} (variants of one problem count once)`],
     ["Solved without hints", String(view.problems.independent)],
     ["Passed on the first submission", ratio(view.problems.firstAttempt)],
     ["Typical solve time", view.medianSolveSeconds.value === null ? "no solves yet" : `${minutes(view.medianSolveSeconds.value)} (median of ${view.medianSolveSeconds.sample})`],

@@ -51,7 +51,7 @@ describe("learning_dashboard", () => {
       solve_time_sample: 2,
       evidence_by_dimension: { implementation: { total: 3, passed: 2 } },
     });
-    expect(stats.recent_evidence).toHaveLength(3);
+    expect([stats.recent_evidence.length, stats.solved_content_ids]).toEqual([3, ["cart.q1-checkout-totals"]]);
   });
 
   it("stats_asSignedInLearner_isDenied", async () => {

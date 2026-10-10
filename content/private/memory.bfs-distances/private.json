@@ -1,0 +1,290 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "line",
+        "steps": [
+          {
+            "call": "distances",
+            "static": "problems.GraphBfs",
+            "args": [
+              4,
+              [
+                [
+                  0,
+                  1
+                ],
+                [
+                  1,
+                  2
+                ],
+                [
+                  2,
+                  3
+                ]
+              ],
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int[][]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                1,
+                2,
+                3
+              ]
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "disconnected",
+        "steps": [
+          {
+            "call": "distances",
+            "static": "problems.GraphBfs",
+            "args": [
+              4,
+              [
+                [
+                  0,
+                  1
+                ]
+              ],
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int[][]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                1,
+                -1,
+                -1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "cycle",
+        "steps": [
+          {
+            "call": "distances",
+            "static": "problems.GraphBfs",
+            "args": [
+              4,
+              [
+                [
+                  0,
+                  1
+                ],
+                [
+                  1,
+                  2
+                ],
+                [
+                  2,
+                  3
+                ],
+                [
+                  3,
+                  0
+                ]
+              ],
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int[][]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                1,
+                2,
+                1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "single",
+        "steps": [
+          {
+            "call": "distances",
+            "static": "problems.GraphBfs",
+            "args": [
+              1,
+              [],
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int[][]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "start-in-middle",
+        "steps": [
+          {
+            "call": "distances",
+            "static": "problems.GraphBfs",
+            "args": [
+              5,
+              [
+                [
+                  0,
+                  1
+                ],
+                [
+                  1,
+                  2
+                ],
+                [
+                  2,
+                  3
+                ],
+                [
+                  3,
+                  4
+                ]
+              ],
+              2
+            ],
+            "paramTypes": [
+              "int",
+              "int[][]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                2,
+                1,
+                0,
+                1,
+                2
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "shortcut",
+        "steps": [
+          {
+            "call": "distances",
+            "static": "problems.GraphBfs",
+            "args": [
+              4,
+              [
+                [
+                  0,
+                  1
+                ],
+                [
+                  1,
+                  2
+                ],
+                [
+                  2,
+                  3
+                ],
+                [
+                  0,
+                  3
+                ]
+              ],
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int[][]",
+              "int"
+            ],
+            "expect": {
+              "value": [
+                0,
+                1,
+                2,
+                1
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "bad-start",
+        "steps": [
+          {
+            "call": "distances",
+            "static": "problems.GraphBfs",
+            "args": [
+              3,
+              [],
+              3
+            ],
+            "paramTypes": [
+              "int",
+              "int[][]",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Say the invariant out loud before you write the loop: what is true at every step, and what makes you stop?"
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "disconnected",
+      "single",
+      "bad-start",
+      "cycle"
+    ],
+    "followUps": [
+      {
+        "id": "bfs-queue",
+        "criterion": "explanation",
+        "skill": "patterns.graph-search",
+        "prompt": "Why does BFS give the fewest edges to every vertex?",
+        "options": [
+          "The queue processes vertices in order of distance, so a vertex is first reached along a shortest path",
+          "Because it visits vertices in numeric order",
+          "Because it uses recursion",
+          "It doesn't; DFS does"
+        ],
+        "answer": 0,
+        "why": "All distance-k vertices leave the queue before any distance-(k+1) one, so the first discovery of a vertex is along a shortest path."
+      }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "quest",
+  "id": "memory.bfs-distances",
+  "version": 1,
+  "title": "From memory: BFS",
+  "summary": "Write breadth-first search from a blank editor: the number of edges from a start vertex to every other vertex.",
+  "campaign": {
+    "id": "problems.from-memory",
+    "order": 2
+  },
+  "stage": "delayed_transfer",
+  "family": "bfs-distances",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "patterns.graph-search",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

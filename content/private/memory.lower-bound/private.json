@@ -1,0 +1,301 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "found",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                1,
+                3,
+                5,
+                7
+              ],
+              5
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 2
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "between",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                1,
+                3,
+                5,
+                7
+              ],
+              4
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 2
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "past-the-end",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                1,
+                3,
+                5,
+                7
+              ],
+              8
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 4
+            }
+          }
+        ]
+      },
+      {
+        "id": "before-start",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                1,
+                3,
+                5,
+                7
+              ],
+              0
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "first-duplicate",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                2,
+                2,
+                2,
+                3
+              ],
+              2
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "duplicates-later",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                1,
+                2,
+                2,
+                2,
+                5
+              ],
+              2
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [],
+              3
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "single-match",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                4
+              ],
+              4
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "single-smaller",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                4
+              ],
+              9
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "negatives",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              [
+                -9,
+                -4,
+                0,
+                6
+              ],
+              -5
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "null-rejected",
+        "steps": [
+          {
+            "call": "firstAtLeast",
+            "static": "problems.LowerBound",
+            "args": [
+              null,
+              1
+            ],
+            "paramTypes": [
+              "int[]",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Say the invariant out loud before you write the loop: what is true at every step, and what makes you stop?"
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "past-the-end",
+      "before-start",
+      "first-duplicate",
+      "empty",
+      "null-rejected"
+    ],
+    "followUps": [
+      {
+        "id": "bounds",
+        "criterion": "explanation",
+        "skill": "patterns.binary-search",
+        "prompt": "Which loop invariant makes a half-open binary search [lo, hi) correct?",
+        "options": [
+          "The answer always lies in [lo, hi]: everything before lo is too small and everything from hi on is large enough",
+          "lo and hi always differ by a power of two",
+          "mid is always the answer",
+          "The array is re-sorted on each step"
+        ],
+        "answer": 0,
+        "why": "Each step keeps the answer inside the range while shrinking it, so when lo == hi the answer is lo."
+      }
+    ]
+  }
+}
