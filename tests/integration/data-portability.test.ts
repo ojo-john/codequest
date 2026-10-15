@@ -156,6 +156,15 @@ describe("export and import", () => {
     expect([result.signature, (await counts(alice)).attempts, (await counts(alice)).mocks]).toEqual(["valid", 1, 0]);
   });
 
+  it("export_learnerWithoutMocks_omitsTheMockKeySoOlderReadersStillParseIt", async () => {
+    await seedLearner(alice);
+    await sql()`delete from public.mock_interviews where user_id = ${alice.id}`;
+
+    const archive = await archives.exportArchive(alice.id);
+
+    expect("mock_interviews" in archive.data).toBe(false);
+  });
+
   it("import_sameArchiveTwice_changesNothingTheSecondTime", async () => {
     await seedLearner(alice);
     const archive = roundTrip(await archives.exportArchive(alice.id));
