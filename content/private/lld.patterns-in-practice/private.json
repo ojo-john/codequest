@@ -1,0 +1,80 @@
+{
+  "answers": {
+    "pricing-rules": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Strategy keeps each rule separate and lets new rules arrive without editing checkout. A switch works for two cases but grows into a change magnet; subclassing multiplies classes per combination.",
+      "skill": "lld.patterns",
+      "dimension": "recognition"
+    },
+    "order-events": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "valid",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "Observer decouples the publisher from a growing list of subscribers. Direct calls work for one or two but couple Order to every team.",
+      "skill": "lld.patterns",
+      "dimension": "recognition"
+    },
+    "legacy-api": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "incorrect",
+        "incorrect"
+      ],
+      "why": "An adapter confines the translation to one place, so the rest of the code keeps its own interface.",
+      "skill": "lld.patterns",
+      "dimension": "recognition"
+    },
+    "add-behaviour": {
+      "type": "pattern",
+      "grades": [
+        "optimal",
+        "incorrect",
+        "valid",
+        "incorrect"
+      ],
+      "why": "Decorators compose at runtime without a class per combination. Flags work for two options but tangle the class as options grow.",
+      "skill": "lld.patterns",
+      "dimension": "recognition"
+    },
+    "singleton-drawback": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Passing the dependency in (injection) keeps the single instance without hiding it. Tests can then supply a fake.",
+      "skill": "lld.patterns",
+      "dimension": "concept"
+    },
+    "state-pattern": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "For a few states, clear conditionals are fine. As states multiply, State objects keep each state's rules together. Judge by the problem's size, not the pattern's name.",
+      "skill": "lld.patterns",
+      "dimension": "concept"
+    },
+    "open-closed": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Extension points let new behaviour arrive as new code instead of edits to tested code.",
+      "skill": "lld.patterns",
+      "dimension": "concept"
+    },
+    "composition": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Inheritance couples a subclass to its parent's internals; composing small objects keeps parts replaceable.",
+      "skill": "lld.patterns",
+      "dimension": "concept"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "lld.parking-lot",
+  "version": 1,
+  "title": "Parking lot",
+  "summary": "Model spots and vehicles so each vehicle takes the smallest free spot it fits, and leaving frees exactly that spot.",
+  "campaign": {
+    "id": "lld.workshop",
+    "order": 3
+  },
+  "stage": "independent",
+  "estimatedMinutes": 30,
+  "skills": [
+    {
+      "skill": "lld.object-modeling",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.classes",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

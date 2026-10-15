@@ -1,0 +1,110 @@
+{
+  "kind": "exercise-set",
+  "id": "lld.patterns-in-practice",
+  "version": 1,
+  "title": "Design patterns in practice",
+  "summary": "Pick the structure a requirement calls for, and know when a pattern is overkill. Judged on fit, not on naming patterns.",
+  "world": {
+    "id": "world.backend-workshop",
+    "order": 1
+  },
+  "estimatedMinutes": 10,
+  "questions": [
+    {
+      "id": "pricing-rules",
+      "type": "pattern",
+      "prompt": "Checkout must support several discount rules (percentage off, buy-one-get-one, none) chosen per customer, with more coming.",
+      "options": [
+        "Strategy: a PricingRule interface with one implementation per rule, passed into checkout",
+        "A switch on a discount-type string inside checkout",
+        "Subclass Checkout once per discount",
+        "A Singleton holding the current discount"
+      ]
+    },
+    {
+      "id": "order-events",
+      "type": "pattern",
+      "prompt": "When an order ships, email, analytics and loyalty points must all react, and teams keep adding reactions.",
+      "options": [
+        "Observer: the order publishes a Shipped event; listeners subscribe",
+        "Call each service directly from ship()",
+        "A Decorator around Order",
+        "Make every service extend Order"
+      ]
+    },
+    {
+      "id": "legacy-api",
+      "type": "pattern",
+      "prompt": "Your code expects a PaymentGateway interface, but the vendor SDK has different method names and types.",
+      "options": [
+        "Adapter: a class implementing PaymentGateway that translates calls to the SDK",
+        "Rewrite the vendor SDK",
+        "Copy SDK calls throughout the codebase",
+        "Observer"
+      ]
+    },
+    {
+      "id": "add-behaviour",
+      "type": "pattern",
+      "prompt": "A data stream sometimes needs compression, sometimes encryption, sometimes both, in either order.",
+      "options": [
+        "Decorator: wrappers that each add one behaviour and can be stacked",
+        "One subclass per combination",
+        "Boolean flags inside the stream class",
+        "Singleton"
+      ]
+    },
+    {
+      "id": "singleton-drawback",
+      "type": "single_choice",
+      "prompt": "What is the main drawback of a Singleton for something like a database connection pool?",
+      "options": [
+        "It's hidden global state: hard to replace in tests and couples every caller to one instance",
+        "It uses too much memory",
+        "It can't have methods",
+        "Java doesn't support it"
+      ]
+    },
+    {
+      "id": "state-pattern",
+      "type": "single_choice",
+      "prompt": "A vending machine behaves differently when idle, holding money or sold out. When does the State pattern beat if/else checks?",
+      "options": [
+        "When states and transitions grow, so each state's behaviour lives in its own object",
+        "Always, even for two states",
+        "Never; if/else is always clearer",
+        "Only when using threads"
+      ]
+    },
+    {
+      "id": "open-closed",
+      "type": "single_choice",
+      "prompt": "Which change best follows 'open for extension, closed for modification'?",
+      "options": [
+        "Adding a new PricingRule class without editing Checkout",
+        "Adding another case to a switch in Checkout",
+        "Copying Checkout into Checkout2",
+        "Making Checkout's fields public"
+      ]
+    },
+    {
+      "id": "composition",
+      "type": "single_choice",
+      "prompt": "Why prefer composition over inheritance for sharing behaviour?",
+      "options": [
+        "Behaviour can be combined and swapped at runtime, and classes aren't locked into one rigid hierarchy",
+        "Inheritance is slower",
+        "Composition uses fewer classes",
+        "Java forbids inheritance"
+      ]
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

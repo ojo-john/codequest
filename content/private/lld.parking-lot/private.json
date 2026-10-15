@@ -1,0 +1,755 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "M-1",
+              "MOTORCYCLE"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "SMALL"
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-1",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "MEDIUM"
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-2",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "LARGE"
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-3",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "LARGE"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "spotOf",
+            "target": "x",
+            "args": [
+              "C-2"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "LARGE"
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "smallest-fit",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              2,
+              2,
+              2
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "M-1",
+              "MOTORCYCLE"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "SMALL"
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-1",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "MEDIUM"
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "B-1",
+              "BUS"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "LARGE"
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "SMALL"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "MEDIUM"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "LARGE"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "bus-needs-large",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              5,
+              5,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "B-1",
+              "BUS"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "SMALL"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 5
+            }
+          },
+          {
+            "call": "spotOf",
+            "target": "x",
+            "args": [
+              "B-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          }
+        ]
+      },
+      {
+        "id": "motorcycle-moves-up",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              0,
+              0,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "M-1",
+              "MOTORCYCLE"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "LARGE"
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "M-2",
+              "MOTORCYCLE"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": null
+            }
+          }
+        ]
+      },
+      {
+        "id": "leave-frees",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              0,
+              1,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-1",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "MEDIUM"
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-2",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "leave",
+            "target": "x",
+            "args": [
+              "C-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-2",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "MEDIUM"
+            }
+          },
+          {
+            "call": "spotOf",
+            "target": "x",
+            "args": [
+              "C-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "spotOf",
+            "target": "x",
+            "args": [
+              "C-2"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "MEDIUM"
+            }
+          }
+        ]
+      },
+      {
+        "id": "leave-unknown",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "leave",
+            "target": "x",
+            "args": [
+              "nobody"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "SMALL"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "leave-twice",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              1,
+              0,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "M-1",
+              "MOTORCYCLE"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "SMALL"
+            }
+          },
+          {
+            "call": "leave",
+            "target": "x",
+            "args": [
+              "M-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": true
+            }
+          },
+          {
+            "call": "leave",
+            "target": "x",
+            "args": [
+              "M-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": false
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "SMALL"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "duplicate-plate",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              2,
+              2,
+              2
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-1",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": "MEDIUM"
+            }
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-1",
+              "BUS"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "LARGE"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "blank-plate",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              1,
+              1,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              " ",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "free",
+            "target": "x",
+            "args": [
+              "MEDIUM"
+            ],
+            "paramTypes": [
+              "lld.ParkingLot$SpotSize"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "empty-lot",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              0,
+              0,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "park",
+            "target": "x",
+            "args": [
+              "C-1",
+              "CAR"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "lld.ParkingLot$Vehicle"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "spotOf",
+            "target": "x",
+            "args": [
+              "C-1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          }
+        ]
+      },
+      {
+        "id": "negative-size",
+        "steps": [
+          {
+            "new": "lld.ParkingLot",
+            "args": [
+              1,
+              -1,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "List the nouns and the rules first. Decide which object owns each rule, then check every refusal leaves the state unchanged."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "bus-needs-large",
+      "leave-unknown",
+      "leave-twice",
+      "duplicate-plate",
+      "negative-size"
+    ],
+    "followUps": [
+      {
+        "id": "where-the-rule-lives",
+        "criterion": "explanation",
+        "skill": "lld.extensibility",
+        "prompt": "Where should 'a car needs at least a medium spot' live so adding a truck is a small change?",
+        "options": [
+          "On the vehicle type itself (e.g. an enum field), so the parking logic just compares sizes",
+          "In a switch inside park(), with one case per vehicle",
+          "In the caller, which picks the spot",
+          "In a comment"
+        ],
+        "answer": 0,
+        "why": "Data-driven rules keep the algorithm generic: a new vehicle is one enum constant, not edits to every method."
+      }
+    ]
+  }
+}
