@@ -33,11 +33,11 @@ export default async function MockInterviewPage({ params }: PageProps<"/mock/[id
           <h1 className="text-2xl font-semibold tracking-tight">Mock interview result</h1>
           <MockResultView result={mock.result} problemTitle={mock.problem.title} />
           <p className="text-sm">
-            <Link href={`/quests/${mock.problem.contentVersionId}`} className="text-indigo-700 hover:underline dark:text-indigo-300">
+            <Link href={`/quests/${mock.problem.contentVersionId}`} className="text-indigo-700 underline dark:text-indigo-300">
               Open the problem with hints and follow-ups
             </Link>{" "}
             ·{" "}
-            <Link href="/mock" className="text-indigo-700 hover:underline dark:text-indigo-300">
+            <Link href="/mock" className="text-indigo-700 underline dark:text-indigo-300">
               All mocks
             </Link>
           </p>
