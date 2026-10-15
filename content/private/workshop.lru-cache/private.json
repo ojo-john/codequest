@@ -1,0 +1,1113 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "new": "workshop.LruCache",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "b",
+              "2"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "1"
+            }
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "c",
+              "3"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "b"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "1"
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "c"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "3"
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 2
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "miss",
+        "steps": [
+          {
+            "new": "workshop.LruCache",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "nope"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "update-refreshes",
+        "steps": [
+          {
+            "new": "workshop.LruCache",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "b",
+              "2"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "9"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "c",
+              "3"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "9"
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "b"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 2
+            }
+          }
+        ]
+      },
+      {
+        "id": "get-refreshes",
+        "steps": [
+          {
+            "new": "workshop.LruCache",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "b",
+              "2"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "1"
+            }
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "c",
+              "3"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "b"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "1"
+            }
+          }
+        ]
+      },
+      {
+        "id": "capacity-one",
+        "steps": [
+          {
+            "new": "workshop.LruCache",
+            "args": [
+              1
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "b",
+              "2"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "b"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "2"
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "miss-does-not-refresh",
+        "steps": [
+          {
+            "new": "workshop.LruCache",
+            "args": [
+              2
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "a",
+              "1"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "b",
+              "2"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "zzz"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "c",
+              "3"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "a"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "b"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "many",
+        "steps": [
+          {
+            "new": "workshop.LruCache",
+            "args": [
+              3
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "as": "x"
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "0",
+              "0"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "1",
+              "1"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "2",
+              "4"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "3",
+              "9"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "4",
+              "16"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "5",
+              "25"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "6",
+              "36"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "7",
+              "49"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "8",
+              "64"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "9",
+              "81"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "10",
+              "100"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "11",
+              "121"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "12",
+              "144"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "13",
+              "169"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "14",
+              "196"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "15",
+              "225"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "16",
+              "256"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "17",
+              "289"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "18",
+              "324"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "19",
+              "361"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "20",
+              "400"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "21",
+              "441"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "22",
+              "484"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "23",
+              "529"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "24",
+              "576"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "25",
+              "625"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "26",
+              "676"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "27",
+              "729"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "28",
+              "784"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "29",
+              "841"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "30",
+              "900"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "31",
+              "961"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "32",
+              "1024"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "33",
+              "1089"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "34",
+              "1156"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "35",
+              "1225"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "36",
+              "1296"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "37",
+              "1369"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "38",
+              "1444"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "put",
+            "target": "x",
+            "args": [
+              "39",
+              "1521"
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "java.lang.String"
+            ]
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "36"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": null
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "37"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "1369"
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "38"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "1444"
+            }
+          },
+          {
+            "call": "get",
+            "target": "x",
+            "args": [
+              "39"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": "1521"
+            }
+          },
+          {
+            "call": "size",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "zero-capacity",
+        "steps": [
+          {
+            "new": "workshop.LruCache",
+            "args": [
+              0
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "Write the contract's edge cases as examples first (empty, boundary, invalid input), then pick the structure that makes each operation's cost match the requirement."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "capacity-one",
+      "update-refreshes",
+      "miss-does-not-refresh",
+      "zero-capacity"
+    ],
+    "followUps": [
+      {
+        "id": "why-linked-list",
+        "criterion": "explanation",
+        "skill": "practical.caching",
+        "prompt": "Why does an O(1) LRU cache pair a hash map with a doubly linked list?",
+        "options": [
+          "The map finds a node in O(1); the list moves it to the front or drops the oldest in O(1)",
+          "The list keeps keys sorted alphabetically",
+          "The map alone is O(1) for everything, the list is just for printing",
+          "A singly linked list would be just as fast for removing an arbitrary node"
+        ],
+        "answer": 0,
+        "why": "Removing an arbitrary node in O(1) needs its previous pointer, so the list is doubly linked; the map gives O(1) access to that node."
+      }
+    ]
+  }
+}

@@ -8,7 +8,7 @@
     { "id": "world.algorithm-arena", "number": 5, "name": "Algorithm Arena", "summary": "Mixed problems without topic labels.", "available": false },
     { "id": "world.debug-dungeon", "number": 6, "name": "Debug Dungeon", "summary": "Broken-code challenges: diagnose, fix minimally, prove it with a test.", "available": true },
     { "id": "world.system-design-city", "number": 7, "name": "System Design City", "summary": "Architecture and trade-offs.", "available": true },
-    { "id": "world.backend-workshop", "number": 8, "name": "Backend Workshop", "summary": "Practical Java and low-level design.", "available": false },
+    { "id": "world.backend-workshop", "number": 8, "name": "Backend Workshop", "summary": "Practical Java and low-level design.", "available": true },
     { "id": "world.interview-arena", "number": 9, "name": "Interview Arena", "summary": "Realistic interviews.", "available": false },
     { "id": "world.mastery-league", "number": 10, "name": "Mastery League", "summary": "Targeted interview preparation.", "available": false }
   ],
@@ -325,6 +325,31 @@
       "definition": "Turn requirements into a design and defend it under follow-up: growth, read and write paths, fan-out, failure, duplicates and cost, with explicit trade-offs.",
       "difficulty": 4,
       "prerequisites": [{ "skill": "sd.recognition", "kind": "recommended" }, { "skill": "sd.capacity", "kind": "recommended" }]
+    },
+    {
+      "id": "practical.caching",
+      "category": "practical",
+      "name": "Building caches",
+      "world": "world.backend-workshop",
+      "definition": "Implement bounded and expiring caches with explicit eviction rules, O(1) operations and testable time.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "ds.hash-tables", "kind": "recommended" }]    },
+    {
+      "id": "practical.rate-limiting",
+      "category": "practical",
+      "name": "Rate limiting",
+      "world": "world.backend-workshop",
+      "definition": "Implement token-bucket and window limiters with integer time arithmetic and clear refill rules.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.integer-arithmetic", "kind": "recommended" }]    },
+    {
+      "id": "practical.scheduling",
+      "category": "practical",
+      "name": "Job scheduling",
+      "world": "world.backend-workshop",
+      "definition": "Order and dispatch work fairly: priorities, stable tie-breaking and bounded queues.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "ds.heaps", "kind": "recommended" }]
     }
   ]
 }
