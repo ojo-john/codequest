@@ -135,7 +135,7 @@ export function DesignWorkspace({
                     <label htmlFor={`design-${section.id}`} className="font-medium">
                       {section.title}
                     </label>
-                    <span className="text-xs text-neutral-500 dark:text-neutral-400" aria-live="polite">
+                    <span id={`design-${section.id}-status`} className="text-xs text-neutral-500 dark:text-neutral-400" aria-live="polite">
                       {file ? STATUS[file.status] : ""}
                     </span>
                   </div>
