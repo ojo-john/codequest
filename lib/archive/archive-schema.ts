@@ -32,6 +32,7 @@ export const ARCHIVE_ROW_LIMITS = {
   reflections: 20_000,
   recommendationFeedback: 20_000,
   followUpAnswers: 100_000,
+  mockInterviews: 5_000,
 } as const;
 
 const uuid = z.uuid();
@@ -167,6 +168,19 @@ const followUpAnswerSchema = z.object({
   created_at: timestamp,
 }).strict();
 
+const mockInterviewSchema = z.object({
+  id: uuid,
+  kind: z.literal("coding"),
+  duration_minutes: z.union([z.literal(45), z.literal(60)]),
+  ...contentRef,
+  request_key: z.string().min(8).max(80),
+  plan: jsonObject,
+  started_at: timestamp,
+  ends_at: timestamp,
+  finished_at: timestamp.nullable(),
+  result: jsonObject.nullable(),
+}).strict();
+
 const L = ARCHIVE_ROW_LIMITS;
 
 export const archiveDataSchema = z.object({
@@ -193,6 +207,8 @@ export const archiveDataSchema = z.object({
   // Added with rubric-v1. Optional with no default: filling it in would change the canonical
   // JSON of older archives and invalidate their signatures.
   followup_answers: z.array(followUpAnswerSchema).max(L.followUpAnswers).optional(),
+  // Added with mock interviews; optional for the same reason.
+  mock_interviews: z.array(mockInterviewSchema).max(L.mockInterviews).optional(),
 }).strict();
 
 export type ArchiveData = z.infer<typeof archiveDataSchema>;
