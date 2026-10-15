@@ -3,7 +3,7 @@
   "id": "cart.q5-cheapest-price",
   "version": 1,
   "title": "Cheapest price",
-  "summary": "Polymorphism: compare any number of pricing strategies through one interface \u2014 without knowing which classes they are.",
+  "summary": "Polymorphism: compare any number of pricing strategies through one interface — without knowing which classes they are.",
   "campaign": {
     "id": "campaign.shopping-cart",
     "order": 5
@@ -28,7 +28,9 @@
   "starterDir": "starter",
   "starterCompiles": true,
   "review": {
-    "status": "draft"
+    "status": "deprecated",
+    "reviewer": "Owner request (2026-10-15): Shopping cart campaign removed from the app",
+    "reviewedAt": "2026-10-15"
   },
   "provenance": {
     "author": "Claude (AI-drafted for CodeQuest)",

@@ -60,7 +60,7 @@ test("mixed practice hides where each question comes from", async ({ page }) => 
   await signInAsNewLearner(page, "mixed");
   await page.getByLabel(/Show unreviewed drafts/).check();
   // The opt-in saves asynchronously; wait until drafts show before navigating away.
-  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("link", { name: "Build a stack" })).toBeVisible(FIRST_LOAD);
   await page.goto("/practice");
   await page.getByRole("link", { name: "Start mixed practice" }).click(FIRST_LOAD);
 
@@ -71,7 +71,7 @@ test("mixed practice hides where each question comes from", async ({ page }) => 
 test("capacity estimates accept typed numbers in the question's unit, within a stated tolerance", async ({ page }) => {
   await signInAsNewLearner(page, "estimate");
   await page.getByLabel(/Show unreviewed drafts/).check();
-  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("link", { name: "Build a stack" })).toBeVisible(FIRST_LOAD);
   await page.goto("/practice");
   await page.getByRole("link", { name: "Capacity estimation" }).click(FIRST_LOAD);
 

@@ -6,13 +6,13 @@ import { setEditorContent, signInAsNewLearner } from "./support/session";
 // First visits compile pages on demand in `next dev` (the quest page bundles Monaco): allow for it.
 test.setTimeout(180_000);
 const FIRST_LOAD = { timeout: 60_000 };
-const EDITED = "package shop;\n\n// edited before export\npublic class Checkout {\n}\n";
+const EDITED = "package problems;\n\n// edited before export\npublic final class IntStack {\n}\n";
 
 async function openFirstQuest(page: Page): Promise<void> {
   await page.goto("/");
   await page.getByLabel(/Show unreviewed drafts/).check();
-  await page.getByRole("link", { name: "Checkout totals" }).click(FIRST_LOAD);
-  await expect(page.getByRole("tab", { name: "Checkout.java" })).toBeVisible(FIRST_LOAD);
+  await page.getByRole("link", { name: "Build a stack" }).click(FIRST_LOAD);
+  await expect(page.getByRole("tab", { name: "IntStack.java" })).toBeVisible(FIRST_LOAD);
 }
 
 async function editorValue(page: Page, fileName: string): Promise<string | undefined> {
@@ -26,8 +26,8 @@ async function editorValue(page: Page, fileName: string): Promise<string | undef
 test("a learner downloads an archive and a project ZIP, erases everything, and restores their code", async ({ page }) => {
   await signInAsNewLearner(page, "data");
   await openFirstQuest(page);
-  await setEditorContent(page, "Checkout.java", EDITED);
-  await expect(page.getByText("Checkout.java: Saved")).toBeVisible({ timeout: 15_000 });
+  await setEditorContent(page, "IntStack.java", EDITED);
+  await expect(page.getByText("IntStack.java: Saved")).toBeVisible({ timeout: 15_000 });
 
   // Download both: the archive (signed JSON) and the project as a ZIP.
   await page.goto("/data");
@@ -43,7 +43,7 @@ test("a learner downloads an archive and a project ZIP, erases everything, and r
 
   const [zipDownload] = await Promise.all([page.waitForEvent("download"), page.getByRole("link", { name: "Download ZIP" }).click()]);
   const zip = unzipSync(readFileSync(await zipDownload.path()));
-  expect(new TextDecoder().decode(zip["shopping-cart/src/main/java/shop/Checkout.java"])).toBe(EDITED);
+  expect(new TextDecoder().decode(zip["build-a-stack/src/main/java/problems/IntStack.java"])).toBe(EDITED);
 
   // Erasing needs the typed phrase; the button stays disabled until it matches.
   const erase = page.getByRole("button", { name: "Erase everything" });
@@ -64,5 +64,5 @@ test("a learner downloads an archive and a project ZIP, erases everything, and r
   // The editor shows the restored code (local drafts were cleared by the erase, so this came
   // from the server).
   await openFirstQuest(page);
-  expect(await editorValue(page, "Checkout.java")).toBe(EDITED);
+  expect(await editorValue(page, "IntStack.java")).toBe(EDITED);
 });
