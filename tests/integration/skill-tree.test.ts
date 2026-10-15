@@ -85,6 +85,7 @@ describe("skill tree", () => {
       ["problems.from-memory", "problems", 4],
       ["problems.patterns", "problems", 4],
       ["problems.debug-dungeon", "problems", 6],
+      ["lld.workshop", "problems", 8],
       ["practical.workshop", "problems", 8],
     ]);
   });

@@ -41,6 +41,13 @@
       "summary": "Practical Java: the small components real services are built from, with explicit contracts and testable time.",
       "world": "world.backend-workshop",
       "kind": "problems"
+    },
+    {
+      "id": "lld.workshop",
+      "title": "Low-level design",
+      "summary": "Object-oriented design graded on behaviour: model the rules, then absorb a change request without breaking them.",
+      "world": "world.backend-workshop",
+      "kind": "problems"
     }
   ]
 }

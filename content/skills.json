@@ -350,6 +350,31 @@
       "definition": "Order and dispatch work fairly: priorities, stable tie-breaking and bounded queues.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "ds.heaps", "kind": "recommended" }]
+    },
+    {
+      "id": "lld.object-modeling",
+      "category": "lld",
+      "name": "Object modeling",
+      "world": "world.backend-workshop",
+      "definition": "Turn requirements into classes with clear ownership of state and rules, validating before changing state.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.classes", "kind": "recommended" }, { "skill": "java.encapsulation", "kind": "recommended" }]    },
+    {
+      "id": "lld.extensibility",
+      "category": "lld",
+      "name": "Designing for change",
+      "world": "world.backend-workshop",
+      "definition": "Absorb a new requirement with a small, local change: data-driven rules, extension points and preserved behaviour.",
+      "difficulty": 4,
+      "prerequisites": [{ "skill": "lld.object-modeling", "kind": "recommended" }]    },
+    {
+      "id": "lld.patterns",
+      "category": "lld",
+      "name": "Design patterns in practice",
+      "world": "world.backend-workshop",
+      "definition": "Choose Strategy, Observer, Adapter, Decorator, State and others when a requirement calls for them, and know their costs.",
+      "difficulty": 3,
+      "prerequisites": [{ "skill": "java.interfaces", "kind": "recommended" }, { "skill": "java.polymorphism", "kind": "recommended" }]
     }
   ]
 }

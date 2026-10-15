@@ -12,6 +12,7 @@ test("problem tracks appear per campaign, and a problem opens in its own project
   await expect(page.getByRole("heading", { name: "Pattern problems" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "From memory" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Backend Workshop" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Low-level design" })).toBeVisible();
 
   await page.getByRole("link", { name: "Pair sum" }).click();
   await expect(page.getByRole("tab", { name: "PairSum.java" })).toBeVisible(FIRST_LOAD);
