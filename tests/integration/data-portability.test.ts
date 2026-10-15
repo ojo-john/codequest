@@ -63,6 +63,9 @@ async function seedLearner(user: TestUser): Promise<{ projectId: string }> {
   });
   if (saved.error) throw saved.error;
   await sql()`insert into public.notes (user_id, content_id, body) values (${user.id}, 'cart.q1-checkout-totals', 'totals are in cents')`;
+  await sql()`insert into public.mock_interviews (user_id, kind, duration_minutes, content_version_id, request_key, plan, started_at, ends_at, finished_at, result)
+    values (${user.id}, 'coding', 45, ${questId}, ${`mock-${crypto.randomUUID()}`}, '{"clarify": "inputs?"}', '2026-10-01T10:00:00Z', '2026-10-01T10:45:00Z',
+            '2026-10-01T10:30:00Z', '{"overall": "mixed"}')`;
   return { projectId: project.data.id };
 }
 
@@ -80,7 +83,8 @@ async function counts(user: TestUser) {
       (select count(*)::int from public.projects where user_id = ${user.id}) as projects,
       (select count(*)::int from public.project_files where user_id = ${user.id}) as files,
       (select count(*)::int from public.notes where user_id = ${user.id}) as notes,
-      (select count(*)::int from public.followup_answers where user_id = ${user.id}) as followup_answers`;
+      (select count(*)::int from public.followup_answers where user_id = ${user.id}) as followup_answers,
+      (select count(*)::int from public.mock_interviews where user_id = ${user.id}) as mocks`;
   return row;
 }
 
@@ -121,7 +125,7 @@ describe("export and import", () => {
     await archives.importArchive(alice.id, archive);
 
     expect([before, await counts(alice)]).toEqual([
-      { sessions: 1, session_items: 1, attempts: 1, evidence: 2, skill_states: 1, recommendations: 1, xp: 30, hints: 1, projects: 1, files: 1, notes: 1, followup_answers: 1 },
+      { sessions: 1, session_items: 1, attempts: 1, evidence: 2, skill_states: 1, recommendations: 1, xp: 30, hints: 1, projects: 1, files: 1, notes: 1, followup_answers: 1, mocks: 1 },
       before,
     ]);
   });
@@ -139,6 +143,26 @@ describe("export and import", () => {
       attempts: archive.data.attempts,
       xp: archive.data.xp_events,
     });
+  });
+
+  it("import_signedArchiveWithARunningMock_restoresProgressButNotTheRunningMock", async () => {
+    await seedLearner(alice);
+    await sql()`update public.mock_interviews set finished_at = null, result = null where user_id = ${alice.id}`;
+    const archive = roundTrip(await archives.exportArchive(alice.id));
+    await archives.deleteAllData(alice.id, DELETE_CONFIRMATION_PHRASE);
+
+    const result = await archives.importArchive(alice.id, archive);
+
+    expect([result.signature, (await counts(alice)).attempts, (await counts(alice)).mocks]).toEqual(["valid", 1, 0]);
+  });
+
+  it("export_learnerWithoutMocks_omitsTheMockKeySoOlderReadersStillParseIt", async () => {
+    await seedLearner(alice);
+    await sql()`delete from public.mock_interviews where user_id = ${alice.id}`;
+
+    const archive = await archives.exportArchive(alice.id);
+
+    expect("mock_interviews" in archive.data).toBe(false);
   });
 
   it("import_sameArchiveTwice_changesNothingTheSecondTime", async () => {
@@ -160,8 +184,8 @@ describe("export and import", () => {
     await archives.importArchive(alice.id, archive);
 
     const after = await counts(alice);
-    expect({ xp: after.xp, attempts: after.attempts, sessions: after.sessions, projects: after.projects, files: after.files, notes: after.notes })
-      .toEqual({ xp: 0, attempts: 0, sessions: 0, projects: 1, files: 1, notes: 1 });
+    expect({ xp: after.xp, attempts: after.attempts, sessions: after.sessions, mocks: after.mocks, projects: after.projects, files: after.files, notes: after.notes })
+      .toEqual({ xp: 0, attempts: 0, sessions: 0, mocks: 0, projects: 1, files: 1, notes: 1 });
   });
 
   it("import_editedXp_restoresNoProgress", async () => {

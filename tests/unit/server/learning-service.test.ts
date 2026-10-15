@@ -619,6 +619,15 @@ describe("LearningService.nextHint", () => {
   it("nextHint_questNotVisible_is404", async () => {
     expect((await apiError(service().nextHint(USER, crypto.randomUUID()))).status).toBe(404);
   });
+
+  it("nextHint_duringAMockOnThisQuest_is409AndRevealsNothing", async () => {
+    const store = new FakeStore();
+    const learning = new LearningService({ store, executor: new ScriptedExecutor(), limits: { maxSourceFiles: 20, maxTotalSourceBytes: 200_000 }, clock: () => NOW, hintGuard: { hintsBlocked: async () => true } });
+
+    const error = await apiError(learning.nextHint(USER, QUEST_ID));
+
+    expect([error.status, error.code, store.hints]).toEqual([409, "mock_in_progress", 0]);
+  });
 });
 
 describe("LearningService.createSession", () => {
