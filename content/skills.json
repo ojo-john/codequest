@@ -9,7 +9,7 @@
     { "id": "world.debug-dungeon", "number": 6, "name": "Debug Dungeon", "summary": "Broken-code challenges: diagnose, fix minimally, prove it with a test.", "available": true },
     { "id": "world.system-design-city", "number": 7, "name": "System Design City", "summary": "Architecture and trade-offs.", "available": true },
     { "id": "world.backend-workshop", "number": 8, "name": "Backend Workshop", "summary": "Practical Java and low-level design.", "available": true },
-    { "id": "world.interview-arena", "number": 9, "name": "Interview Arena", "summary": "Realistic interviews.", "available": false },
+    { "id": "world.interview-arena", "number": 9, "name": "Interview Arena", "summary": "Realistic interviews.", "available": true },
     { "id": "world.mastery-league", "number": 10, "name": "Mastery League", "summary": "Targeted interview preparation.", "available": false }
   ],
   "skills": [
@@ -375,6 +375,15 @@
       "definition": "Choose Strategy, Observer, Adapter, Decorator, State and others when a requirement calls for them, and know their costs.",
       "difficulty": 3,
       "prerequisites": [{ "skill": "java.interfaces", "kind": "recommended" }, { "skill": "java.polymorphism", "kind": "recommended" }]
+    },
+    {
+      "id": "behavioral.star",
+      "category": "behavioral",
+      "name": "Behavioral answers",
+      "world": "world.interview-arena",
+      "definition": "Tell true stories in STAR form with your own role clear, honest results and what you learned, in 1 to 3 minutes.",
+      "difficulty": 2,
+      "prerequisites": []
     }
   ]
 }

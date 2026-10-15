@@ -1,0 +1,65 @@
+{
+  "answers": {
+    "star-order": {
+      "type": "order",
+      "answer": [
+        2,
+        3,
+        1,
+        0
+      ],
+      "why": "Situation and task set up the story briefly; the action is the core; the result closes it. A short reflection after the result often helps.",
+      "skill": "behavioral.star",
+      "dimension": "concept"
+    },
+    "where-time": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Interviewers assess your judgement and behaviour, which live in the action. Keep the setup short.",
+      "skill": "behavioral.star",
+      "dimension": "concept"
+    },
+    "i-vs-we": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "The interviewer is hiring you, so they need your part. Be specific about your actions without taking credit for others' work.",
+      "skill": "behavioral.star",
+      "dimension": "concept"
+    },
+    "no-metric": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Invented numbers are fabrication and tend to collapse under follow-up questions. A true qualitative result is stronger than a made-up metric.",
+      "skill": "behavioral.star",
+      "dimension": "concept"
+    },
+    "failure-question": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "Interviewers look for ownership and learning. A real mistake with a clear fix and change in behaviour shows both.",
+      "skill": "behavioral.star",
+      "dimension": "concept"
+    },
+    "disagreement": {
+      "type": "single_choice",
+      "answer": 0,
+      "why": "The behaviour is the point: respectful challenge with data, openness to being wrong, and commitment to the outcome.",
+      "skill": "behavioral.star",
+      "dimension": "concept"
+    },
+    "reuse-stories": {
+      "type": "true_false",
+      "answer": true,
+      "why": "A good story about a hard project might show ownership, prioritisation and conflict. Six to eight strong stories cover most interviews.",
+      "skill": "behavioral.star",
+      "dimension": "concept"
+    },
+    "long-is-better": {
+      "type": "true_false",
+      "answer": false,
+      "why": "Most strong answers take 1 to 3 minutes. Long setups crowd out the action and lose the interviewer; they'll ask follow-ups for detail.",
+      "skill": "behavioral.star",
+      "dimension": "concept"
+    }
+  }
+}

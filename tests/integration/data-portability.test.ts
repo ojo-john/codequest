@@ -66,6 +66,7 @@ async function seedLearner(user: TestUser): Promise<{ projectId: string }> {
   await sql()`insert into public.mock_interviews (user_id, kind, duration_minutes, content_version_id, request_key, plan, started_at, ends_at, finished_at, result)
     values (${user.id}, 'coding', 45, ${questId}, ${`mock-${crypto.randomUUID()}`}, '{"clarify": "inputs?"}', '2026-10-01T10:00:00Z', '2026-10-01T10:45:00Z',
             '2026-10-01T10:30:00Z', '{"overall": "mixed"}')`;
+  await sql()`insert into public.behavioral_stories (user_id, title, competencies, action) values (${user.id}, 'Pushback on scope', '{disagreement}', 'I raised the risk with data.')`;
   return { projectId: project.data.id };
 }
 
@@ -84,7 +85,8 @@ async function counts(user: TestUser) {
       (select count(*)::int from public.project_files where user_id = ${user.id}) as files,
       (select count(*)::int from public.notes where user_id = ${user.id}) as notes,
       (select count(*)::int from public.followup_answers where user_id = ${user.id}) as followup_answers,
-      (select count(*)::int from public.mock_interviews where user_id = ${user.id}) as mocks`;
+      (select count(*)::int from public.mock_interviews where user_id = ${user.id}) as mocks,
+      (select count(*)::int from public.behavioral_stories where user_id = ${user.id}) as stories`;
   return row;
 }
 
@@ -125,7 +127,7 @@ describe("export and import", () => {
     await archives.importArchive(alice.id, archive);
 
     expect([before, await counts(alice)]).toEqual([
-      { sessions: 1, session_items: 1, attempts: 1, evidence: 2, skill_states: 1, recommendations: 1, xp: 30, hints: 1, projects: 1, files: 1, notes: 1, followup_answers: 1, mocks: 1 },
+      { sessions: 1, session_items: 1, attempts: 1, evidence: 2, skill_states: 1, recommendations: 1, xp: 30, hints: 1, projects: 1, files: 1, notes: 1, followup_answers: 1, mocks: 1, stories: 1 },
       before,
     ]);
   });
@@ -156,13 +158,24 @@ describe("export and import", () => {
     expect([result.signature, (await counts(alice)).attempts, (await counts(alice)).mocks]).toEqual(["valid", 1, 0]);
   });
 
-  it("export_learnerWithoutMocks_omitsTheMockKeySoOlderReadersStillParseIt", async () => {
+  it("export_learnerWithoutMocksOrStories_omitsThoseKeysSoOlderReadersStillParseIt", async () => {
     await seedLearner(alice);
     await sql()`delete from public.mock_interviews where user_id = ${alice.id}`;
+    await sql()`delete from public.behavioral_stories where user_id = ${alice.id}`;
 
     const archive = await archives.exportArchive(alice.id);
 
-    expect("mock_interviews" in archive.data).toBe(false);
+    expect(["mock_interviews" in archive.data, "behavioral_stories" in archive.data]).toEqual([false, false]);
+  });
+
+  it("export_storyRoundTrip_keepsTextTagsAndTimestamps", async () => {
+    await seedLearner(alice);
+    const archive = roundTrip(await archives.exportArchive(alice.id));
+    await archives.deleteAllData(alice.id, DELETE_CONFIRMATION_PHRASE);
+
+    await archives.importArchive(alice.id, archive);
+
+    expect(roundTrip(await archives.exportArchive(alice.id)).data.behavioral_stories).toEqual(archive.data.behavioral_stories);
   });
 
   it("import_sameArchiveTwice_changesNothingTheSecondTime", async () => {
@@ -184,8 +197,8 @@ describe("export and import", () => {
     await archives.importArchive(alice.id, archive);
 
     const after = await counts(alice);
-    expect({ xp: after.xp, attempts: after.attempts, sessions: after.sessions, mocks: after.mocks, projects: after.projects, files: after.files, notes: after.notes })
-      .toEqual({ xp: 0, attempts: 0, sessions: 0, mocks: 0, projects: 1, files: 1, notes: 1 });
+    expect({ xp: after.xp, attempts: after.attempts, sessions: after.sessions, mocks: after.mocks, projects: after.projects, files: after.files, notes: after.notes, stories: after.stories })
+      .toEqual({ xp: 0, attempts: 0, sessions: 0, mocks: 0, projects: 1, files: 1, notes: 1, stories: 1 });
   });
 
   it("import_editedXp_restoresNoProgress", async () => {

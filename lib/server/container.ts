@@ -23,6 +23,8 @@ import { SupabaseArchiveStore } from "./archive-store";
 import { LearningService } from "./learning-service";
 import { MockService } from "./mock-service";
 import { SupabaseMockStore } from "./mock-store";
+import { StoryService } from "./story-service";
+import { SupabaseStoryStore } from "./story-store";
 import { UsageService } from "./usage-service";
 import { SupabaseLearningStore } from "./learning-store";
 
@@ -148,4 +150,12 @@ export function dashboardService(): DashboardService {
   const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
   dashboard = new DashboardService({ store: new SupabaseDashboardStore(db), skills: new SupabaseSkillTreeStore(db), learning: new SupabaseLearningStore(db) });
   return dashboard;
+}
+
+let stories: StoryService | undefined;
+
+export function storyService(): StoryService {
+  if (stories) return stories;
+  stories = new StoryService(new SupabaseStoryStore(createServiceRoleClient(loadSupabaseServerConfig(process.env))));
+  return stories;
 }
