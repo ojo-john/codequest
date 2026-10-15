@@ -14,7 +14,8 @@ test("a design challenge: write sections that save, answer the follow-ups, then 
   await expect(page.getByRole("heading", { name: "Design a URL shortener", level: 1 })).toBeVisible(FIRST_LOAD);
   const api = page.getByLabel("API");
   await api.fill("# API\n\nPOST /links {url} -> {code}\nGET /{code} -> 302");
-  await expect(page.getByText("Saved").nth(1)).toBeVisible({ timeout: 15_000 });
+  // Every untouched section already reads "Saved"; wait for this one's own save to finish.
+  await expect(page.locator("#design-api-status")).toHaveText("Saved", { timeout: 15_000 });
 
   // The design is kept in its own project: it survives a reload.
   await page.reload();

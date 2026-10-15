@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "workshop.rate-limiter",
+  "version": 1,
+  "title": "Rate limiter",
+  "summary": "A token bucket: bursts up to a capacity, then one request per refill interval, with time passed in.",
+  "campaign": {
+    "id": "practical.workshop",
+    "order": 3
+  },
+  "stage": "independent",
+  "estimatedMinutes": 25,
+  "skills": [
+    {
+      "skill": "practical.rate-limiting",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.integer-arithmetic",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

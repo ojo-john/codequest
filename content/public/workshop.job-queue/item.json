@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "workshop.job-queue",
+  "version": 1,
+  "title": "Priority job queue",
+  "summary": "A job queue that runs the highest priority first and is fair (first come, first served) among equals.",
+  "campaign": {
+    "id": "practical.workshop",
+    "order": 4
+  },
+  "stage": "independent",
+  "estimatedMinutes": 20,
+  "skills": [
+    {
+      "skill": "ds.heaps",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "practical.scheduling",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
