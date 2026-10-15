@@ -7,7 +7,7 @@ test("a new learner is pointed to Base Camp, the check adapts after two misses, 
   await signInAsNewLearner(page, "camp");
   await page.getByLabel(/Show unreviewed drafts/).check();
   // The opt-in saves asynchronously; wait until drafts show before reloading.
-  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("link", { name: "Build a stack" })).toBeVisible(FIRST_LOAD);
   await page.reload();
   await page.getByRole("link", { name: "Go to Base Camp" }).click(FIRST_LOAD);
   await page.getByRole("link", { name: "Start the check" }).click(FIRST_LOAD);
@@ -33,7 +33,7 @@ test("Base Camp shows placement per area once answers exist", async ({ page }) =
   await signInAsNewLearner(page, "placed");
   await page.getByLabel(/Show unreviewed drafts/).check();
   // The opt-in saves asynchronously; wait until drafts show before navigating away.
-  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("link", { name: "Build a stack" })).toBeVisible(FIRST_LOAD);
   await page.goto("/base-camp?run=1");
   await page.getByLabel("False", { exact: true }).check(FIRST_LOAD);
   await page.getByRole("button", { name: "Check" }).click();

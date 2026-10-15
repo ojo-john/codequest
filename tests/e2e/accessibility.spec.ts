@@ -27,7 +27,7 @@ for (const colorScheme of ["light", "dark"] as const) {
     await signInAsNewLearner(page, "a11y");
     await page.getByLabel(/Show unreviewed drafts/).check();
     await expect(
-      page.getByRole("link", { name: "Checkout totals" }),
+      page.getByRole("link", { name: "Build a stack" }),
     ).toBeVisible(FIRST_LOAD);
     await expectNoViolations(page, "home");
 
@@ -37,8 +37,8 @@ for (const colorScheme of ["light", "dark"] as const) {
     ).toBeVisible(FIRST_LOAD);
     await expectNoViolations(page, "session");
 
-    await page.getByRole("listitem").filter({ hasText: "Checkout totals" }).getByRole("link", { name: "Start" }).click();
-    await expect(page.getByRole("tab", { name: "Checkout.java" })).toBeVisible(
+    await page.getByRole("listitem").filter({ hasText: "Build a stack" }).getByRole("link", { name: "Start" }).click();
+    await expect(page.getByRole("tab", { name: "IntStack.java" })).toBeVisible(
       FIRST_LOAD,
     );
     await expectNoViolations(page, "quest workspace");

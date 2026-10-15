@@ -7,7 +7,7 @@ const FIRST_LOAD = { timeout: 60_000 };
 test("a mock interview: plan, code with hints off (server-enforced), finish, and an honest result", async ({ page }) => {
   await signInAsNewLearner(page, "mock");
   await page.getByLabel(/Show unreviewed drafts/).check();
-  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("link", { name: "Build a stack" })).toBeVisible(FIRST_LOAD);
 
   await page.goto("/mock");
   await page.getByRole("button", { name: "Start a 45-minute coding mock" }).click();
