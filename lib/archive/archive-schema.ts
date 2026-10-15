@@ -33,6 +33,7 @@ export const ARCHIVE_ROW_LIMITS = {
   recommendationFeedback: 20_000,
   followUpAnswers: 100_000,
   mockInterviews: 5_000,
+  behavioralStories: 500,
 } as const;
 
 const uuid = z.uuid();
@@ -181,6 +182,19 @@ const mockInterviewSchema = z.object({
   result: jsonObject.nullable(),
 }).strict();
 
+const behavioralStorySchema = z.object({
+  id: uuid,
+  title: shortText(120),
+  competencies: z.array(shortText(60)).max(6),
+  situation: z.string().max(4000),
+  task: z.string().max(4000),
+  action: z.string().max(4000),
+  result: z.string().max(4000),
+  learned: z.string().max(4000),
+  created_at: timestamp,
+  updated_at: timestamp,
+}).strict();
+
 const L = ARCHIVE_ROW_LIMITS;
 
 export const archiveDataSchema = z.object({
@@ -209,6 +223,8 @@ export const archiveDataSchema = z.object({
   followup_answers: z.array(followUpAnswerSchema).max(L.followUpAnswers).optional(),
   // Added with mock interviews; optional for the same reason.
   mock_interviews: z.array(mockInterviewSchema).max(L.mockInterviews).optional(),
+  // Added with the behavioral story bank; optional for the same reason.
+  behavioral_stories: z.array(behavioralStorySchema).max(L.behavioralStories).optional(),
 }).strict();
 
 export type ArchiveData = z.infer<typeof archiveDataSchema>;

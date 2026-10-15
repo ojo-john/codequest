@@ -1,0 +1,98 @@
+{
+  "kind": "exercise-set",
+  "id": "behavioral.star-basics",
+  "version": 1,
+  "title": "Behavioral answers: STAR",
+  "summary": "Structure true stories clearly: STAR order, your own role, honest results, and the classic failure and disagreement questions.",
+  "world": {
+    "id": "world.interview-arena",
+    "order": 1
+  },
+  "estimatedMinutes": 8,
+  "questions": [
+    {
+      "id": "star-order",
+      "type": "order",
+      "prompt": "Put the parts of a STAR answer in order.",
+      "steps": [
+        "Result: how it turned out",
+        "Action: what you did",
+        "Situation: the context",
+        "Task: what you were responsible for"
+      ]
+    },
+    {
+      "id": "where-time",
+      "type": "single_choice",
+      "prompt": "Where should most of a STAR answer's time go?",
+      "options": [
+        "The action: the specific steps you took and why",
+        "The situation, so the interviewer understands the company",
+        "The result, repeated for emphasis",
+        "Your job title and team size"
+      ]
+    },
+    {
+      "id": "i-vs-we",
+      "type": "single_choice",
+      "prompt": "Your answer keeps saying \"we decided\" and \"we built\". What should you change?",
+      "options": [
+        "Say what you personally did and decided, while crediting the team honestly",
+        "Nothing: saying \"we\" shows you're a team player",
+        "Claim the whole team's work as yours",
+        "Avoid mentioning the team at all"
+      ]
+    },
+    {
+      "id": "no-metric",
+      "type": "single_choice",
+      "prompt": "Your project clearly helped, but nobody measured the impact. What do you say about the result?",
+      "options": [
+        "Describe the real outcome qualitatively, and say it wasn't measured",
+        "Estimate a percentage that sounds right",
+        "Say it improved things by 50%, since that's plausible",
+        "Skip the result"
+      ]
+    },
+    {
+      "id": "failure-question",
+      "type": "single_choice",
+      "prompt": "Asked about a failure, which answer is strongest?",
+      "options": [
+        "A real mistake you owned, what you did to fix it, and what you changed afterwards",
+        "A strength disguised as a weakness, like working too hard",
+        "Saying you can't think of any failures",
+        "A failure that was entirely someone else's fault"
+      ]
+    },
+    {
+      "id": "disagreement",
+      "type": "single_choice",
+      "prompt": "Asked about disagreeing with your manager, what matters most?",
+      "options": [
+        "How you raised it with evidence, listened, and committed once a decision was made",
+        "That you turned out to be right",
+        "That you escalated quickly to their manager",
+        "That you avoided the conflict"
+      ]
+    },
+    {
+      "id": "reuse-stories",
+      "type": "true_false",
+      "prompt": "True or false: one well-prepared story can answer several different questions if you emphasise different parts of it."
+    },
+    {
+      "id": "long-is-better",
+      "type": "true_false",
+      "prompt": "True or false: a five-minute answer with full background is better than a two-minute one."
+    }
+  ],
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

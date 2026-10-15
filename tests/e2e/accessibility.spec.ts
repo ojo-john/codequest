@@ -76,6 +76,10 @@ for (const colorScheme of ["light", "dark"] as const) {
     await page.getByText("Show as a graph").click();
     await expectNoViolations(page, "skill graph");
 
+    await page.goto("/stories");
+    await expect(page.getByRole("heading", { name: "Behavioral stories" })).toBeVisible(FIRST_LOAD);
+    await expectNoViolations(page, "behavioral stories");
+
     await page.goto("/mock");
     await expect(page.getByRole("heading", { name: "Mock interviews" })).toBeVisible(FIRST_LOAD);
     await expectNoViolations(page, "mock interviews");
