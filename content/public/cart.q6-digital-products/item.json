@@ -3,7 +3,7 @@
   "id": "cart.q6-digital-products",
   "version": 1,
   "title": "Digital products",
-  "summary": "Inheritance, justified: a DigitalProduct is a Product that never needs shipping \u2014 and why that fits inheritance better than a flag.",
+  "summary": "Inheritance, justified: a DigitalProduct is a Product that never needs shipping — and why that fits inheritance better than a flag.",
   "campaign": {
     "id": "campaign.shopping-cart",
     "order": 6
@@ -28,7 +28,9 @@
   "starterDir": "starter",
   "starterCompiles": true,
   "review": {
-    "status": "draft"
+    "status": "deprecated",
+    "reviewer": "Owner request (2026-10-15): Shopping cart campaign removed from the app",
+    "reviewedAt": "2026-10-15"
   },
   "provenance": {
     "author": "Claude (AI-drafted for CodeQuest)",

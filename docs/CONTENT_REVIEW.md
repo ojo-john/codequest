@@ -47,8 +47,16 @@ answers, explanations and skill tags in `content/private/<id>/private.json`. For
 is there exactly one defensible answer, is the `why` right, and are the skill and dimension
 apt? Predict-output answers are checked by running the code (`npm run content:check`).
 
-## Awaiting review (2026-10-07)
+## Awaiting review
 
-All nine `campaign.shopping-cart` quests (`cart.q1-…` to `cart.q9-…`) are `draft`, written by
-Claude. Each passed the content gate on Docker and on Vercel Sandbox. They become visible to the
-app only after an owner review moves them to `published`.
+Every quest and practice set outside the shopping cart is `draft`, written by Claude, and passed
+the content gate. Each becomes visible without the drafts opt-in only after an owner review moves
+it to `published`.
+
+## Removed: the shopping cart campaign (2026-10-15)
+
+At the owner's request the nine `campaign.shopping-cart` quests (`cart.q1-…` to `cart.q9-…`) are
+`deprecated`: hidden from every learner, drafts opt-in or not, so the campaign no longer appears.
+The files stay because deprecation is how content leaves the app: sync never deletes rows, and
+learners' past attempts, XP and projects still reference these versions. Deprecated is final;
+bringing the campaign back means new versions, not un-deprecating these.

@@ -8,7 +8,7 @@ test("a mastery exam judges every section on its own and suggests practice for t
   await signInAsNewLearner(page, "boss");
   await page.getByLabel(/Show unreviewed drafts/).check();
   // The opt-in saves asynchronously; wait until drafts show before navigating away.
-  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("link", { name: "Build a stack" })).toBeVisible(FIRST_LOAD);
   await page.goto("/practice");
   await page.getByRole("link", { name: "Complexity Caverns exam" }).click(FIRST_LOAD);
 

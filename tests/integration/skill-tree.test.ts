@@ -61,9 +61,9 @@ describe("skill tree", () => {
   });
 
   it("tree_recommendsQuestsAndPracticeSetsForASkill", async () => {
-    const found = await service.skill(alice.id, "java.collections");
+    const found = await service.skill(alice.id, "ds.hash-tables");
 
-    expect([found?.world.name, found?.skill.recommended.map((task) => task.kind)]).toEqual(["Java Awakening", expect.arrayContaining(["quest", "practice"])]);
+    expect([found?.world.name, found?.skill.recommended.map((task) => task.kind)]).toEqual(["Data Structure Forge", expect.arrayContaining(["quest", "practice"])]);
   });
 
   it("tree_strictAndRecommendedPrerequisitesAreKeptApart", async () => {

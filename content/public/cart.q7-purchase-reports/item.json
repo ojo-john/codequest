@@ -3,7 +3,7 @@
   "id": "cart.q7-purchase-reports",
   "version": 1,
   "title": "Purchase reports",
-  "summary": "Streams: group, filter, sort and sum cart lines with stream pipelines \u2014 and decide when a loop would be clearer.",
+  "summary": "Streams: group, filter, sort and sum cart lines with stream pipelines — and decide when a loop would be clearer.",
   "campaign": {
     "id": "campaign.shopping-cart",
     "order": 7
@@ -28,7 +28,9 @@
   "starterDir": "starter",
   "starterCompiles": true,
   "review": {
-    "status": "draft"
+    "status": "deprecated",
+    "reviewer": "Owner request (2026-10-15): Shopping cart campaign removed from the app",
+    "reviewedAt": "2026-10-15"
   },
   "provenance": {
     "author": "Claude (AI-drafted for CodeQuest)",

@@ -3,7 +3,7 @@
   "id": "cart.q8-order-line-parser",
   "version": 1,
   "title": "Order line parser",
-  "summary": "Invalid inputs: parse staff-typed order lines, rejecting every malformed one with a clear message \u2014 and test it yourself.",
+  "summary": "Invalid inputs: parse staff-typed order lines, rejecting every malformed one with a clear message — and test it yourself.",
   "campaign": {
     "id": "campaign.shopping-cart",
     "order": 8
@@ -28,7 +28,9 @@
   "starterDir": "starter",
   "starterCompiles": true,
   "review": {
-    "status": "draft"
+    "status": "deprecated",
+    "reviewer": "Owner request (2026-10-15): Shopping cart campaign removed from the app",
+    "reviewedAt": "2026-10-15"
   },
   "provenance": {
     "author": "Claude (AI-drafted for CodeQuest)",
