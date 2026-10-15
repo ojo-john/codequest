@@ -7,7 +7,7 @@ const FIRST_LOAD = { timeout: 60_000 };
 test("a design challenge: write sections that save, answer the follow-ups, then self-review", async ({ page }) => {
   await signInAsNewLearner(page, "design");
   await page.getByLabel(/Show unreviewed drafts/).check();
-  await expect(page.getByRole("link", { name: "Checkout totals" })).toBeVisible(FIRST_LOAD);
+  await expect(page.getByRole("link", { name: "Build a stack" })).toBeVisible(FIRST_LOAD);
   await page.goto("/practice");
   await page.getByRole("link", { name: "Design a URL shortener" }).click(FIRST_LOAD);
 

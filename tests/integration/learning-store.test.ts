@@ -10,6 +10,8 @@ let alice: TestUser;
 let bob: TestUser;
 let store: SupabaseLearningStore;
 let questId: string;
+/** A quest that is still a draft (the cart quests are deprecated, so hidden from everyone). */
+let draftQuestId: string;
 
 async function setShowUnreviewed(user: TestUser, value: boolean): Promise<void> {
   await sql()`update public.profiles set settings = jsonb_set(settings, '{show_unreviewed_content}', ${sql().json(value)}) where user_id = ${user.id}`;
@@ -46,6 +48,8 @@ beforeAll(async () => {
   store = new SupabaseLearningStore(serviceClient());
   const [row] = await sql()`select id from public.content_versions where content_id = 'cart.q1-checkout-totals' order by version desc limit 1`;
   questId = row.id;
+  const [draft] = await sql()`select id from public.content_versions where content_id = 'problems.pattern-lower-bound' order by version desc limit 1`;
+  draftQuestId = draft.id;
 });
 
 beforeEach(async () => {
@@ -62,13 +66,19 @@ describe("content visibility", () => {
     expect(await store.listVisibleQuests(alice.id)).toEqual([]);
   });
 
-  it("listVisibleQuests_afterOptIn_showsEveryCampaignQuestLabelledDraft", async () => {
+  it("listVisibleQuests_afterOptIn_showsDraftsButNeverDeprecatedQuests", async () => {
     await setShowUnreviewed(alice, true);
 
     const quests = await store.listVisibleQuests(alice.id);
 
     const cart = quests.filter((quest) => quest.campaign.id === "campaign.shopping-cart");
-    expect([cart.length, new Set(quests.map((quest) => quest.status))]).toEqual([9, new Set(["draft"])]);
+    expect([quests.length > 0, cart.length, new Set(quests.map((quest) => quest.status))]).toEqual([true, 0, new Set(["draft"])]);
+  });
+
+  it("getVisibleQuest_deprecatedQuestEvenAfterOptIn_isUndefined", async () => {
+    await setShowUnreviewed(alice, true);
+
+    expect(await store.getVisibleQuest(alice.id, questId)).toBeUndefined();
   });
 
   it("getVisibleQuest_draftWithoutOptIn_isUndefined", async () => {
@@ -76,11 +86,11 @@ describe("content visibility", () => {
   });
 
   it("contentVersions_rls_followsTheSameOptIn", async () => {
-    const hidden = await alice.client.from("content_versions").select("id").eq("id", questId);
+    const hidden = await alice.client.from("content_versions").select("id").eq("id", draftQuestId);
     await setShowUnreviewed(alice, true);
-    const shown = await alice.client.from("content_versions").select("id").eq("id", questId);
+    const shown = await alice.client.from("content_versions").select("id").eq("id", draftQuestId);
 
-    expect([hidden.data, shown.data]).toEqual([[], [{ id: questId }]]);
+    expect([hidden.data, shown.data]).toEqual([[], [{ id: draftQuestId }]]);
   });
 
   it("contentVersions_oneLearnersOptIn_doesNotShowDraftsToAnother", async () => {

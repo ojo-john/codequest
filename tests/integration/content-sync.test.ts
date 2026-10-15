@@ -12,7 +12,7 @@ import { closeSql, sql } from "./support/local-supabase";
  */
 
 const REAL_CONTENT = join(import.meta.dirname, "..", "..", "content");
-const SOURCE_ID = "cart.q1-checkout-totals";
+const SOURCE_ID = "problems.pattern-lower-bound";
 let root: string;
 let testId: string;
 
@@ -79,12 +79,12 @@ describe("syncContent", () => {
   it("syncContent_draftEdited_updatesInPlace", async () => {
     await syncContent(sql(), loadContent(root));
     editManifest((manifest) => {
-      manifest.title = "Checkout totals, revised";
+      manifest.title = "First at least, revised";
     });
 
     const report = await syncContent(sql(), loadContent(root));
 
-    expect([report.updated.includes(`${testId}@v1`), (await versionRow()).title]).toEqual([true, "Checkout totals, revised"]);
+    expect([report.updated.includes(`${testId}@v1`), (await versionRow()).title]).toEqual([true, "First at least, revised"]);
   });
 
   it("syncContent_publishedPayloadChanged_refusesAndRollsBackEverything", async () => {
@@ -101,7 +101,7 @@ describe("syncContent", () => {
     await expect(syncContent(sql(), loadContent(root))).rejects.toBeInstanceOf(ContentSyncError);
 
     const [skill] = await sql()`select name from public.skills where id = ${skillsFile.skills[0].id}`;
-    expect([(await versionRow()).title, skill.name]).toEqual(["Checkout totals", "Methods"]);
+    expect([(await versionRow()).title, skill.name]).toEqual(["First at least", "Methods"]);
   });
 
   it("syncContent_publishedHiddenGradingChanged_refuses", async () => {
