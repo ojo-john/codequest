@@ -23,6 +23,8 @@ import { SupabaseArchiveStore } from "./archive-store";
 import { LearningService } from "./learning-service";
 import { MockService } from "./mock-service";
 import { SupabaseMockStore } from "./mock-store";
+import { EngagementService } from "./engagement-service";
+import { SupabaseEngagementStore } from "./engagement-store";
 import { StoryService } from "./story-service";
 import { SupabaseStoryStore } from "./story-store";
 import { UsageService } from "./usage-service";
@@ -158,4 +160,13 @@ export function storyService(): StoryService {
   if (stories) return stories;
   stories = new StoryService(new SupabaseStoryStore(createServiceRoleClient(loadSupabaseServerConfig(process.env))));
   return stories;
+}
+
+let engagement: EngagementService | undefined;
+
+export function engagementService(): EngagementService {
+  if (engagement) return engagement;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
+  engagement = new EngagementService(new SupabaseEngagementStore(db), new SupabaseLearningStore(db));
+  return engagement;
 }
