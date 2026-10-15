@@ -36,6 +36,8 @@ interface Props {
   /** Set when the quest was opened from a planned session. */
   readonly session?: { readonly id: string; readonly itemId: string };
   readonly journal: { readonly noteBody: string; readonly reflection?: PastReflectionView };
+  /** Mock interview (spec §34): no hints, notes, reflections, rubric or follow-ups; the server also refuses hints. */
+  readonly studyAidsOff?: boolean;
 }
 
 const STATUS_TEXT: Record<FileStatus, string> = {
@@ -72,7 +74,7 @@ function ProjectSync() {
   return null;
 }
 
-export function QuestWorkspace({ quest, starter, project, session, journal }: Props) {
+export function QuestWorkspace({ quest, starter, project, session, journal, studyAidsOff = false }: Props) {
   const sessionItemId = session?.itemId;
   const sessionHref = session ? `/sessions/${session.id}` : undefined;
   // Ready once the shared store holds this project (init happens in an effect below).
@@ -137,7 +139,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
         });
         setResult(response.result);
         setResultJobId(response.jobId);
-        if (mode === "submit") {
+        if (mode === "submit" && !studyAidsOff) {
           setExtras({ awardedXp: response.awardedXp, sessionCompleted: response.sessionCompleted, skills: response.skills });
           if (response.result.outcome === "succeeded") setReflectOn(response.jobId);
         }
@@ -147,7 +149,7 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
         setRunning(undefined);
       }
     },
-    [running, quest.contentVersionId, sessionItemId, activeTime],
+    [running, quest.contentVersionId, sessionItemId, activeTime, studyAidsOff],
   );
 
   async function nextHint() {
@@ -185,38 +187,40 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
             </Link>
           )}
         </div>
-        {journal.reflection && <PastReflection reflection={journal.reflection} />}
+        {journal.reflection && !studyAidsOff && <PastReflection reflection={journal.reflection} />}
         <p className="lg:hidden text-sm text-neutral-600 dark:text-neutral-400">Coding is easiest on a larger screen; everything you type is saved as you go.</p>
         <Markdown>{withoutRepeatedTitle(quest.instructions, quest.title)}</Markdown>
 
-        <section aria-labelledby="hints-title" className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-          <h2 id="hints-title" className="font-semibold">
-            Hints
-          </h2>
-          <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-            Hints never cost XP. A success after a hint counts as assisted, and you can come back later to solve it on your own.
-          </p>
-          <ol className="mt-3 space-y-2 text-sm">
-            {hints.map((hint) => (
-              <li key={hint.tier} className="rounded-md bg-neutral-50 p-2 dark:bg-neutral-800/60">
-                <span className="font-medium capitalize">{hint.label.replace("_", " ")}:</span> {hint.text}
-              </li>
-            ))}
-          </ol>
-          {hints.length < quest.hintsAvailable && (
-            <Button className="mt-3" onClick={() => void nextHint()}>
-              {hints.length === 0 ? "Show a hint" : "Show the next hint"}
-            </Button>
-          )}
-          {hintError && (
-            <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-400">
-              {hintError}
+        {!studyAidsOff && (
+          <section aria-labelledby="hints-title" className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+            <h2 id="hints-title" className="font-semibold">
+              Hints
+            </h2>
+            <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+              Hints never cost XP. A success after a hint counts as assisted, and you can come back later to solve it on your own.
             </p>
-          )}
-        </section>
+            <ol className="mt-3 space-y-2 text-sm">
+              {hints.map((hint) => (
+                <li key={hint.tier} className="rounded-md bg-neutral-50 p-2 dark:bg-neutral-800/60">
+                  <span className="font-medium capitalize">{hint.label.replace("_", " ")}:</span> {hint.text}
+                </li>
+              ))}
+            </ol>
+            {hints.length < quest.hintsAvailable && (
+              <Button className="mt-3" onClick={() => void nextHint()}>
+                {hints.length === 0 ? "Show a hint" : "Show the next hint"}
+              </Button>
+            )}
+            {hintError && (
+              <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-400">
+                {hintError}
+              </p>
+            )}
+          </section>
+        )}
 
-        {reflectOn && <ReflectionCard key={reflectOn} jobId={reflectOn} />}
-        <NotesPanel contentVersionId={quest.contentVersionId} initialBody={journal.noteBody} />
+        {reflectOn && !studyAidsOff && <ReflectionCard key={reflectOn} jobId={reflectOn} />}
+        {!studyAidsOff && <NotesPanel contentVersionId={quest.contentVersionId} initialBody={journal.noteBody} />}
       </section>
 
       <section aria-label="Code" className="flex min-h-[70vh] flex-col overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800">
@@ -322,7 +326,15 @@ export function QuestWorkspace({ quest, starter, project, session, journal }: Pr
               {error}
             </p>
           )}
-          {!running && result && <ResultsPanel key={resultJobId} result={result} extras={extras} sessionHref={sessionHref} jobId={resultJobId} />}
+          {!running && result && (
+            <ResultsPanel
+              key={resultJobId}
+              result={studyAidsOff ? { ...result, rubric: undefined, followUps: undefined } : result}
+              extras={extras}
+              sessionHref={sessionHref}
+              jobId={studyAidsOff ? undefined : resultJobId}
+            />
+          )}
           {!running && !result && !error && <p className="text-sm text-neutral-500 dark:text-neutral-400">Run the samples to check your progress, then Submit when you&apos;re ready.</p>}
         </div>
       </section>

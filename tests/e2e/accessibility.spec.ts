@@ -1,5 +1,5 @@
-import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { expectNoViolations } from "./support/axe";
 import { signInAsNewLearner } from "./support/session";
 
 // Spec §47: automated accessibility checks on every main screen (WCAG 2.2 A/AA rules axe covers).
@@ -7,25 +7,7 @@ import { signInAsNewLearner } from "./support/session";
 // screen-reader testing.
 test.setTimeout(300_000);
 const FIRST_LOAD = { timeout: 60_000 };
-const WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
-async function expectNoViolations(page: Page, screen: string): Promise<void> {
-  // Monaco's own DOM is third-party; the workspace around it is still checked.
-  const results = await new AxeBuilder({ page })
-    .withTags(WCAG)
-    .exclude(".monaco-editor")
-    .analyze();
-  const summary = results.violations.map(
-    (violation) =>
-      `${violation.id} (${violation.impact}): ${violation.nodes.map((node) => node.target.join(" ")).join(", ")}`,
-  );
-  expect(summary, `${screen} has accessibility violations`).toEqual([]);
-  // Guard against a scan that silently checked nothing.
-  expect(
-    results.passes.length,
-    `${screen}: axe evaluated no rules`,
-  ).toBeGreaterThan(10);
-}
 
 test("sign-in screen has no detectable accessibility violations", async ({
   page,
@@ -93,6 +75,10 @@ for (const colorScheme of ["light", "dark"] as const) {
     await page.goto("/skills");
     await page.getByText("Show as a graph").click();
     await expectNoViolations(page, "skill graph");
+
+    await page.goto("/mock");
+    await expect(page.getByRole("heading", { name: "Mock interviews" })).toBeVisible(FIRST_LOAD);
+    await expectNoViolations(page, "mock interviews");
 
     await page.goto("/practice");
     await page.getByRole("link", { name: "Design a URL shortener" }).click();

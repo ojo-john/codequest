@@ -21,6 +21,8 @@ import { SupabaseSkillTreeStore } from "./skill-tree-store";
 import { SupabaseJournalStore } from "./journal-store";
 import { SupabaseArchiveStore } from "./archive-store";
 import { LearningService } from "./learning-service";
+import { MockService } from "./mock-service";
+import { SupabaseMockStore } from "./mock-store";
 import { UsageService } from "./usage-service";
 import { SupabaseLearningStore } from "./learning-store";
 
@@ -65,8 +67,18 @@ export function learningService(): LearningService {
     },
     executor,
     limits,
+    hintGuard: mockService(),
   });
   return service;
+}
+
+let mocks: MockService | undefined;
+
+export function mockService(): MockService {
+  if (mocks) return mocks;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
+  mocks = new MockService({ store: new SupabaseMockStore(db), quests: new SupabaseLearningStore(db) });
+  return mocks;
 }
 
 let archive: ArchiveService | undefined;
