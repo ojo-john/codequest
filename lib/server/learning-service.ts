@@ -55,6 +55,8 @@ export interface LearningServiceDeps {
   readonly executor: MeteredExecutor;
   readonly limits: Pick<ExecutionLimits, "maxSourceFiles" | "maxTotalSourceBytes">;
   readonly clock?: () => Date;
+  /** Hints are refused while a mock interview on the quest is running (spec §34). */
+  readonly hintGuard?: { hintsBlocked(userId: string, contentVersionId: string): Promise<boolean> };
 }
 
 export const executeRequestSchema = z.object({
@@ -112,6 +114,7 @@ export class LearningService {
   private readonly executor: MeteredExecutor;
   private readonly limits: LearningServiceDeps["limits"];
   private readonly clock: () => Date;
+  private readonly hintGuard?: LearningServiceDeps["hintGuard"];
 
   constructor(deps: LearningServiceDeps) {
     this.store = deps.store;
@@ -119,6 +122,7 @@ export class LearningService {
     this.executor = deps.executor;
     this.limits = deps.limits;
     this.clock = deps.clock ?? (() => new Date());
+    this.hintGuard = deps.hintGuard;
   }
 
   async createSession(userId: string, request: z.infer<typeof createSessionSchema>): Promise<{ sessionId: string; plan: SessionPlan }> {
@@ -180,6 +184,7 @@ export class LearningService {
   /** Next curated hint tier (spec §15/§70): recorded so success counts as assisted, never as an XP penalty. */
   async nextHint(userId: string, contentVersionId: string): Promise<{ tier: number; label: string; text: string; remaining: number }> {
     await this.requireQuest(userId, contentVersionId);
+    if (await this.hintGuard?.hintsBlocked(userId, contentVersionId)) throw new ApiError(409, "mock_in_progress", "Hints are off during a mock interview. Finish the mock first.");
     const grading = await this.store.getGrading(contentVersionId);
     const tier = await this.store.recordHint(userId, contentVersionId, grading.hints.length);
     const hint = grading.hints[tier - 1];
