@@ -1,0 +1,714 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              125,
+              2
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "balance",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 150
+            }
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 25
+            }
+          },
+          {
+            "call": "balance",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "remaining",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "exact-money",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "B2",
+              75,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "B2"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "remaining",
+            "target": "x",
+            "args": [
+              "B2"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "not-enough-keeps-balance",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              125,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalStateException"
+            }
+          },
+          {
+            "call": "balance",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 100
+            }
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "sold-out",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              50,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 50
+            }
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalStateException"
+            }
+          },
+          {
+            "call": "cancel",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 100
+            }
+          }
+        ]
+      },
+      {
+        "id": "unknown-slot",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "Z9"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "balance",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 25
+            }
+          },
+          {
+            "call": "remaining",
+            "target": "x",
+            "args": [
+              "Z9"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "bad-coin",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              1
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              50
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "balance",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "restock",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              50,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              50,
+              2
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "remaining",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 3
+            }
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              60,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "remaining",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 3
+            }
+          }
+        ]
+      },
+      {
+        "id": "bad-stock",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "",
+              50,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              0,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              52,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              50,
+              0
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "remaining",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "cancel-twice",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "cancel",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 110
+            }
+          },
+          {
+            "call": "cancel",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "balance",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "List the nouns and the rules first. Decide which object owns each rule, then check every refusal leaves the state unchanged."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "not-enough-keeps-balance",
+      "sold-out",
+      "unknown-slot",
+      "bad-coin",
+      "bad-stock"
+    ],
+    "followUps": [
+      {
+        "id": "refusal-state",
+        "criterion": "explanation",
+        "skill": "lld.object-modeling",
+        "prompt": "Why should a refused sale (sold out, not enough money) leave the balance untouched?",
+        "options": [
+          "A failed operation shouldn't change state halfway: the customer can add money, pick another item or cancel",
+          "Refunds are handled by the bank",
+          "It's faster",
+          "The balance is always zero after any select"
+        ],
+        "answer": 0,
+        "why": "Validate everything first, then change state. A half-applied failure loses money or stock."
+      }
+    ]
+  }
+}

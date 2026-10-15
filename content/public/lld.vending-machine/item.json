@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "lld.vending-machine",
+  "version": 1,
+  "title": "Vending machine",
+  "summary": "Model a vending machine's slots, coins and transactions so every rule holds, including the refusals.",
+  "campaign": {
+    "id": "lld.workshop",
+    "order": 1
+  },
+  "stage": "independent",
+  "estimatedMinutes": 35,
+  "skills": [
+    {
+      "skill": "lld.object-modeling",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "java.encapsulation",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}

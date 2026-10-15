@@ -1,0 +1,1046 @@
+{
+  "contract": {
+    "version": 1,
+    "cases": [
+      {
+        "id": "example",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              25,
+              2
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              75,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 25
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ],
+        "visible": true
+      },
+      {
+        "id": "exact-change-only",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              75,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalStateException"
+            }
+          },
+          {
+            "call": "balance",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 100
+            }
+          },
+          {
+            "call": "remaining",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "cancel",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 100
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "fewest-coins",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              25,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              10,
+              3
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              5,
+              6
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              70,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 30
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 3
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 5
+            }
+          }
+        ]
+      },
+      {
+        "id": "greedy-would-fail",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              25,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              10,
+              3
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              70,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 30
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "inserted-coins-pay-change",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              25,
+              2
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "cancel",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 65
+            }
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalStateException"
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "no-change-needed",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              100,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "refund-uses-held-coins",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "cancel",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 60
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          },
+          {
+            "call": "balance",
+            "target": "x",
+            "args": [],
+            "paramTypes": [],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "tie-prefers-larger",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              25,
+              4
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              10,
+              10
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              5,
+              10
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              50,
+              1
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 50
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 2
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              10
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 10
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 10
+            }
+          }
+        ]
+      },
+      {
+        "id": "bad-coins",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              3,
+              1
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              25,
+              0
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              50
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalArgumentException"
+            }
+          },
+          {
+            "call": "coinCount",
+            "target": "x",
+            "args": [
+              5
+            ],
+            "paramTypes": [
+              "int"
+            ],
+            "expect": {
+              "value": 0
+            }
+          }
+        ]
+      },
+      {
+        "id": "still-sells",
+        "steps": [
+          {
+            "new": "lld.VendingMachine",
+            "args": [],
+            "paramTypes": [],
+            "as": "x"
+          },
+          {
+            "call": "loadCoins",
+            "target": "x",
+            "args": [
+              5,
+              10
+            ],
+            "paramTypes": [
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "stock",
+            "target": "x",
+            "args": [
+              "A1",
+              125,
+              2
+            ],
+            "paramTypes": [
+              "java.lang.String",
+              "int",
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              25
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 25
+            }
+          },
+          {
+            "call": "remaining",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "value": 1
+            }
+          },
+          {
+            "call": "insert",
+            "target": "x",
+            "args": [
+              100
+            ],
+            "paramTypes": [
+              "int"
+            ]
+          },
+          {
+            "call": "select",
+            "target": "x",
+            "args": [
+              "A1"
+            ],
+            "paramTypes": [
+              "java.lang.String"
+            ],
+            "expect": {
+              "throws": "java.lang.IllegalStateException"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "hints": [
+    {
+      "tier": "direction",
+      "text": "List the nouns and the rules first. Decide which object owns each rule, then check every refusal leaves the state unchanged."
+    }
+  ],
+  "referenceDir": "reference",
+  "rubric": {
+    "edgeCases": [
+      "exact-change-only",
+      "greedy-would-fail",
+      "refund-uses-held-coins",
+      "bad-coins"
+    ],
+    "followUps": [
+      {
+        "id": "greedy-fails",
+        "criterion": "explanation",
+        "skill": "lld.extensibility",
+        "prompt": "Why can 'always give the largest coin that fits' fail when the machine's coins are limited?",
+        "options": [
+          "Taking a large coin early can leave a remainder the remaining coins can't make, while another combination works",
+          "Large coins are worth less",
+          "Greedy is always optimal for coins",
+          "Because Java integers overflow"
+        ],
+        "answer": 0,
+        "why": "With limited supply the greedy choice isn't safe: e.g. 30¢ from {25, 10, 10, 10} fails greedily (25 then 5 missing) but three dimes work. Search the combinations instead."
+      }
+    ]
+  }
+}
