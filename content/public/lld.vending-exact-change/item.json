@@ -1,0 +1,34 @@
+{
+  "kind": "quest",
+  "id": "lld.vending-exact-change",
+  "version": 1,
+  "title": "Vending machine: making change",
+  "summary": "A change request: the machine must now pay change from the coins it actually holds, or refuse the sale.",
+  "campaign": {
+    "id": "lld.workshop",
+    "order": 2
+  },
+  "stage": "change_request",
+  "estimatedMinutes": 35,
+  "skills": [
+    {
+      "skill": "lld.extensibility",
+      "dimension": "implementation"
+    },
+    {
+      "skill": "lld.object-modeling",
+      "dimension": "implementation"
+    }
+  ],
+  "instructions": "instructions.md",
+  "starterDir": "starter",
+  "starterCompiles": true,
+  "review": {
+    "status": "draft"
+  },
+  "provenance": {
+    "author": "Claude (AI-drafted for CodeQuest)",
+    "license": "All rights reserved (CodeQuest owner)",
+    "source": "original"
+  }
+}
