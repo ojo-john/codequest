@@ -1,7 +1,8 @@
 import "server-only";
 import { z } from "zod";
 import { evaluateAchievements, type AchievementProgress } from "@/lib/engagement/achievements";
-import { addDays, isTimeZone, localDate } from "@/lib/engagement/dates";
+import { addDays, isTimeZone, localDate, localTime } from "@/lib/engagement/dates";
+import { notificationPrefsSchema, readNotificationPrefs, reminder, type NotificationPrefs } from "@/lib/engagement/notifications";
 import { computeStreak, HISTORY_DAYS, newPause, readPauses, streakMessage, type Pause, type Streak } from "@/lib/engagement/streaks";
 import type { LearningStore } from "./learning-store";
 import type { EngagementStore } from "./engagement-store";
@@ -21,6 +22,9 @@ export interface EngagementView {
   readonly message: string;
   readonly pauses: readonly Pause[];
   readonly achievements: ReadonlyArray<AchievementProgress & { readonly awardedAt?: string }>;
+  readonly notifications: NotificationPrefs;
+  /** The in-app reminder to show now, if the learner's preferences allow one (spec §49). */
+  readonly reminder?: string;
 }
 
 export class EngagementService {
@@ -30,6 +34,7 @@ export class EngagementService {
     private readonly store: EngagementStore,
     private readonly learning: Pick<LearningStore, "skillStates">,
     clock?: () => Date,
+    private readonly cards: { dueCount(userId: string): Promise<number> } = { dueCount: async () => 0 },
   ) {
     this.clock = clock ?? (() => new Date());
   }
@@ -39,22 +44,29 @@ export class EngagementService {
     const { timeZone, settings } = await this.store.profile(userId);
     const today = localDate(now, timeZone);
     const pauses = readPauses(settings);
-    const [activity, counts, states, awards] = await Promise.all([
+    const [activity, counts, states, awards, dueCards] = await Promise.all([
       this.store.dailyActivity(userId, addDays(today, -(HISTORY_DAYS - 1))),
       this.store.achievementCounts(userId),
       this.learning.skillStates(userId),
       this.store.awards(userId),
+      this.cards.dueCount(userId),
     ]);
     const streak = computeStreak({ activity, today, pauses });
     const evaluated = evaluateAchievements(counts, states, now);
     const fresh = evaluated.filter((achievement) => achievement.earned && !awards.has(achievement.id)).map((achievement) => achievement.id);
     await this.store.award(userId, fresh);
     const awardedNow = now.toISOString();
+    const notifications = readNotificationPrefs(settings);
+    const dueConcepts = new Set(states.filter((state) => state.reviewDueAt.getTime() <= now.getTime()).map((state) => state.skillId)).size;
+    const message = streakMessage(streak);
+    const nudge = reminder({ prefs: notifications, localTime: localTime(now, timeZone), dueConcepts, dueCards, streakNudge: streak.todayDone ? undefined : message });
     return {
       timeZone: isTimeZone(timeZone) ? timeZone : "UTC",
       today,
       streak,
-      message: streakMessage(streak),
+      message,
+      notifications,
+      ...(nudge && { reminder: nudge }),
       pauses: pauses.filter((pause) => pause.to >= today),
       // Earned once, kept: a skill going rusty later doesn't take an award away.
       achievements: evaluated.map((achievement) => {
@@ -89,6 +101,12 @@ export class EngagementService {
     });
     await this.store.savePauses(userId, pauses);
     return { pauses };
+  }
+
+  async saveNotificationPrefs(userId: string, input: unknown): Promise<NotificationPrefs> {
+    const prefs = notificationPrefsSchema.parse(input);
+    await this.store.saveNotificationPrefs(userId, prefs);
+    return prefs;
   }
 
   async setTimeZone(userId: string, timeZone: string): Promise<{ timeZone: string }> {

@@ -26,6 +26,8 @@ import { SupabaseMockStore } from "./mock-store";
 import { loadCheatsheets } from "./cheatsheet-repository";
 import { CheatsheetService } from "./cheatsheet-service";
 import { EngagementService } from "./engagement-service";
+import { FlashcardService } from "./flashcard-service";
+import { SupabaseFlashcardStore } from "./flashcard-store";
 import { SupabaseEngagementStore } from "./engagement-store";
 import { StoryService } from "./story-service";
 import { SupabaseStoryStore } from "./story-store";
@@ -171,7 +173,7 @@ let engagement: EngagementService | undefined;
 export function engagementService(): EngagementService {
   if (engagement) return engagement;
   const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
-  engagement = new EngagementService(new SupabaseEngagementStore(db), new SupabaseLearningStore(db));
+  engagement = new EngagementService(new SupabaseEngagementStore(db), new SupabaseLearningStore(db), undefined, flashcardService());
   return engagement;
 }
 
@@ -199,4 +201,13 @@ export function searchService(): SearchService {
     mocks: mockService(),
   });
   return search;
+}
+
+let flashcards: FlashcardService | undefined;
+
+export function flashcardService(): FlashcardService {
+  if (flashcards) return flashcards;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
+  flashcards = new FlashcardService({ store: new SupabaseFlashcardStore(db), quests: new SupabaseLearningStore(db), sets: new SupabaseExerciseStore(db) });
+  return flashcards;
 }

@@ -16,7 +16,7 @@ class FakeEngagementStore implements EngagementStore {
   counts: AchievementCounts = ZERO;
   awarded = new Map<string, string>();
   awardCalls: string[][] = [];
-  async profile() { return { timeZone: this.timeZone, settings: { streak_pauses: this.pauses } }; }
+  async profile() { return { timeZone: this.timeZone, settings: { streak_pauses: this.pauses, notifications: this.notifications } }; }
   async dailyActivity() { return new Map<string, number>(); }
   async achievementCounts() { return this.counts; }
   async awards() { return new Map(this.awarded); }
@@ -25,6 +25,8 @@ class FakeEngagementStore implements EngagementStore {
     for (const id of ids) if (!this.awarded.has(id)) this.awarded.set(id, NOW.toISOString());
   }
   async savePauses(_userId: string, pauses: readonly Pause[]) { this.pauses = [...pauses]; }
+  notifications: unknown = undefined;
+  async saveNotificationPrefs(_userId: string, prefs: unknown) { this.notifications = prefs; }
   async setTimeZone(_userId: string, timeZone: string) { this.timeZone = timeZone; }
 }
 
@@ -91,6 +93,28 @@ describe("EngagementService", () => {
     store.pauses = [{ kind: "vacation", from: "2026-10-01", to: "2026-10-05" }];
 
     expect([(await apiError(service(store).endPause(USER, "2026-10-01"))).status, store.pauses.length]).toEqual([404, 1]);
+  });
+
+  it("overview_remindersOnAndCardsDue_includesTheReminder", async () => {
+    const store = new FakeEngagementStore();
+    store.notifications = { level: "gentle", consent: true, quietStart: "00:00", quietEnd: "00:00" };
+
+    const view = await new EngagementService(store, { skillStates: async () => [] }, () => NOW, { dueCount: async () => 2 }).overview(USER);
+
+    expect(view.reminder).toBe("2 flashcards ready for review, about 1 minute.");
+  });
+
+  it("overview_remindersOff_hasNoReminder", async () => {
+    const view = await new EngagementService(new FakeEngagementStore(), { skillStates: async () => [] }, () => NOW, { dueCount: async () => 2 }).overview(USER);
+
+    expect(view.reminder).toBeUndefined();
+  });
+
+  it("saveNotificationPrefs_withoutConsent_isRejectedAndNotSaved", async () => {
+    const store = new FakeEngagementStore();
+
+    await expect(service(store).saveNotificationPrefs(USER, { level: "normal", consent: false, quietStart: "21:00", quietEnd: "08:00" })).rejects.toThrow();
+    expect(store.notifications).toBeUndefined();
   });
 
   it("setTimeZone_unknownZone_is400", async () => {

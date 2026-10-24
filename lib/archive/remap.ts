@@ -62,5 +62,6 @@ export function remapArchiveIds(data: ArchiveData, subject: string, targetUserId
     }),
     ...(data.mock_interviews && { mock_interviews: data.mock_interviews.map((row) => ({ ...row, id: id(row.id) })) }),
     ...(data.behavioral_stories && { behavioral_stories: data.behavioral_stories.map((row) => ({ ...row, id: id(row.id) })) }),
+    ...(data.flashcards && { flashcards: data.flashcards.map((row) => ({ ...row, id: id(row.id) })) }),
   };
 }

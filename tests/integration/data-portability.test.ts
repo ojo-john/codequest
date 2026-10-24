@@ -67,6 +67,7 @@ async function seedLearner(user: TestUser): Promise<{ projectId: string }> {
     values (${user.id}, 'coding', 45, ${questId}, ${`mock-${crypto.randomUUID()}`}, '{"clarify": "inputs?"}', '2026-10-01T10:00:00Z', '2026-10-01T10:45:00Z',
             '2026-10-01T10:30:00Z', '{"overall": "mixed"}')`;
   await sql()`insert into public.behavioral_stories (user_id, title, competencies, action) values (${user.id}, 'Pushback on scope', '{disagreement}', 'I raised the risk with data.')`;
+  await sql()`insert into public.flashcards (user_id, content_id, front, back, box) values (${user.id}, 'cart.q1-checkout-totals', 'Why cents?', 'Exact integers, no rounding.', 3)`;
   return { projectId: project.data.id };
 }
 
@@ -86,7 +87,8 @@ async function counts(user: TestUser) {
       (select count(*)::int from public.notes where user_id = ${user.id}) as notes,
       (select count(*)::int from public.followup_answers where user_id = ${user.id}) as followup_answers,
       (select count(*)::int from public.mock_interviews where user_id = ${user.id}) as mocks,
-      (select count(*)::int from public.behavioral_stories where user_id = ${user.id}) as stories`;
+      (select count(*)::int from public.behavioral_stories where user_id = ${user.id}) as stories,
+      (select count(*)::int from public.flashcards where user_id = ${user.id}) as flashcards`;
   return row;
 }
 
@@ -127,7 +129,7 @@ describe("export and import", () => {
     await archives.importArchive(alice.id, archive);
 
     expect([before, await counts(alice)]).toEqual([
-      { sessions: 1, session_items: 1, attempts: 1, evidence: 2, skill_states: 1, recommendations: 1, xp: 30, hints: 1, projects: 1, files: 1, notes: 1, followup_answers: 1, mocks: 1, stories: 1 },
+      { sessions: 1, session_items: 1, attempts: 1, evidence: 2, skill_states: 1, recommendations: 1, xp: 30, hints: 1, projects: 1, files: 1, notes: 1, followup_answers: 1, mocks: 1, stories: 1, flashcards: 1 },
       before,
     ]);
   });
@@ -162,10 +164,11 @@ describe("export and import", () => {
     await seedLearner(alice);
     await sql()`delete from public.mock_interviews where user_id = ${alice.id}`;
     await sql()`delete from public.behavioral_stories where user_id = ${alice.id}`;
+    await sql()`delete from public.flashcards where user_id = ${alice.id}`;
 
     const archive = await archives.exportArchive(alice.id);
 
-    expect(["mock_interviews" in archive.data, "behavioral_stories" in archive.data]).toEqual([false, false]);
+    expect(["mock_interviews" in archive.data, "behavioral_stories" in archive.data, "flashcards" in archive.data]).toEqual([false, false, false]);
   });
 
   it("export_storyRoundTrip_keepsTextTagsAndTimestamps", async () => {
@@ -197,8 +200,8 @@ describe("export and import", () => {
     await archives.importArchive(alice.id, archive);
 
     const after = await counts(alice);
-    expect({ xp: after.xp, attempts: after.attempts, sessions: after.sessions, mocks: after.mocks, projects: after.projects, files: after.files, notes: after.notes, stories: after.stories })
-      .toEqual({ xp: 0, attempts: 0, sessions: 0, mocks: 0, projects: 1, files: 1, notes: 1, stories: 1 });
+    expect({ xp: after.xp, attempts: after.attempts, sessions: after.sessions, mocks: after.mocks, projects: after.projects, files: after.files, notes: after.notes, stories: after.stories, flashcards: after.flashcards })
+      .toEqual({ xp: 0, attempts: 0, sessions: 0, mocks: 0, projects: 1, files: 1, notes: 1, stories: 1, flashcards: 1 });
   });
 
   it("import_editedXp_restoresNoProgress", async () => {
