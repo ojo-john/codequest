@@ -1,9 +1,10 @@
 import { AppHeader } from "@/components/app-header";
 import { ReadinessCard, StatsCard } from "@/components/progress/dashboard-cards";
+import { AchievementsCard, StreakCard } from "@/components/progress/engagement-cards";
 import { Badge, Card } from "@/components/ui";
 import { requirePageUser } from "@/lib/auth/dal";
 import { MIN_EVIDENCE_FOR_MASTERY } from "@/lib/learning/mastery";
-import { dashboardService, learningService } from "@/lib/server/container";
+import { dashboardService, engagementService, learningService } from "@/lib/server/container";
 import { createUserClient } from "@/lib/supabase/server";
 
 const STATE_TONE = { new: "neutral", learning: "info", developing: "info", strong: "success", mastered: "success", rusty: "warning" } as const;
@@ -13,10 +14,11 @@ const dateFormat = new Intl.DateTimeFormat("en", { month: "short", day: "numeric
 export default async function ProgressPage() {
   const user = await requirePageUser("/progress");
   const supabase = await createUserClient();
-  const [progress, skills, dashboard] = await Promise.all([
+  const [progress, skills, dashboard, engagement] = await Promise.all([
     learningService().getProgress(user.userId),
     supabase.from("skills").select("id, name"),
     dashboardService().dashboard(user.userId),
+    engagementService().overview(user.userId),
   ]);
   const names = new Map((skills.data ?? []).map((skill) => [skill.id as string, skill.name as string]));
   const sorted = [...progress.skills].sort((a, b) => a.reviewDueAt.localeCompare(b.reviewDueAt));
@@ -51,8 +53,10 @@ export default async function ProgressPage() {
           </dl>
         </Card>
 
+        <StreakCard streak={engagement.streak} message={engagement.message} pauses={engagement.pauses} timeZone={engagement.timeZone} today={engagement.today} />
         <ReadinessCard view={dashboard} />
         <StatsCard view={dashboard} />
+        <AchievementsCard achievements={engagement.achievements} />
         <Card>
           <h2 className="mb-3 font-semibold">Skills</h2>
           {sorted.length === 0 ? (

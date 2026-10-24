@@ -5,18 +5,19 @@ import { InsightsCard } from "@/components/home/insights-card";
 import { UnreviewedToggle } from "@/components/home/unreviewed-toggle";
 import { Badge, Card, UnreviewedBadge } from "@/components/ui";
 import { requirePageUser } from "@/lib/auth/dal";
-import { exerciseService, learningService } from "@/lib/server/container";
+import { engagementService, exerciseService, learningService } from "@/lib/server/container";
 import { createUserClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
   const user = await requirePageUser("/");
   const supabase = await createUserClient();
-  const [progress, active, insights, placement, profile] = await Promise.all([
+  const [progress, active, insights, placement, profile, engagement] = await Promise.all([
     learningService().getProgress(user.userId),
     learningService().activeSession(user.userId),
     learningService().insights(user.userId),
     exerciseService().placement(user.userId),
     supabase.from("profiles").select("settings").eq("user_id", user.userId).single(),
+    engagementService().overview(user.userId),
   ]);
   const showUnreviewed = (profile.data?.settings as Record<string, unknown> | undefined)?.show_unreviewed_content === true;
   const due = progress.skills.filter((skill) => new Date(skill.reviewDueAt) <= new Date()).length;
@@ -29,11 +30,21 @@ export default async function HomePage() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
             <p className="text-neutral-600 dark:text-neutral-400">Pick how long you have and CodeQuest plans the most useful work for it.</p>
+            <p className="mt-1 text-sm" data-testid="home-streak">
+              {engagement.message}{" "}
+              <Link href="/progress" className="text-indigo-700 underline dark:text-indigo-300">
+                Streak details
+              </Link>
+            </p>
           </div>
           <dl className="flex gap-6 text-sm">
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">XP</dt>
               <dd className="text-lg font-semibold" data-testid="xp-total">{progress.xp}</dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">Streak</dt>
+              <dd className="text-lg font-semibold">{engagement.streak.current}</dd>
             </div>
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Reviews due</dt>
