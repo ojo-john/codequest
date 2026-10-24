@@ -98,6 +98,11 @@ export class MockService {
     return { running: views.find((view) => view.state === "running"), past: views.filter((view) => view.state === "finished") };
   }
 
+  /** Whether a mock is running now: study aids (cheat sheets, notes in search) are hidden. */
+  async isRunning(userId: string): Promise<boolean> {
+    return (await this.current(userId)) !== undefined;
+  }
+
   /** Whether hints for this problem are off because a mock on it is running. */
   async hintsBlocked(userId: string, contentVersionId: string): Promise<boolean> {
     const running = await this.current(userId);
