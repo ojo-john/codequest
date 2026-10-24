@@ -75,7 +75,7 @@ export default async function StoriesPage() {
                         {question.stories.map((story, index) => (
                           <span key={story.id}>
                             {index > 0 && ", "}
-                            <Link href={`/stories/${story.id}`} className="text-indigo-700 hover:underline dark:text-indigo-300">
+                            <Link href={`/stories/${story.id}`} className="text-indigo-700 underline dark:text-indigo-300">
                               {story.title}
                             </Link>
                           </span>

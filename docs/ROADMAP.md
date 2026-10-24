@@ -33,7 +33,7 @@ optional timer (lands with interview mode, §34).
 | 3.4 Practical Java ✅ (single-threaded components; concurrency next) | §32 | LRU/TTL cache, rate limiter, thread-safe counter, producer/consumer, key-value store, job queue: explicit contracts, meaningful tests, concurrency caveats stated. |
 | 3.5 Interview communication and mocks ✅ (coding mocks) | §33, §34 | A workflow mode (clarify → examples → brute force → optimize → code → test → complexity) and timed mock sessions that hide study aids and hints, scored on the rubric with evidence; any hire-style label stated as a practice rubric, not a prediction. |
 | 3.6 Behavioral ✅ | §35 | A STAR story workspace for the learner's true stories, with a checklist; never fabricates achievements or metrics. |
-| 3.7 Streaks and achievements | §37, §38 | Timezone-aware streaks kept by a meaningful 5-minute session, two freezes a month, vacation/busy-week modes, supportive copy; achievements tied to independent evidence. |
+| 3.7 Streaks and achievements ✅ | §37, §38 | Timezone-aware streaks kept by a meaningful 5-minute session, two freezes a month, vacation/busy-week modes, supportive copy; achievements tied to independent evidence. |
 | 3.8 Utilities | §49–52, §54, §55 | Notification preferences (no guilt copy), search, flashcards from notes, versioned cheat sheets hidden in interview mode, endgame session mix, configurable interview-ready criteria with minimum evidence. |
 
 AI tutoring (§16) is Phase 4 and never overrides tests.
