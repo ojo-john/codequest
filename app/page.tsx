@@ -53,6 +53,12 @@ export default async function HomePage() {
           </dl>
         </div>
 
+        {engagement.reminder && (
+          <p role="status" className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-950 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-100" data-testid="reminder">
+            {engagement.reminder}
+          </p>
+        )}
+
         {active && (
           <Card className="flex flex-wrap items-center gap-3 border-indigo-300 dark:border-indigo-800">
             <div>

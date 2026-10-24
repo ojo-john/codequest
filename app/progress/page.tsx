@@ -1,10 +1,11 @@
 import { AppHeader } from "@/components/app-header";
 import { ReadinessCard, StatsCard } from "@/components/progress/dashboard-cards";
 import { AchievementsCard, StreakCard } from "@/components/progress/engagement-cards";
+import { RemindersCard } from "@/components/progress/reminders-card";
 import { Badge, Card } from "@/components/ui";
 import { requirePageUser } from "@/lib/auth/dal";
 import { MIN_EVIDENCE_FOR_MASTERY } from "@/lib/learning/mastery";
-import { dashboardService, engagementService, learningService } from "@/lib/server/container";
+import { dashboardService, engagementService, flashcardService, learningService } from "@/lib/server/container";
 import { createUserClient } from "@/lib/supabase/server";
 
 const STATE_TONE = { new: "neutral", learning: "info", developing: "info", strong: "success", mastered: "success", rusty: "warning" } as const;
@@ -20,6 +21,7 @@ export default async function ProgressPage() {
     dashboardService().dashboard(user.userId),
     engagementService().overview(user.userId),
   ]);
+  const dueCards = await flashcardService().dueCount(user.userId);
   const names = new Map((skills.data ?? []).map((skill) => [skill.id as string, skill.name as string]));
   const sorted = [...progress.skills].sort((a, b) => a.reviewDueAt.localeCompare(b.reviewDueAt));
   const now = new Date();
@@ -57,6 +59,7 @@ export default async function ProgressPage() {
         <ReadinessCard view={dashboard} />
         <StatsCard view={dashboard} />
         <AchievementsCard achievements={engagement.achievements} />
+        <RemindersCard initial={engagement.notifications} dueCards={dueCards} />
         <Card>
           <h2 className="mb-3 font-semibold">Skills</h2>
           {sorted.length === 0 ? (

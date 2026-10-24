@@ -34,6 +34,7 @@ export const ARCHIVE_ROW_LIMITS = {
   followUpAnswers: 100_000,
   mockInterviews: 5_000,
   behavioralStories: 500,
+  flashcards: 500,
 } as const;
 
 const uuid = z.uuid();
@@ -195,6 +196,17 @@ const behavioralStorySchema = z.object({
   updated_at: timestamp,
 }).strict();
 
+const flashcardSchema = z.object({
+  id: uuid,
+  content_id: contentIdSchema,
+  front: shortText(500),
+  back: shortText(2000),
+  box: z.number().int().min(1).max(5),
+  due_at: timestamp,
+  created_at: timestamp,
+  updated_at: timestamp,
+}).strict();
+
 const L = ARCHIVE_ROW_LIMITS;
 
 export const archiveDataSchema = z.object({
@@ -225,6 +237,8 @@ export const archiveDataSchema = z.object({
   mock_interviews: z.array(mockInterviewSchema).max(L.mockInterviews).optional(),
   // Added with the behavioral story bank; optional for the same reason.
   behavioral_stories: z.array(behavioralStorySchema).max(L.behavioralStories).optional(),
+  // Added with flashcards; optional for the same reason.
+  flashcards: z.array(flashcardSchema).max(L.flashcards).optional(),
 }).strict();
 
 export type ArchiveData = z.infer<typeof archiveDataSchema>;
