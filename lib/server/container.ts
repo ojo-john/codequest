@@ -23,12 +23,15 @@ import { SupabaseArchiveStore } from "./archive-store";
 import { LearningService } from "./learning-service";
 import { MockService } from "./mock-service";
 import { SupabaseMockStore } from "./mock-store";
+import { loadCheatsheets } from "./cheatsheet-repository";
+import { CheatsheetService } from "./cheatsheet-service";
 import { EngagementService } from "./engagement-service";
 import { SupabaseEngagementStore } from "./engagement-store";
 import { StoryService } from "./story-service";
 import { SupabaseStoryStore } from "./story-store";
 import { UsageService } from "./usage-service";
-import { SupabaseLearningStore } from "./learning-store";
+import { SupabaseLearningStore, visibleContentStatuses } from "./learning-store";
+import { SearchService, SupabaseNoteSearchStore } from "./search-service";
 
 /**
  * Composition root: builds the server's object graph once per process from validated config.
@@ -170,4 +173,30 @@ export function engagementService(): EngagementService {
   const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
   engagement = new EngagementService(new SupabaseEngagementStore(db), new SupabaseLearningStore(db));
   return engagement;
+}
+
+let cheatsheets: CheatsheetService | undefined;
+
+export function cheatsheetService(): CheatsheetService {
+  if (cheatsheets) return cheatsheets;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
+  cheatsheets = new CheatsheetService({ sheets: () => loadCheatsheets(), visibleStatuses: (userId) => visibleContentStatuses(db, userId), mocks: mockService() });
+  return cheatsheets;
+}
+
+let search: SearchService | undefined;
+
+export function searchService(): SearchService {
+  if (search) return search;
+  const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
+  search = new SearchService({
+    quests: new SupabaseLearningStore(db),
+    sets: new SupabaseExerciseStore(db),
+    skills: new SupabaseSkillTreeStore(db),
+    cheatsheets: cheatsheetService(),
+    notes: new SupabaseNoteSearchStore(db),
+    stories: new SupabaseStoryStore(db),
+    mocks: mockService(),
+  });
+  return search;
 }

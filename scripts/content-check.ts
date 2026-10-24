@@ -10,6 +10,7 @@ import { validateSourceFiles } from "../lib/execution/source-files";
 import { outputVerificationSources } from "../lib/exercises/verify-output";
 import { loadVercelSandboxConfig, VercelSandboxProvider } from "../lib/execution/vercel-sandbox-provider";
 import { createLogger } from "../lib/observability/log";
+import { loadCheatsheets } from "@/lib/server/cheatsheet-repository";
 
 /**
  * Content gate (spec §44, §71). Fails if any of these is false:
@@ -91,6 +92,14 @@ async function main(): Promise<void> {
   const limits = loadExecutionLimits(process.env);
   const content = loadContent(CONTENT_ROOT);
   const issues: ContentIssue[] = validateContent(content, limits);
+  // Cheat sheets: the manifest parses and every sheet's file exists and has content.
+  try {
+    for (const sheet of loadCheatsheets(join(CONTENT_ROOT, "cheatsheets"))) {
+      if (sheet.body.trim().length < 200) issues.push({ item: `cheatsheet:${sheet.id}`, message: "cheat sheet is nearly empty" });
+    }
+  } catch (error) {
+    issues.push({ item: "cheatsheets", message: error instanceof Error ? error.message : String(error) });
+  }
 
   if (!values["static-only"] && issues.length === 0) {
     const provider = values.provider === "vercel" ? new VercelSandboxProvider(loadVercelSandboxConfig(process.env)) : new DockerSandboxProvider();
