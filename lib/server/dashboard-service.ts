@@ -2,8 +2,11 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { MIN_EVIDENCE_FOR_MASTERY } from "@/lib/learning/mastery";
+import { stageFor, type Stage } from "@/lib/learning/endgame";
 import { computeReadiness, UNAVAILABLE_TRACKS, type TrackReadiness } from "@/lib/learning/readiness";
+import { evaluateReadyCriteria, type ReadyVerdict } from "@/lib/learning/ready-criteria";
 import { StoreError, type LearningStore } from "./learning-store";
+import type { MockStore } from "./mock-store";
 import type { SkillTreeStore } from "./skill-tree-store";
 
 /**
@@ -47,6 +50,10 @@ export interface Ratio {
 
 export interface DashboardView {
   readonly readiness: readonly TrackReadiness[];
+  /** Interview-ready criteria (spec §55). */
+  readonly ready: ReadyVerdict;
+  /** Endgame stage (spec §54), which sets the session mix. */
+  readonly stage: Stage;
   readonly unavailableTracks: readonly string[];
   readonly problems: { readonly attempted: number; readonly solved: number; readonly families: number; readonly independent: number; readonly firstAttempt: Ratio };
   readonly medianSolveSeconds: { readonly value: number | null; readonly sample: number };
@@ -61,11 +68,15 @@ export interface DashboardServiceDeps {
   readonly store: DashboardStore;
   readonly skills: Pick<SkillTreeStore, "skills">;
   readonly learning: Pick<LearningStore, "skillStates" | "listVisibleQuests">;
+  /** Recent mocks for the "acceptable recent mocks" criterion; omitted, none count. */
+  readonly mocks?: Pick<MockStore, "recent">;
   readonly clock?: () => Date;
 }
 
 /** How many skills to name as weakest / strongest. */
 const EXTREMES = 3;
+/** Mocks considered for the readiness criterion. */
+const RECENT_MOCKS = 10;
 
 export class DashboardService {
   private readonly clock: () => Date;
@@ -75,12 +86,15 @@ export class DashboardService {
   }
 
   async dashboard(userId: string): Promise<DashboardView> {
-    const [stats, skills, states, quests] = await Promise.all([
+    const [stats, skills, states, quests, mocks] = await Promise.all([
       this.deps.store.stats(userId),
       this.deps.skills.skills(),
       this.deps.learning.skillStates(userId),
       this.deps.learning.listVisibleQuests(userId),
+      this.deps.mocks?.recent(userId, RECENT_MOCKS) ?? Promise.resolve([]),
     ]);
+    const now = this.clock();
+    const readiness = computeReadiness(skills, states, now);
     // Variants of one problem share a family (spec §57); a quest no longer visible is its own family.
     const familyOf = new Map(quests.map((quest) => [quest.contentId, quest.family ?? quest.contentId]));
     const families = new Set(stats.solved_content_ids.map((id) => familyOf.get(id) ?? id)).size;
@@ -103,8 +117,20 @@ export class DashboardService {
     const strongest = perSkill.slice(EXTREMES).slice(-EXTREMES).reverse();
     const dimension = (name: string): Ratio => ({ count: stats.evidence_by_dimension[name]?.passed ?? 0, outOf: stats.evidence_by_dimension[name]?.total ?? 0 });
 
+    const ratio = (name: string) => ({ passed: stats.evidence_by_dimension[name]?.passed ?? 0, total: stats.evidence_by_dimension[name]?.total ?? 0 });
+    const ready = evaluateReadyCriteria({
+      readiness,
+      recognition: ratio("recognition"),
+      complexity: ratio("complexity"),
+      problems: { attempted: stats.problems_attempted, solved: stats.problems_solved, independent: stats.independent_solves },
+      mocks: mocks.flatMap((mock) => (mock.finishedAt && mock.result ? [{ finishedAt: mock.finishedAt, overall: mock.result.overall }] : [])),
+      now,
+    });
+
     return {
-      readiness: computeReadiness(skills, states, this.clock()),
+      readiness,
+      ready,
+      stage: stageFor(readiness),
       unavailableTracks: UNAVAILABLE_TRACKS,
       problems: {
         attempted: stats.problems_attempted,

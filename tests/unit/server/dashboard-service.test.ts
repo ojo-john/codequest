@@ -72,7 +72,7 @@ describe("DashboardService", () => {
     expect((await service([]).dashboard("u")).problems).toMatchObject({ solved: 3, families: 2 });
   });
 
-  it("dashboard_listsTheTracksThatArentAvailableYet", async () => {
-    expect((await service([]).dashboard("u")).unavailableTracks).toContain("Mock interviews");
+  it("dashboard_everySpecTrackIsNowAvailable", async () => {
+    expect((await service([]).dashboard("u")).unavailableTracks).toEqual([]);
   });
 });

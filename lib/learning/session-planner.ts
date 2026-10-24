@@ -1,6 +1,8 @@
+import { LEARNING_SHARE, type Stage } from "./endgame";
+
 /**
- * Session planning (spec §5, §61): deterministic rules that fit a time budget and explain every
- * choice. Inputs are plain data so the policy is testable without a database.
+ * Session planning (spec §5, §54, §61): deterministic rules that fit a time budget and explain
+ * every choice. Inputs are plain data so the policy is testable without a database.
  */
 
 export const SESSION_POLICY_VERSION = "rules-v1";
@@ -44,7 +46,8 @@ export type PlanReason =
   | { readonly code: "weak_skill"; readonly detail: string }
   | { readonly code: "continues_later"; readonly detail: string }
   | { readonly code: "practice_review"; readonly detail: string }
-  | { readonly code: "practice_new"; readonly detail: string };
+  | { readonly code: "practice_new"; readonly detail: string }
+  | { readonly code: "stage_mix"; readonly detail: string };
 
 export interface PlannedItem {
   readonly kind: "quest" | "practice";
@@ -75,6 +78,8 @@ export function planSession(
   /** Skills with repeated recent failures (lib/learning/insights), in priority order. */
   weakSkills: readonly string[] = [],
   practice: readonly PracticeCandidate[] = [],
+  /** The learner's endgame stage (spec §54); it sets how much of the budget goes to practice sets. */
+  stage: Stage = "middle",
 ): SessionPlan {
   if (quests.length === 0 && practice.length === 0) return { items: [], policyVersion: SESSION_POLICY_VERSION, emptyReason: "no_content" };
   const ordered = [...quests].sort((a, b) => a.trackRank - b.trackRank || a.campaignOrder - b.campaignOrder);
@@ -121,13 +126,32 @@ export function planSession(
     });
   }
 
-  // 3. One practice set: one covering an overdue or weak skill if there is one, else the next
-  //    unfinished set in world order.
-  if (chosen !== undefined && (practiceOnly || chosen.set.estimatedMinutes <= remaining)) {
+  // 3. Practice sets. The first covers an overdue or weak skill if there is one, else the next
+  //    unfinished set in world order. The late stage skips practice unless fundamentals need work
+  //    (spec §54: don't force the ratio). Further sets fill the stage's learning share.
+  const fundamentalsNeedWork = overdueSkillIds.length > 0 || weakSkills.length > 0;
+  const effectiveStage: Stage = stage === "late" && fundamentalsNeedWork ? "middle" : stage;
+  const learningBudget = Math.round(budget * LEARNING_SHARE[effectiveStage]);
+  let learningUsed = 0;
+  const skipPractice = effectiveStage === "late" && !practiceOnly;
+  if (chosen !== undefined && !skipPractice && (practiceOnly || chosen.set.estimatedMinutes <= remaining)) {
     remaining -= Math.min(remaining, chosen.set.estimatedMinutes);
+    learningUsed += chosen.set.estimatedMinutes;
     items.push({ kind: "practice", contentVersionId: chosen.set.contentVersionId, title: chosen.set.title, estimatedMinutes: chosen.set.estimatedMinutes, reasons: [chosen.reason] });
   }
   if (practiceOnly) return { items, policyVersion: SESSION_POLICY_VERSION };
+  for (const set of skipPractice ? [] : nextPracticeSets(practice, chosen?.set)) {
+    if (learningUsed + set.estimatedMinutes > learningBudget || set.estimatedMinutes > remaining) continue;
+    remaining -= set.estimatedMinutes;
+    learningUsed += set.estimatedMinutes;
+    items.push({
+      kind: "practice",
+      contentVersionId: set.contentVersionId,
+      title: set.title,
+      estimatedMinutes: set.estimatedMinutes,
+      reasons: [{ code: "stage_mix", detail: `${effectiveStage} stage: about ${Math.round(LEARNING_SHARE[effectiveStage] * 100)}% of a session is learning` }],
+    });
+  }
 
   // 4. The next unfinished quest in the campaign. It's included even if it won't fit: the budget
   //    picks the next useful slice, and the quest resumes from its saved project later (spec §69).
@@ -138,6 +162,20 @@ export function planSession(
       reasons.push({ code: "continues_later", detail: `about ${next.estimatedMinutes} min; your progress is saved between sittings` });
     }
     items.push({ kind: "quest", contentVersionId: next.contentVersionId, title: next.title, estimatedMinutes: next.estimatedMinutes, reasons });
+    remaining -= Math.min(remaining, next.estimatedMinutes);
+  }
+
+  // 5. Late stage: the rest of the budget goes to further problems that fit.
+  for (const quest of effectiveStage === "late" ? ordered.filter((candidate) => !candidate.completed && candidate !== next) : []) {
+    if (quest.estimatedMinutes > remaining) continue;
+    remaining -= quest.estimatedMinutes;
+    items.push({
+      kind: "quest",
+      contentVersionId: quest.contentVersionId,
+      title: quest.title,
+      estimatedMinutes: quest.estimatedMinutes,
+      reasons: [{ code: "stage_mix", detail: "late stage: most of a session is problems" }],
+    });
   }
 
   if (items.length === 0) return { items, policyVersion: SESSION_POLICY_VERSION, emptyReason: "campaign_complete" };
@@ -157,4 +195,11 @@ function choosePractice(
     .filter((candidate) => candidate.passedShare < 1)
     .sort((a, b) => a.worldNumber - b.worldNumber || a.worldOrder - b.worldOrder || a.passedShare - b.passedShare)[0];
   return next && { set: next, reason: { code: "practice_new", detail: `next practice: ${next.title}` } };
+}
+
+/** Unfinished practice sets after the first one chosen, in world order. */
+function nextPracticeSets(practice: readonly PracticeCandidate[], first: PracticeCandidate | undefined): PracticeCandidate[] {
+  return [...practice]
+    .filter((candidate) => candidate.passedShare < 1 && candidate !== first)
+    .sort((a, b) => a.worldNumber - b.worldNumber || a.worldOrder - b.worldOrder || a.passedShare - b.passedShare);
 }
