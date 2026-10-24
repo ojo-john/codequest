@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AchievementCounts } from "@/lib/engagement/achievements";
+import type { NotificationPrefs } from "@/lib/engagement/notifications";
 import type { Pause } from "@/lib/engagement/streaks";
 import { StoreError } from "./learning-store";
 
@@ -14,6 +15,7 @@ export interface EngagementStore {
   /** Records awards once; already-earned ones keep their original date. */
   award(userId: string, achievementIds: readonly string[]): Promise<void>;
   savePauses(userId: string, pauses: readonly Pause[]): Promise<void>;
+  saveNotificationPrefs(userId: string, prefs: NotificationPrefs): Promise<void>;
   setTimeZone(userId: string, timeZone: string): Promise<void>;
 }
 
@@ -64,6 +66,10 @@ export class SupabaseEngagementStore implements EngagementStore {
 
   async savePauses(userId: string, pauses: readonly Pause[]): Promise<void> {
     check("save_pauses", await this.db.rpc("set_profile_setting", { p_user_id: userId, p_key: "streak_pauses", p_value: pauses }));
+  }
+
+  async saveNotificationPrefs(userId: string, prefs: NotificationPrefs): Promise<void> {
+    check("save_notification_prefs", await this.db.rpc("set_profile_setting", { p_user_id: userId, p_key: "notifications", p_value: prefs }));
   }
 
   async setTimeZone(userId: string, timeZone: string): Promise<void> {

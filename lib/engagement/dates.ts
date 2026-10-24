@@ -32,3 +32,12 @@ export function isTimeZone(value: string): boolean {
     return false;
   }
 }
+
+/** The local "HH:MM" at `instant` in an IANA zone; an unknown zone falls back to UTC. */
+export function localTime(instant: Date, timeZone: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-GB", { timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(instant);
+  } catch {
+    return instant.toISOString().slice(11, 16);
+  }
+}
