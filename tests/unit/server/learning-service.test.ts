@@ -502,6 +502,7 @@ describe("LearningService practice in sessions", () => {
       skillsOf: async () => new Map([[SET.contentVersionId, ["java.collections"]]]),
       answeredSince: async () => new Set(answered),
       worlds: async () => [{ id: "world.java-awakening", number: 1, name: "Java", summary: "Java.", available: true }],
+      skills: async () => [],
     };
   }
 

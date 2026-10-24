@@ -5,6 +5,8 @@ import { visibleSamples } from "@/lib/execution/contract";
 import type { ExecutionResult } from "@/lib/execution/java-executor";
 import type { ExecutionLimits } from "@/lib/execution/limits";
 import type { MeteredExecuteOptions, MeteredExecution } from "@/lib/execution/metered-executor";
+import { stageFor } from "@/lib/learning/endgame";
+import { computeReadiness } from "@/lib/learning/readiness";
 import { validateSourceFiles, type SourceFile, type ValidatedSourceSet } from "@/lib/execution/source-files";
 import { testingOutcome, type TestQualitySpec } from "@/lib/execution/test-quality";
 import { DuplicateJobError } from "@/lib/execution/usage-ledger";
@@ -51,7 +53,7 @@ export interface MeteredExecutor {
 export interface LearningServiceDeps {
   readonly store: LearningStore;
   /** Practice sets for session planning and practice-item completion; omit for quests only. */
-  readonly practice?: Pick<ExerciseStore, "listVisibleSets" | "passedQuestions" | "skillsOf" | "answeredSince"> & Pick<SkillTreeStore, "worlds">;
+  readonly practice?: Pick<ExerciseStore, "listVisibleSets" | "passedQuestions" | "skillsOf" | "answeredSince"> & Pick<SkillTreeStore, "worlds" | "skills">;
   readonly executor: MeteredExecutor;
   readonly limits: Pick<ExecutionLimits, "maxSourceFiles" | "maxTotalSourceBytes">;
   readonly clock?: () => Date;
@@ -152,6 +154,8 @@ export class LearningService {
       now,
       strugglingSkills(insights),
       await this.practiceCandidates(userId),
+      // The endgame stage (spec §54) comes from readiness; without the skill list, the default mix.
+      this.practice ? stageFor(computeReadiness(await this.practice.skills(), states, now)) : undefined,
     );
     const sessionId = await this.store.createSession(
       userId,

@@ -68,6 +68,7 @@ export function learningService(): LearningService {
       skillsOf: (ids) => exerciseStore.skillsOf(ids),
       answeredSince: (userId, id, since) => exerciseStore.answeredSince(userId, id, since),
       worlds: () => skillTreeStore.worlds(),
+      skills: () => skillTreeStore.skills(),
     },
     executor,
     limits,
@@ -150,7 +151,7 @@ let dashboard: DashboardService | undefined;
 export function dashboardService(): DashboardService {
   if (dashboard) return dashboard;
   const db = createServiceRoleClient(loadSupabaseServerConfig(process.env));
-  dashboard = new DashboardService({ store: new SupabaseDashboardStore(db), skills: new SupabaseSkillTreeStore(db), learning: new SupabaseLearningStore(db) });
+  dashboard = new DashboardService({ store: new SupabaseDashboardStore(db), skills: new SupabaseSkillTreeStore(db), learning: new SupabaseLearningStore(db), mocks: new SupabaseMockStore(db) });
   return dashboard;
 }
 

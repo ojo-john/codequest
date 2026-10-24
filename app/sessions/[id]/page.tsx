@@ -12,6 +12,7 @@ const REASON_TEXT: Record<string, string> = {
   weak_skill: "Revisits a skill your recent submissions found hard, using a quest you've already passed.",
   continue_campaign: "Continues your campaign where you left off.",
   continues_later: "The quest is longer than this session — your project is saved, so you can stop any time and pick it up later.",
+  stage_mix: "Matches your stage: more learning early on, more problems as you get close to interviewing.",
 };
 
 export default async function SessionPage({ params }: PageProps<"/sessions/[id]">) {
