@@ -25,8 +25,9 @@ export const TRACKS = [
   { id: "behavioral", name: "Behavioral", categories: ["behavioral"] },
 ] as const;
 
-/** Tracks the spec asks for whose content doesn't exist yet: shown, never scored. */
-export const UNAVAILABLE_TRACKS = ["Mock interviews"] as const;
+/** Tracks the spec asks for whose content doesn't exist yet: shown, never scored. Mock
+ *  interviews now count through the interview-ready criteria (lib/learning/ready-criteria). */
+export const UNAVAILABLE_TRACKS: readonly string[] = [];
 
 export type ReadinessLevel = "building" | "developing" | "strong";
 

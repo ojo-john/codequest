@@ -1,11 +1,19 @@
 import { Badge, Card } from "@/components/ui";
+import { STAGE_TEXT } from "@/lib/learning/endgame";
 import type { ReadinessLevel } from "@/lib/learning/readiness";
+import type { CriterionStatus } from "@/lib/learning/ready-criteria";
 import type { DashboardView, Ratio } from "@/lib/server/dashboard-service";
 
 const LEVEL: Record<ReadinessLevel, { label: string; tone: "neutral" | "info" | "success" }> = {
   building: { label: "Building", tone: "neutral" },
   developing: { label: "Developing", tone: "info" },
   strong: { label: "Strong", tone: "success" },
+};
+
+const CRITERION: Record<CriterionStatus, { label: string; tone: "neutral" | "warning" | "success" }> = {
+  met: { label: "Met", tone: "success" },
+  not_met: { label: "Not yet", tone: "warning" },
+  insufficient_evidence: { label: "Not enough evidence", tone: "neutral" },
 };
 
 function ratio(value: Ratio): string {
@@ -50,7 +58,23 @@ export function ReadinessCard({ view }: { view: DashboardView }) {
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-neutral-600 dark:text-neutral-400">Not yet included: timed and unseen problems, communication and mock interviews (later worlds).</p>
+      <h3 className="mt-5 font-semibold">Interview-ready checklist</h3>
+      <p className="text-sm" data-testid="ready-summary">
+        {view.ready.ready ? "Every criterion is met." : `${view.ready.met} of ${view.ready.criteria.length} criteria met.`}
+      </p>
+      <ul className="mt-2 flex flex-col gap-1 text-sm">
+        {view.ready.criteria.map((criterion) => (
+          <li key={criterion.id} className="flex flex-wrap items-center gap-2">
+            <Badge tone={CRITERION[criterion.status].tone}>{CRITERION[criterion.status].label}</Badge>
+            <span className="font-medium">{criterion.name}</span>
+            <span className="text-neutral-600 dark:text-neutral-400">{criterion.detail}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">{view.ready.disclaimer}</p>
+      <p className="mt-3 text-sm" data-testid="stage">
+        <span className="font-medium">Your sessions now:</span> {STAGE_TEXT[view.stage]}
+      </p>
     </Card>
   );
 }

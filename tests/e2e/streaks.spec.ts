@@ -27,6 +27,12 @@ test("streak card: supportive copy, device time zone, a busy week scheduled and 
   await page.getByRole("button", { name: "End now" }).click();
   await expect(page.getByRole("button", { name: "End now" })).toHaveCount(0, FIRST_LOAD);
 
+  // Interview-ready criteria: nothing is claimed without evidence; the stage sets the session mix.
+  await expect(page.getByTestId("ready-summary")).toHaveText("0 of 8 criteria met.");
+  await expect(page.getByText("Not enough evidence").first()).toBeVisible();
+  await expect(page.getByText(/not a guarantee/)).toBeVisible();
+  await expect(page.getByTestId("stage")).toContainText("Early: mostly learning");
+
   await expect(page.getByRole("heading", { name: "Achievements" })).toBeVisible();
   await expect(page.getByText("Complexity Detective")).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "Speedrunner progress" })).toBeVisible();
