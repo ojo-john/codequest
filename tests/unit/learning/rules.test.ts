@@ -275,4 +275,46 @@ describe("planSession", () => {
   it("planSession_campaignOrder_notInputOrder_decidesNext", () => {
     expect(planSession(30, [quest(3, false), quest(2, false), quest(1, true)], [], NOW).items[0].contentVersionId).toBe("cv-2");
   });
+
+  describe("endgame mix (spec §54)", () => {
+    const sets = ["a", "b", "c", "d", "e"].map((id, index) => set(id, { worldOrder: index + 1 }));
+    const kinds = (plan: ReturnType<typeof planSession>) => plan.items.map((item) => item.kind);
+
+    it("planSession_earlyStage_fillsAboutSeventyPercentWithPracticeSets", () => {
+      const plan = planSession(60, [quest(1, false)], [], NOW, [], sets, "early");
+
+      // 42 minutes of learning: five 8-minute sets would be 40.
+      expect(kinds(plan)).toEqual(["practice", "practice", "practice", "practice", "practice", "quest"]);
+    });
+
+    it("planSession_middleStage_keepsTheFirstSetAndAddsUpToFortyPercent", () => {
+      expect(kinds(planSession(60, [quest(1, false)], [], NOW, [], sets, "middle"))).toEqual(["practice", "practice", "practice", "quest"]);
+    });
+
+    it("planSession_lateStageWithFundamentalsInShape_skipsPracticeAndAddsProblems", () => {
+      const plan = planSession(60, [quest(1, false, 25), quest(2, false, 25), quest(3, false, 25)], [], NOW, [], sets, "late");
+
+      expect(plan.items.map((item) => item.contentVersionId)).toEqual(["cv-1", "cv-2"]);
+    });
+
+    it("planSession_lateStageWithAReviewDue_keepsPracticeAnyway", () => {
+      const plan = planSession(60, [quest(1, false)], [{ skillId: "java.collections", dueAt: NOW, reason: "spaced_review" }], NOW, [], sets, "late");
+
+      expect(kinds(plan)[0]).toBe("practice");
+    });
+
+    it("planSession_lateStageWithAWeakSkill_keepsPracticeAnyway", () => {
+      expect(kinds(planSession(60, [quest(1, false)], [], NOW, ["java.collections"], sets, "late"))).toContain("practice");
+    });
+
+    it("planSession_fiveMinutesInLateStage_isStillPracticeOnly", () => {
+      expect(kinds(planSession(5, [quest(1, false)], [], NOW, [], sets, "late"))).toEqual(["practice"]);
+    });
+
+    it("planSession_extraSets_carryAStageReason", () => {
+      const plan = planSession(60, [quest(1, false)], [], NOW, [], sets, "early");
+
+      expect(plan.items[1].reasons.map((reason) => reason.code)).toEqual(["stage_mix"]);
+    });
+  });
 });
