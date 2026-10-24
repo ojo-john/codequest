@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "provenance": { "author": "Claude (AI-drafted for CodeQuest)", "license": "All rights reserved (CodeQuest owner)" },
+  "sheets": [
+    { "id": "java", "title": "Java", "summary": "Collections, idioms and the pitfalls interviewers probe.", "file": "java.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["Java SE 21 API documentation (docs.oracle.com)", "Joshua Bloch, Effective Java, 3rd edition"] },
+    { "id": "big-o", "title": "Big-O", "summary": "Growth rates, reading code, rough input-size limits and space.", "file": "big-o.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["Cormen, Leiserson, Rivest, Stein, Introduction to Algorithms, 4th edition"] },
+    { "id": "data-structures", "title": "Data structures", "summary": "Operation costs and how to choose.", "file": "data-structures.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["Cormen, Leiserson, Rivest, Stein, Introduction to Algorithms, 4th edition", "Java SE 21 API documentation (docs.oracle.com)"] },
+    { "id": "patterns", "title": "Patterns", "summary": "Cues, the patterns they suggest, and template shapes.", "file": "patterns.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["Steven Skiena, The Algorithm Design Manual, 3rd edition"] },
+    { "id": "graphs", "title": "Graphs", "summary": "Representations, the standard algorithms and their costs.", "file": "graphs.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["Cormen, Leiserson, Rivest, Stein, Introduction to Algorithms, 4th edition", "Sedgewick and Wayne, Algorithms, 4th edition"] },
+    { "id": "dynamic-programming", "title": "Dynamic programming", "summary": "When it applies, a recipe, and the classic shapes.", "file": "dynamic-programming.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["Cormen, Leiserson, Rivest, Stein, Introduction to Algorithms, 4th edition"] },
+    { "id": "system-design", "title": "System design", "summary": "Interview flow, numbers worth knowing, building blocks and consistency.", "file": "system-design.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["Martin Kleppmann, Designing Data-Intensive Applications", "Jeff Dean, Numbers Everyone Should Know (2009 talk)"] },
+    { "id": "sql", "title": "SQL", "summary": "Query order, joins, common patterns and pitfalls.", "file": "sql.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["PostgreSQL documentation (postgresql.org/docs)"] },
+    { "id": "concurrency", "title": "Concurrency", "summary": "Races, visibility, deadlock and the Java tools for each.", "file": "concurrency.md", "version": 1, "updated": "2026-10-24", "review": { "status": "draft" }, "sources": ["Brian Goetz et al., Java Concurrency in Practice", "java.util.concurrent API documentation (docs.oracle.com)"] }
+  ]
+}
